@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>{{ site.name }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/assets/css/main.css" />
+</head>
+<body>
+<h2>
+{% if page.homepage %}
+    {{ site.name }}
+{% else %}
+    <a href="{{ site.baseurl }}/">{{ site.name }}</a>
+{% endif %}
+</h2>
+<hr />
+{{ content }}
+</body>
+</html>
