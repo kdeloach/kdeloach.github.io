@@ -16,13 +16,11 @@
 </script>
 </head>
 <body>
-<h2>
 {% if page.homepage %}
-    {{ site.name }}
+    <h1>{{ site.name }}</h1>
 {% else %}
-    <a href="{{ site.baseurl }}/">{{ site.name }}</a>
+    <h2>&laquo; <a href="{{ site.baseurl }}/">{{ site.name }}</a></h2>
 {% endif %}
-</h2>
 <hr />
 {{ content }}
 </body>

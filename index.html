@@ -3,7 +3,7 @@ layout: default
 homepage: true
 ---
 {% for post in site.posts %}
-    <h1><a href="{{ post.url }}">{{ post.title }}</a></h1>
+    <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
     <p>{{ post.date | date:"%-m/%-d/%Y" }}</p>
     {{ post.content }}
 {% endfor %}
