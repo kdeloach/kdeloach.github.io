@@ -19,8 +19,10 @@ html {
 
 body {
   background: $white;
-  font: 18px/1.4 $georgia;
+  font: 18px/1.5 $georgia;
   color: $darkGray;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
@@ -32,7 +34,8 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: $darkerGray;
-  font-weight: bold;
+  font-family: $helveticaNeue;
+  font-weight: 500;
 
   line-height: 1.7;
   margin: 1em 0 15px;
@@ -115,6 +118,7 @@ img {
 }
 
 .date {
+  font-family: $helvetica;
   font-size: 16px;
   margin-top: -15px;
   color: $gray;
@@ -199,6 +203,7 @@ img {
 .site-description {
   margin: -5px 0 0 0;
   color: $gray;
+  font-family: $helveticaNeue;
   font-size: 16px;
 
   @include mobile {
@@ -210,6 +215,7 @@ nav {
   float: right;
   margin-top: 23px; // @TODO: Vertically middle align
   font-size: 18px;
+  font-family: $helvetica;
 
   @include mobile {
     float: none;
@@ -223,7 +229,6 @@ nav {
     color: $darkGray;
     text-align: right;
     font-weight: 300;
-    letter-spacing: 1px;
 
     @include mobile {
       margin: 0 10px;
@@ -236,38 +241,17 @@ nav {
 // .main
 //
 
+.posts {
+    margin-top: 1em;
+}
+
 .posts > .post {
-  padding-bottom: 2em;
-  border-bottom: 1px solid $lightGray;
 }
 
-.posts > .post:last-child {
-  padding-bottom: 1em;
-  border-bottom: none;
-}
-
-.post {
-  blockquote {
-    margin: 1.8em .8em;
-    border-left: 2px solid $gray;
-    padding: 0.1em 1em;
-    color: $gray;
-    font-size: 22px;
-    font-style: italic;
-  }
-
-  .comments {
-    margin-top: 10px;
-  }
-
-  .read-more {
-    text-transform: uppercase;
-    font-size: 15px;
-  }
+.posts > .post:first-child {
 }
 
 .wrapper-footer {
-  margin-top: 50px;
 }
 
 footer {
