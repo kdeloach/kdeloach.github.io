@@ -1,5 +1,5 @@
-$svg-large: 40px;
 $svg-small: 20px;
+$svg-large: 40px;
 
 .svg-icon {
   width: $svg-large;
@@ -28,4 +28,7 @@ footer .svg-icon {
   height: $svg-small;
   background-size: $svg-small;
   vertical-align: text-bottom;
+}
+footer > .social-icons {
+    margin: 15px 0;
 }
