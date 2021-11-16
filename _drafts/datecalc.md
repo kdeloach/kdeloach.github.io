@@ -1,0 +1,709 @@
+---
+title: Date Calculator
+slug: datecalc
+layout: post
+---
+
+I often need to perform simple date math and I wasn't satisfied with any of
+the existing tools available so I decided to create a domain specific language
+for date calculations.
+
+The final product is a recursive descent parser written in TypeScript which can
+parse and interpret simple date expressions.
+
+## Calculator
+
+<div id="box">
+<p class="label">Input:</p>
+<input type="text" id="input" autocomplete="off" value="12/25/2021 + 7 days" />
+<p class="label">Output:</p>
+<p id="output"></p>
+</div>
+
+<div id="toc" markdown="1">
+## Contents
+{:.no_toc}
+* TOC
+{:toc}
+</div>
+
+## Examples
+
+-   What is the date 30 days from now? <a href="javascript:;" onclick="update(this.innerText)">12/30/2021 + 30 days</a>
+-   How many days between 2 dates? <a href="javascript:;" onclick="update(this.innerText)">12/25/2020 - 12/25/2021</a>
+-   How many hours in a week? <a href="javascript:;" onclick="update(this.innerText)">1 week as hours</a>
+
+## Internal Structure
+
+The input expression above is parsed into the following tokens and syntax
+tree.
+
+Tokens:
+
+<pre id="tokens" class="highlight"></pre>
+
+AST:
+
+<pre id="ast" class="highlight"></pre>
+
+## Syntax
+
+The calculator supports adding and subtracting _date_ and _delta_ objects.
+
+Dates must be in `MM/DD/YYYY` format (ex. `11/24/2021`).
+
+Deltas must be in `<number> <unit>` format where `<number>` is a whole number
+and `<unit>` is one of: `second`, `minute`, `hour`, `day`, `week`, `month`, or
+`year`. For example, `24 hours`, `1 week`, or `30 years`.
+
+Deltas may be converted to another time unit by ending the expression in
+`as <unit>`. For example, `1 week as days` returns `7 days`.
+
+The output will be either a _date_ or _delta_ depending on the context.
+
+## Grammar
+
+Here's the language grammar in Backus–Naur form. You can use this to generate
+random valid programs with [BNF Playground][bnf].
+
+[bnf]: https://bnfplayground.pauliankline.com/
+
+```js
+<dateExpr>    ::= <dateOrDelta> <castExpr>? (<op> <dateExpr>)?
+
+<castExpr>    ::= <ws> "as" <ws> <unit>
+
+<dateOrDelta> ::= <date> | <delta>
+
+<date>        ::= <number> "/" <number> "/" <number>
+
+<delta>       ::= <number> <ws> <unit>
+
+<op>          ::= ("+" | "-")
+
+<number>      ::= [0-9]+
+
+<unit>        ::= ("millisecond" | "second" | "minute" | "hour"
+                    | "day" | "week" | "month" | "year") "s"?
+
+<ws>          ::= " "+
+```
+
+## Implementation
+
+The calculator works by lexing the input text into tokens, parsing the tokens
+into an abstract syntax tree (AST), then interpreting the results by resolving
+each node in the tree, to produce the final result.
+
+### Lexer
+
+The `tokenize` function scans through the program input text, one character at
+a time, and groups chunks of characters into `Tokens`.
+
+```ts
+function tokenize(program: string): Token[] {
+    let tokens: Token[] = [];
+    let stream = new Iterator(program);
+
+    function scanWord(): string {
+        let word = stream.current();
+        while (stream.hasNext() && isAlpha(stream.peek())) {
+            word += stream.next();
+        }
+        return word;
+    }
+
+    function scanNumber(): string {
+        let num = stream.current();
+        while (stream.hasNext() && isDigit(stream.peek())) {
+            num += stream.next();
+        }
+        return num;
+    }
+
+    while (stream.hasNext()) {
+        let c = stream.next();
+        if (c == " ") {
+            continue;
+        } else if (c == "/") {
+            tokens.push(new Token(TokenType.Slash));
+        } else if (c == "+") {
+            tokens.push(new Token(TokenType.Plus));
+        } else if (c == "-") {
+            tokens.push(new Token(TokenType.Minus));
+        } else if (isAlpha(c)) {
+            let word = scanWord().toLowerCase();
+            if (word == "as") {
+                tokens.push(new Token(TokenType.As));
+            } else if (word in UNIT_TO_ENUM) {
+                tokens.push(new Token(TokenType.Unit, UNIT_TO_ENUM[word]));
+            } else {
+                throw new ParseError(`unexpected unit: ${word}`);
+            }
+        } else if (isDigit(c)) {
+            tokens.push(new Token(TokenType.Number, scanNumber()));
+        } else {
+            throw new ParseError(`unexpected character: ${c}`);
+        }
+    }
+
+    return tokens;
+}
+```
+
+`TokenType` is an enum which represents all the "atoms" of the program. `Token`
+is a class which has a `tokenType` and optional `value`.
+
+For example, "+" is parsed as `Token(TokenType.Plus)` and "123" is parsed as
+`Token(TokenType.Number, "123")`.
+
+
+```ts
+enum TokenType {
+    Number = "NUMBER",
+    Unit = "UNIT",
+    Slash = "SLASH",
+    Plus = "PLUS",
+    Minus = "MINUS",
+    As = "AS",
+}
+
+class Token {
+    constructor(public tokenType: TokenType, public value: string = "") {}
+
+    toString() {
+        if (this.value) {
+            return `Token(${this.tokenType}, ${this.value})`;
+        }
+        return `Token(${this.tokenType})`;
+    }
+}
+```
+
+`UnitType` is an enum which represents all supported units of time.
+`UNIT_TO_ENUM` is a mapping to translate user input to enum values.
+
+```ts
+enum UnitType {
+    Millisecond = "MILLISECOND",
+    Second = "SECOND",
+    Minute = "MINUTE",
+    Hour = "HOUR",
+    Day = "DAY",
+    Week = "WEEK",
+    Month = "MONTH",
+    Year = "YEAR",
+}
+
+const UNIT_TO_ENUM: { [key: string]: UnitType } = {
+    millisecond: UnitType.Millisecond,
+    second: UnitType.Second,
+    minute: UnitType.Minute,
+    hour: UnitType.Hour,
+    day: UnitType.Day,
+    week: UnitType.Week,
+    month: UnitType.Month,
+    year: UnitType.Year,
+};
+```
+
+For good measure, the mapping also includes pluralized units.
+
+```ts
+for (let k in UNIT_TO_ENUM) {
+    UNIT_TO_ENUM[k + "s"] = UNIT_TO_ENUM[k];
+}
+```
+
+`Iterator` is a helper class to iterate over `Indexable` objects like `strings`
+and `arrays`. It's used by `tokenize` to iterate over the program input text
+and by `parse` to iterate over `Tokens`.
+
+```ts
+interface Indexable<T> {
+    [index: number]: T;
+    length: number;
+}
+
+class Iterator<T> {
+    index: number = -1;
+
+    constructor(private source: Indexable<T>) {}
+
+    hasNext(): boolean {
+        return this.index < this.source.length - 1;
+    }
+
+    next(): T {
+        return this.source[++this.index];
+    }
+
+    current(): T {
+        return this.source[this.index];
+    }
+
+    peek(): T {
+        return this.source[this.index + 1];
+    }
+}
+```
+
+`ParseError` is a custom exception used by the lexer, parser, and interpreter.
+
+```ts
+class ParseError {
+    constructor(public readonly message: string) {}
+
+    toString(): string {
+        return this.message;
+    }
+}
+```
+
+`isAlpha` and `isDigit` are simple helper functions to check if a single
+character is a letter or number.
+
+```ts
+function isAlpha(c: string): boolean {
+    return /[a-z]/.test(c);
+}
+
+function isDigit(c: string): boolean {
+    return /[0-9]/.test(c);
+}
+```
+
+### Parser
+
+Tokens produced from the lexing stage are assembled into an abstract syntax
+tree by the `parse` function.
+
+Each helper function within `parse` roughly corresponds to a rule in the
+language grammar.
+
+```ts
+function parse(tokens: Token[]): DateCalcNode {
+    let stream = new TokenIterator(tokens);
+
+    function parseProgram(): DateCalcNode {
+        let dateOrDelta = parseDateOrDelta();
+        return parseDateExpr(dateOrDelta);
+    }
+
+    function parseDateOrDelta(): DateCalcNode {
+        let token = stream.expect(TokenType.Number);
+        if (stream.hasNext()) {
+            let nextToken = stream.peek();
+            if (nextToken.tokenType == TokenType.Slash) {
+                return parseDate();
+            } else if (nextToken.tokenType == TokenType.Unit) {
+                return parseDelta();
+            }
+            throw new ParseError(`unexpected token: ${nextToken}`);
+        }
+        throw new ParseError(`unexpected token: ${token}`);
+    }
+
+    function parseDate(): DateCalcNode {
+        let m = stream.current();
+        stream.expect(TokenType.Slash);
+        let d = stream.expect(TokenType.Number);
+        stream.expect(TokenType.Slash);
+        let y = stream.expect(TokenType.Number);
+        return new DateNode(m, d, y);
+    }
+
+    function parseDelta(): DateCalcNode {
+        let amount = stream.current();
+        let unit = stream.expect(TokenType.Unit);
+        return new DeltaNode(amount, unit);
+    }
+
+    function parseDateExpr(left: DateCalcNode): DateCalcNode {
+        if (stream.hasNext()) {
+            let nextToken = stream.next();
+            if (nextToken.tokenType == TokenType.Plus) {
+                let dateOrDelta = parseDateOrDelta();
+                return parseDateExpr(new PlusNode(left, dateOrDelta));
+            } else if (nextToken.tokenType == TokenType.Minus) {
+                let dateOrDelta = parseDateOrDelta();
+                return parseDateExpr(new MinusNode(left, dateOrDelta));
+            } else if (nextToken.tokenType == TokenType.As) {
+                return parseCastExpr(left);
+            }
+            throw new ParseError(`unexpected token: ${nextToken}`);
+        }
+        return left;
+    }
+
+    function parseCastExpr(left: DateCalcNode): DateCalcNode {
+        let unit = stream.expect(TokenType.Unit);
+        let delta = new DeltaNode(new Token(TokenType.Number, "0"), unit);
+        return parseDateExpr(new PlusNode(left, delta));
+    }
+
+    let result = parseProgram();
+    if (stream.hasNext()) {
+        throw new ParseError(
+            `unexpected tokens after program end: ${tokens.splice(
+                stream.index + 1
+            )}`
+        );
+    }
+    return result;
+}
+```
+
+The implementation of `parseCastExpr` uses a trick to simplify the interpreter.
+
+For context, when adding together units of time in this calculator, the unit on the
+left is converted to the unit on the right. This happens even if the amount of
+time is 0. For example, the expression `1 minute + 0 seconds` yields `60
+seconds`.
+
+Therefore, we can simplify the interpreter by rewriting expressions
+in the form `<expr> as <unit>` to `<expr> + 0 <unit>`.
+
+`TokenIterator` is a helper class to iterate over an array of `Tokens`. It
+extends `Iterator` with one additional function to simplify parsing.
+
+```ts
+class TokenIterator extends Iterator<Token> {
+    expect(tokenType: TokenType): Token {
+        if (!this.hasNext()) {
+            throw new ParseError(`expected "${tokenType}" but got nothing`);
+        }
+        let token = super.next();
+        if (token.tokenType != tokenType) {
+            throw new ParseError(
+                `expected "${tokenType}" but got "${token.tokenType}"`
+            );
+        }
+        return token;
+    }
+}
+```
+
+`DateCalcNode` is an interface which all syntax tree nodes implement, primarily
+for type checking. These nodes represent the entire structure of the parsed
+expression.
+
+```ts
+interface DateCalcNode {}
+
+class DateNode implements DateCalcNode {
+    constructor(public m: Token, public d: Token, public y: Token) {}
+
+    toString(): string {
+        return `DateNode(${this.m}, ${this.d}, ${this.y})`;
+    }
+}
+
+class DeltaNode implements DateCalcNode {
+    constructor(public amount: Token, public unit: Token) {}
+
+    toString(): string {
+        return `DeltaNode(${this.amount}, ${this.unit})`;
+    }
+}
+
+class PlusNode implements DateCalcNode {
+    constructor(public left: DateCalcNode, public right: DateCalcNode) {}
+
+    toString(): string {
+        return `PlusNode(${this.left}, ${this.right})`;
+    }
+}
+
+class MinusNode implements DateCalcNode {
+    constructor(public left: DateCalcNode, public right: DateCalcNode) {}
+
+    toString(): string {
+        return `MinusNode(${this.left}, ${this.right})`;
+    }
+}
+```
+
+### Interpreter
+
+The syntax tree from the parsing stage is interpreted by `resolve`. This
+function recursively visits each node in the tree to produce the final result.
+
+`DateNode` and `DeltaNode` evaluate to scalar values `Date` and `Delta`,
+respectively, while `PlusNode` and `MinusNode` evaluate to operations which act
+on scalars.
+
+```ts
+function resolve(node: DateCalcNode): Date | Delta {
+    function visit(node: DateCalcNode): Date | Delta {
+        if (node instanceof DateNode) {
+            return visitDateNode(node);
+        } else if (node instanceof DeltaNode) {
+            return visitDeltaNode(node);
+        } else if (node instanceof PlusNode) {
+            return visitPlusNode(node);
+        } else if (node instanceof MinusNode) {
+            return visitMinusNode(node);
+        }
+        throw new ParseError(`unexpected node: ${node}`);
+    }
+
+    function visitDateNode(date: DateNode): Date {
+        let m = parseInt(date.m.value, 10);
+        let d = parseInt(date.d.value, 10);
+        let y = parseInt(date.y.value, 10);
+        return new Date(y, m - 1, d);
+    }
+
+    function visitDeltaNode(delta: DeltaNode): Delta {
+        let amount = parseInt(delta.amount.value, 10);
+        let unit = delta.unit.value as UnitType;
+        return new Delta(amount, unit);
+    }
+
+    function visitPlusNode(op: PlusNode): Date | Delta {
+        let left = visit(op.left);
+        let right = visit(op.right);
+        if (left instanceof Date && right instanceof Date) {
+            throw new ParseError(`adding dates is not supported`);
+        } else if (left instanceof Date && right instanceof Delta) {
+            return datePlusDelta(left, right);
+        } else if (left instanceof Delta && right instanceof Date) {
+            return datePlusDelta(right, left);
+        } else if (left instanceof Delta && right instanceof Delta) {
+            return deltaPlusDelta(left, right);
+        }
+        throw new ParseError(
+            `expected date or delta but got "${left}" and "${right}"`
+        );
+    }
+
+    function visitMinusNode(op: MinusNode): Date | Delta {
+        let left = visit(op.left);
+        let right = visit(op.right);
+        if (left instanceof Date && right instanceof Date) {
+            return dateMinusDate(left, right);
+        } else if (left instanceof Date && right instanceof Delta) {
+            return dateMinusDelta(left, right);
+        } else if (left instanceof Delta && right instanceof Date) {
+            throw new ParseError(
+                `subtracting date from delta is not supported`
+            );
+        } else if (left instanceof Delta && right instanceof Delta) {
+            return deltaMinusDelta(left, right);
+        }
+        throw new ParseError(
+            `expected date or delta but got "${left}" and "${right}"`
+        );
+    }
+
+    return visit(node);
+}
+```
+
+`Delta` is a scalar value which represents a unit of time like `1 day`, `30
+minutes`, etc.  It may be converted to another unit of time using the `toUnit`
+method.
+
+```ts
+class Delta {
+    constructor(public amount: number, public unit: UnitType) {}
+
+    toUnit(unit: UnitType): Delta {
+        let factor = getConversionFactor(this.unit) / getConversionFactor(unit);
+        return new Delta(this.amount * factor, unit);
+    }
+
+    toString(): string {
+        let unit = this.unit.toLowerCase();
+        if (this.amount != 1) {
+            unit += "s";
+        }
+        return `${this.amount} ${unit}`;
+    }
+}
+```
+
+No such class is needed for `Date` since it's built-in.
+
+`getConversionFactor` is a helper function to return the conversion factor for
+`UnitType` enum values.
+
+The conversion factor for each unit of time is based on the amount of
+milliseconds it represents. This is useful because `Date` objects may be
+converted to and from milliseconds.
+
+```ts
+const MILLISECOND = 1;
+const SECOND = 1000;
+const MINUTE = SECOND * 60;
+const HOUR = MINUTE * 60;
+const DAY = HOUR * 24;
+const WEEK = DAY * 7;
+const MONTH = DAY * 30.436875;
+const YEAR = DAY * 365.25;
+
+function getConversionFactor(unit: UnitType): number {
+    switch (unit) {
+        case UnitType.Millisecond:
+            return MILLISECOND;
+        case UnitType.Second:
+            return SECOND;
+        case UnitType.Minute:
+            return MINUTE;
+        case UnitType.Hour:
+            return HOUR;
+        case UnitType.Day:
+            return DAY;
+        case UnitType.Week:
+            return WEEK;
+        case UnitType.Month:
+            return MONTH;
+        case UnitType.Year:
+            return YEAR;
+        default:
+            throw new ParseError(`unexpected unit: ${unit}`);
+    }
+}
+```
+
+Finally, here are the functions which handle adding and subtracting date and
+delta objects. This is the core of the date calculator program.
+
+```ts
+function dateMinusDate(date: Date, other: Date): Delta {
+    let ms = Math.abs(date.getTime() - other.getTime());
+    let amount = ms / getConversionFactor(UnitType.Day);
+    return new Delta(amount, UnitType.Day);
+}
+
+function datePlusDelta(date: Date, delta: Delta): Date {
+    return new Date(date.getTime() + delta.toUnit(UnitType.Millisecond).amount);
+}
+
+function dateMinusDelta(date: Date, delta: Delta): Date {
+    return new Date(date.getTime() - delta.toUnit(UnitType.Millisecond).amount);
+}
+
+function deltaPlusDelta(left: Delta, right: Delta): Delta {
+    return new Delta(left.toUnit(right.unit).amount + right.amount, right.unit);
+}
+
+function deltaMinusDelta(left: Delta, right: Delta): Delta {
+    return new Delta(left.toUnit(right.unit).amount - right.amount, right.unit);
+}
+```
+
+## Next Steps
+
+Here's a list of features, fixes, and improvements that I'd like to make in
+future versions.
+
+- Improve output formatting (display `1.25 days` as `1 day 6 hours`)
+- Option to skip weekends, holidays, etc.
+- Add shortcuts for `now`, `today`, etc.
+- Support other date formats besides `MM/DD/YYYY`
+- Support general purpose math (`1 week * 5/7 as hours` should yield `120 hours`)
+- Better error messages
+- Unit tests
+
+## Conclusion
+
+The purpose of this project was to build a date calculator for myself, get
+hands on experience with TypeScript, and learn more about creating domain
+specific languages.
+
+I'm happy with the final product. Of course, a program is never really
+finished. I plan to keep using this and updating it until I've implemented
+everything on my wishlist.
+
+To learn more about parsers, interpreters, and compilers, I highly recommend
+reading [Crafting Interpreters](http://craftinginterpreters.com/) by Robert
+Nystrom. This book is an excellent resource for learning how to build
+programming languages from scratch.
+
+<style>
+#toc {
+    padding: 0 15px;
+}
+@media screen and (min-width: 1040px) {
+    #toc {
+        position: fixed;
+        top: 0;
+        right: 0;
+    }
+}
+#box {
+    display: flex;
+    flex-direction: column;
+    background: aliceblue;
+    border: 2px solid lightblue;
+    border-radius: 10px;
+    padding: 10px;
+}
+#box > p {
+    margin: 15px 0;
+}
+#box > .label {
+    margin-bottom: 0;
+}
+#input {
+    font-family: monospace;
+    font-size: 1.2em;
+}
+#output {
+    font-family: monospace;
+    font-size: 1.2em;
+    text-align: center;
+}
+.error {
+    color: red;
+}
+</style>
+
+<script src="{{ site.baseurl }}/scripts/datecalc.js"></script>
+
+<script>
+var inputEl = document.getElementById("input");
+var outputEl = document.getElementById("output");
+var tokensEl = document.getElementById("tokens");
+var astEl = document.getElementById("ast");
+var dateFmt = { dateStyle: "full", timeStyle: "short", hourCycle: "h23" };
+function update(value) {
+    inputEl.value = value;
+    var tokens;
+    var node;
+    try {
+        tokens = tokenize(value);
+        node = parse(tokens);
+        var result = resolve(node);
+        var output = (result instanceof Date) ? result.toLocaleString("en-US", dateFmt)
+            : result.toString();
+        outputEl.className = "";
+        outputEl.innerText = output;
+    } catch (ex) {
+        console.log(ex);
+        outputEl.className = "error";
+        outputEl.innerText = ex.toString();
+    }
+    try {
+        if (tokens.length) {
+            tokensEl.innerText = tokens.map(function(t) { return "- " + t; }).join('\n');
+        } else {
+            tokensEl.innerText = "(none)";
+        }
+        if (node) {
+            astEl.innerText = print(node);
+        } else {
+            astEl.innerText = "(none)";
+        }
+    } catch (ex) {
+    throw ex;
+        console.log(ex);
+    }
+}
+inputEl.onkeyup = function() {
+    update(inputEl.value);
+};
+update(inputEl.value);
+</script>

@@ -3,4 +3,5 @@ _site
 *.swp
 .sass-cache
 Gemfile.lock
-
+scripts/*.js
+**/dist/
