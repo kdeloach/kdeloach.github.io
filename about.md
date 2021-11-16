@@ -1,8 +1,7 @@
 ---
+title: About
 layout: page
 ---
-
-# About
 
 I'm a software engineer with a background in full stack web application
 development.
