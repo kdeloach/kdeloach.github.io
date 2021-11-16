@@ -1,0 +1,24 @@
+body {
+    color: #333;
+}
+
+header {
+    .site-name {
+        font-variant: small-caps;
+        font-size: 1.2em;
+    }
+    a {
+        text-decoration: none;
+    }
+}
+
+.date {
+    margin-top: -1em;
+    font-style: italic;
+}
+
+.page,
+.post,
+.posts {
+    max-width: 600px;
+}
