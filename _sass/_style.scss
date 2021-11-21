@@ -13,7 +13,6 @@ header {
     text-align: center;
 
     .site-name {
-        font-variant: small-caps;
         font-size: 1.5em;
         font-family: serif;
 
@@ -53,4 +52,11 @@ footer,
     img {
         max-width: 100%;
     }
+}
+
+.avatar {
+    width: 200px;
+    border-radius: 5px;
+    margin: 0 0 5px 5px;
+    float: right;
 }
