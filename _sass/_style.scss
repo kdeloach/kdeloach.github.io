@@ -6,6 +6,7 @@ body {
 pre {
     font-size: 10pt;
     line-height: 1.2em;
+    overflow: auto;
 }
 
 header {
@@ -59,4 +60,12 @@ footer,
     border-radius: 5px;
     margin: 0 0 5px 5px;
     float: right;
+}
+
+// Inline code blocks
+code.highlighter-rouge {
+    font-size: 0.85em;
+    border-radius: 6px;
+    padding: 0.2em 0.4em;
+    background: #eee;
 }
