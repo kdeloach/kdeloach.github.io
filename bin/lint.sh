@@ -5,3 +5,6 @@ docker run --rm \
     --entrypoint jekyll \
     github-pages \
     doctor
+
+# Spellcheck
+mdspell --en-us --ignore-numbers --ignore-acronyms --report "**/*.md"
