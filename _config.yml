@@ -27,5 +27,6 @@ exclude:
   - LICENSE
   - README.md
   - Dockerfile
+  - docker-compose.yml
   - bin/
   - node_modules/

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build . -t github-pages
+docker-compose build
