@@ -21,3 +21,6 @@ exclude:
   - LICENSE
   - README.md
   - CNAME
+  - Dockerfile
+  - bin/
+  - node_modules/
