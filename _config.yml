@@ -7,7 +7,12 @@ url: https://kdeloach.me
 
 baseurl: ""
 
-permalink: /:slug:output_ext
+permalink: /:slug
+
+collections:
+   pages:
+     output: true
+     permalink: /:path
 
 # Use the following plug-ins
 plugins:
