@@ -1,10 +1,10 @@
 #!/bin/bash
 
-docker run --rm \
-    -v "$PWD":/usr/src/app \
-    --entrypoint jekyll \
+docker run -it --rm \
+    -v "$PWD":/srv/jekyll \
     github-pages \
-    doctor
+    jekyll doctor
 
 # Spellcheck
-mdspell --en-us --ignore-numbers --ignore-acronyms --report "**/*.md"
+mdspell --en-us --ignore-numbers --ignore-acronyms --report \
+    "**/*.md" "!**/node_modules/**/*.md"

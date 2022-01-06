@@ -1,5 +1,6 @@
-name: Kevin DeLoach
+title: Kevin DeLoach
 description: Software Engineer, Philadelphia, PA
+repository: kdeloach/kdeloach.github.io
 
 # Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
 # Used for Sitemap.xml and your RSS feed
@@ -25,7 +26,6 @@ exclude:
   - Gemfile.lock
   - LICENSE
   - README.md
-  - CNAME
   - Dockerfile
   - bin/
   - node_modules/
