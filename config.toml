@@ -1,0 +1,36 @@
+baseURL = 'https://kdeloach.me/'
+languageCode = 'en-us'
+title = 'Kevin DeLoach'
+
+enableGitInfo = true
+enableRobotsTXT = true
+
+[author]
+  name = "Kevin DeLoach"
+  email = "kdeloach@gmail.com"
+
+[params]
+  description = 'Software Engineer, Philadelphia, PA'
+
+# posts, tags, categories?
+disableKinds = ['taxonomy', 'term', 'section']
+
+[permalinks]
+  posts = '/:slug/'
+
+[markup]
+  [markup.highlight]
+    anchorLineNos = false
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ''
+    lineAnchors = ''
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = false
+    style = 'lovelace'
+    tabWidth = 4
+
+[markup.goldmark.renderer]
+  unsafe = true

@@ -1,15 +1,17 @@
 ---
 title: Date Calculator
 slug: datecalc
-layout: post
+date: 2021-12-30
 last_modified: 2022-01-09
-excerpt: >
-    I often need to perform simple date math and I wasn't satisfied with any of
-    the existing tools available so I decided to create my own domain specific
-    language for date calculations.
 ---
 
 <div data-component="DateCalcForm" data-prop-s-initial="12/25/2021 + 7 days"></div>
+
+## Summary
+
+I often need to perform simple date math and I wasn't satisfied with any of the
+existing tools available so I decided to create my own domain specific language
+for date calculations.
 
 ## Syntax
 

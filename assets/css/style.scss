@@ -29,13 +29,15 @@ header {
 }
 
 footer {
+    padding: 10px 0;
+    margin: 10px 0;
     font-size: 0.9em;
     text-align: center;
+    color: #999;
 }
 
 .date {
     font-size: 0.9em;
-    font-style: italic;
     margin: -0.8em 0 1em;
 }
 
@@ -49,10 +51,9 @@ footer,
     margin-right: auto;
 }
 
-.post {
-    img {
-        max-width: 100%;
-    }
+.posts h2 > a {
+    color: #000;
+    text-decoration: none;
 }
 
 .avatar {
@@ -62,10 +63,19 @@ footer,
     float: right;
 }
 
-// Inline code blocks
-code.highlighter-rouge {
-    font-size: 0.85em;
-    border-radius: 6px;
-    padding: 0.2em 0.4em;
-    background: #eee;
+@import "lovelace";
+
+p,
+li {
+    code {
+        background: #eee;
+        border-radius: 5px;
+        padding: 0.1em 0.2em;
+        font-size: 0.9em;
+    }
+}
+
+.highlight > pre.chroma {
+    background: #f9f9f9;
+    padding: 5px;
 }

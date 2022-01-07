@@ -3,7 +3,7 @@ title: About
 layout: page
 ---
 
-<img src="{{ site.baseurl}}/assets/kdeloach.jpg" class="avatar" alt="Image of Kevin DeLoach" />
+<img src="/images/kdeloach.jpg" class="avatar" alt="Image of Kevin DeLoach" />
 
 My name is Kevin DeLoach and I'm a software engineer with a background in full
 stack web application development.
