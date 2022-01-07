@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+{{ hugo.Generator }}
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="author" content="{{ .Site.Author.name }}">
+<meta name="description" content="{{ .Site.Params.description }}">
+<title>{{ with .Page.Title }}{{ . }} – {{ end }}{{ .Site.Title }} – {{ .Site.Params.description }}</title>
+<link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}" />
+<link rel="sitemap" type="application/xml" title="Sitemap" href="{{ "sitemap.xml" | relURL }}" />
+{{- $style := resources.Get "css/style.scss" | resources.ToCSS }}
+{{- if hugo.IsProduction }}
+{{- $style = $style | minify | fingerprint }}
+{{- end }}
+<link rel="stylesheet" type="text/css" href="{{ $style.RelPermalink }}" />
+{{ range .AlternativeOutputFormats -}}
+    {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
+{{ end -}}
+<body>
+<header>
+  <div class="site-name"><a href="{{ "/" | relURL }}">{{ .Site.Title }}</a></div>
+  <nav>
+    <a href="{{ "/" | relURL }}">Home</a>
+    &#x2219; <a href="{{ "about" | relURL }}">About</a>
+    &#x2219; <a href="{{ "Resume.pdf" | relURL }}">Resume</a>
+    &#x2219; <a href="https://github.com/kdeloach">GitHub</a>
+    &#x2219; <a href="{{ "feed.xml" | relURL }}">RSS</a>
+  </nav>
+</header>
+{{- block "main" . }}{{- end }}
+<footer>
+Generated with <a href="https://gohugo.io/">Hugo</a> on {{ now.Format "Jan 2, 2006" }}
+{{- if .GitInfo }}
+&#x2219; <a href="{{ .Site.Params.repository }}/commit/{{ .GitInfo.Hash }}">{{ .GitInfo.AbbreviatedHash }}</a>
+{{- end }}
+</footer>
+{{- $bundle := resources.Get "js/bundle.js" }}
+{{- if hugo.IsProduction }}
+{{- $bundle = $bundle | fingerprint }}
+{{- end }}
+<script src="{{ $bundle.RelPermalink }}"></script>
+</body>
+</html>

@@ -1,9 +1,9 @@
 ---
 title: Date Calculator
 slug: datecalc
-layout: post
-last_modified: 2022-01-09
-excerpt: >
+date: 2021-12-30
+last_modified: 2022-01-10
+summary: >
     I often need to perform simple date math and I wasn't satisfied with any of
     the existing tools available so I decided to create my own domain specific
     language for date calculations.
@@ -11,11 +11,17 @@ excerpt: >
 
 <div data-component="DateCalcForm" data-prop-s-initial="12/25/2021 + 7 days"></div>
 
+---
+
+## Introduction
+
+{{< param summary >}}
+
 ## Syntax
 
 The calculator supports adding and subtracting _date_ and _delta_ objects.
 
-Dates must be in `MM/DD/YYYY` format (ex. `11/24/2021`).
+Dates must be in `MM/DD/YYYY` format.
 
 Deltas must be in `<number> <unit>` format where `<number>` is a whole number
 and `<unit>` is one of: `second`, `minute`, `hour`, `day`, `week`, `month`, or
@@ -347,8 +353,7 @@ class TokenIterator extends Iterator<Token> {
 ```
 
 `DateCalcNode` is an interface which all syntax tree nodes implement, primarily
-for type checking. These nodes represent the entire structure of the parsed
-expression.
+for type checking.
 
 ```ts
 interface DateCalcNode {}
@@ -388,8 +393,9 @@ class MinusNode implements DateCalcNode {
 
 ### Interpreter
 
-The syntax tree from the parsing stage is interpreted by `resolve`. This
-function recursively visits each node in the tree to produce the final result.
+The syntax tree from the parsing stage is interpreted by the `resolve`
+function. This function recursively visits each node in the tree to produce the
+final result.
 
 `DateNode` and `DeltaNode` evaluate to scalar values `Date` and `Delta`,
 respectively, while `PlusNode` and `MinusNode` evaluate to operations which act
@@ -486,7 +492,7 @@ class Delta {
 }
 ```
 
-No such class is needed for `Date` since it's built-in.
+`Date` is built-in so we don't need to create a class for this scalar value.
 
 `getConversionFactor` is a helper function to return the conversion factor for
 `UnitType` enum values.
@@ -530,7 +536,7 @@ function getConversionFactor(unit: UnitType): number {
 ```
 
 Finally, here are the functions which handle adding and subtracting date and
-delta objects. This is the core of the date calculator program.
+delta objects. This is the core logic of the date calculator program.
 
 ```ts
 function dateMinusDate(date: Date, other: Date): Delta {
@@ -575,7 +581,7 @@ The purpose of this project was to build a date calculator for myself, get
 hands on experience with TypeScript, and learn more about creating domain
 specific languages.
 
-I'm happy with the final product. Of course, a program is never really
+I'm happy with the final product. Of course, a program is never truly
 finished. I plan to keep updating this until I've implemented everything on my
 wishlist.
 

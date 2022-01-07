@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo npm i markdown-spellcheck -g
+npm i markdown-spellcheck -g

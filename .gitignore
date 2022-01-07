@@ -1,7 +1,9 @@
-_site
 .DS_Store
 *.swp
 .sass-cache
-**/dist/
 node_modules/
 assets/js/
+bin/hugo*
+.hugo*
+public/
+resources/

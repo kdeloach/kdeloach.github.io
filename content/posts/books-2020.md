@@ -1,12 +1,14 @@
 ---
 title: Books Read in 2020
 slug: books-2020
-layout: post
+date: 2021-02-04
+summary: >
+    I read 27 books in 2020. Mostly science fiction, followed by software
+    development, and productivity. Here's a brief summary of the top 3 books I
+    read this year as well as the full list.
 ---
 
-I read 27 books in 2020. Mostly science fiction, followed by software
-development, and productivity. Here's a brief summary of the top 3 books I read
-this year as well as the full list.
+{{< param summary >}}
 
 ## Highlights
 

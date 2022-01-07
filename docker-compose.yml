@@ -1,18 +1,16 @@
 version: "3.9"
 
 services:
-  jekyll:
+  hugo:
     build:
       context: .
-      dockerfile: Dockerfile.jekyll
+      dockerfile: Dockerfile.hugo
     ports:
-      - "4000:4000"
+      - "1313:1313"
       - "35729:35729"
     volumes:
-      - .:/srv/jekyll
-    command: >
-      serve --host 0.0.0.0 --port 4000 --drafts
-      --livereload --livereload-port 35729
+      - .:/srv/app
+    command: hugo server -D --bind 0.0.0.0
   webpack:
     build:
       context: .

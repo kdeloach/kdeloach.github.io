@@ -1,4 +1,4 @@
-name: Build Jekyll site
+name: Build site
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
     - name: Lint
       run: ./bin/lint.sh
 
-    - name: Build Jekyll site
+    - name: Build site
       run: ./bin/build.sh
 
     - name: Commit to gh-pages branch
@@ -29,9 +29,7 @@ jobs:
         git checkout --orphan gh-pages
         git rm -rf .
         rm -rf assets/
-        git add _site
-        git mv _site/* .
-        touch .nojekyll
-        git add .nojekyll
+        git add public/
+        git mv public/* .
         git commit -m 'Build site from CI'
         git push -f origin HEAD

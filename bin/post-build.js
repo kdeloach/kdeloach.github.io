@@ -2,10 +2,22 @@ import fs from "fs";
 import { JSDOM } from "jsdom";
 import path from "path";
 
-const srcDir = path.resolve("_site");
-const bundlePath = path.resolve(srcDir, "assets/js/bundle.js");
+const srcDir = path.resolve("public");
+
+const bundlePath = findBundle(path.resolve(srcDir, "js"));
+console.log("Loading bundle " + bundlePath);
 
 const bundleCode = fs.readFileSync(bundlePath).toString();
+
+function findBundle(dir) {
+    let match = null;
+    walk(dir, (fpath, fname) => {
+        if (fname.startsWith("bundle.")) {
+            match = fpath;
+        }
+    });
+    return match;
+}
 
 function walk(dir, cb) {
     fs.readdirSync(dir).forEach(function (fname) {
@@ -13,7 +25,7 @@ function walk(dir, cb) {
         if (fs.statSync(fpath).isDirectory()) {
             walk(fpath, cb);
         } else {
-            cb(fpath);
+            cb(fpath, fname);
         }
     });
 }

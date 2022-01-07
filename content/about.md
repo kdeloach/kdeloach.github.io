@@ -1,9 +1,9 @@
 ---
 title: About
-layout: page
+last_modified: 2022-01-10
 ---
 
-<img src="{{ site.baseurl}}/assets/kdeloach.jpg" class="avatar" alt="Image of Kevin DeLoach" />
+<img src="/images/kdeloach.jpg" class="avatar" alt="Image of Kevin DeLoach" />
 
 My name is Kevin DeLoach and I'm a software engineer with a background in full
 stack web application development.
@@ -17,5 +17,3 @@ automation, and building web applications end-to-end.
 
 Previously, I worked for IBM Tealeaf, Azavea, TellusLabs, Warner Bros. Digital
 Labs, and Penn Interactive Ventures.
-
-I'm currently self-employed.

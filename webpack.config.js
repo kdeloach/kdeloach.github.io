@@ -5,7 +5,7 @@ const mode = process.env.NODE_ENV || "development";
 
 const config = {
   mode: mode,
-  entry: "./_scripts/index.tsx",
+  entry: "./scripts/index.tsx",
   module: {
     rules: [
       {
@@ -29,7 +29,7 @@ const config = {
   },
   output: {
     filename: "bundle.js",
-    path: path.resolve("assets", "js"),
+    path: path.resolve("assets/js"),
   },
   plugins: [
     new ForkTsCheckerWebpackPlugin({

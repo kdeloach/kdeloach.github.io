@@ -1,0 +1,15 @@
+{{ define "main" }}
+<main>
+  <article class="page">
+    <h1>{{ .Title }}</h1>
+    {{ if .Params.last_modified }}
+    <div class="date">
+       Updated {{ .Params.last_modified | dateFormat "Jan 2, 2006" }}
+    </div>
+    {{ end }}
+    <div class="content">
+      {{ .Content }}
+    </div>
+  </article>
+</main>
+{{ end }}
