@@ -1,6 +1,7 @@
 #!/bin/bash
 
-docker run -it --rm \
-    -v "$PWD":/usr/src/app \
+docker run --rm \
+    -v "$PWD":/srv/jekyll \
+    --user $(id -u):$(id -g) \
     github-pages \
     jekyll build

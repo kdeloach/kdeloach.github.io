@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="author" content="Kevin DeLoach">
 <meta name="description" content="{{ site.description }}">
-<title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }} – {{ site.description }}</title>
+<title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.title }} – {{ site.description }}</title>
 <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
-<link rel="alternate" type="application/rss+xml" title="{{ site.name }} - {{ site.description }}" href="{{ site.baseurl }}/feed.xml" />
+<link rel="alternate" type="application/rss+xml" title="{{ site.title }} - {{ site.description }}" href="{{ site.baseurl }}/feed.xml" />
 </head>
 <body>
 <header>
-    <div class="site-name"><a href="{{ site.baseurl }}/">{{ site.name }}</a></div>
+    <div class="site-name"><a href="{{ site.baseurl }}/">{{ site.title }}</a></div>
     <nav>
         <a href="{{ site.baseurl }}/">Home</a>
         &bull; <a href="{{ site.baseurl }}{% link _pages/about.md %}">About</a>
