@@ -1,0 +1,12 @@
+FROM node:lts-alpine3.14
+
+COPY package.json .
+COPY yarn.lock .
+
+RUN yarn install
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+ENTRYPOINT ["npx", "webpack"]

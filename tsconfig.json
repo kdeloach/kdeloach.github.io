@@ -1,0 +1,13 @@
+{
+    "include": ["./_scripts/**/*"],
+    "compilerOptions": {
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "jsx": "react",
+        "module": "es6",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "target": "es5"
+    }
+}
