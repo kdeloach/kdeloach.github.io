@@ -18,8 +18,6 @@ class Token {
     }
 }
 
-///
-
 enum UnitType {
     Millisecond = "MILLISECOND",
     Second = "SECOND",
@@ -77,8 +75,6 @@ function getConversionFactor(unit: UnitType): number {
     }
 }
 
-///
-
 interface DateCalcNode {}
 
 class DateNode implements DateCalcNode {
@@ -112,8 +108,6 @@ class MinusNode implements DateCalcNode {
         return `MinusNode(${this.left}, ${this.right})`;
     }
 }
-
-///
 
 interface Indexable<T> {
     [index: number]: T;
@@ -173,7 +167,11 @@ function isDigit(c: string): boolean {
     return /[0-9]/.test(c);
 }
 
-function tokenize(program: string): Token[] {
+export function tokenize(program: string): Token[] {
+    if (!program) {
+        return null;
+    }
+
     let tokens: Token[] = [];
     let stream = new Iterator(program);
 
@@ -222,7 +220,11 @@ function tokenize(program: string): Token[] {
     return tokens;
 }
 
-function parse(tokens: Token[]): DateCalcNode {
+export function parse(tokens: Token[]): DateCalcNode {
+    if (!tokens) {
+        return null;
+    }
+
     let stream = new TokenIterator(tokens);
 
     function parseProgram(): DateCalcNode {
@@ -293,8 +295,6 @@ function parse(tokens: Token[]): DateCalcNode {
     return result;
 }
 
-///
-
 class Delta {
     constructor(public amount: number, public unit: UnitType) {}
 
@@ -334,7 +334,7 @@ function deltaMinusDelta(left: Delta, right: Delta): Delta {
     return new Delta(left.toUnit(right.unit).amount - right.amount, right.unit);
 }
 
-function resolve(node: DateCalcNode): Date | Delta {
+export function resolve(node: DateCalcNode): Date | Delta {
     function visit(node: DateCalcNode): Date | Delta {
         if (node instanceof DateNode) {
             return visitDateNode(node);
@@ -400,7 +400,22 @@ function resolve(node: DateCalcNode): Date | Delta {
     return visit(node);
 }
 
-function print(node: DateCalcNode): string {
+export function formatTokens(tokens: Token[]): string {
+    if (!tokens) {
+        return "";
+    }
+    return tokens
+        .map(function (t) {
+            return "- " + t;
+        })
+        .join("\n");
+}
+
+export function formatAst(node: DateCalcNode): string {
+    if (!node) {
+        return "";
+    }
+
     const buf: string[] = [];
 
     function writeIndent(line: string, indent: number) {
