@@ -281,7 +281,7 @@ export function parse(tokens: Token[]): DateCalcNode {
     function parseCastExpr(left: DateCalcNode): DateCalcNode {
         let unit = stream.expect(TokenType.Unit);
         let delta = new DeltaNode(new Token(TokenType.Number, "0"), unit);
-        return parseDateExpr(new PlusNode(left, delta));
+        return parseDateExpr(new PlusNode(delta, left));
     }
 
     let result = parseProgram();
@@ -327,11 +327,11 @@ function dateMinusDelta(date: Date, delta: Delta): Date {
 }
 
 function deltaPlusDelta(left: Delta, right: Delta): Delta {
-    return new Delta(left.toUnit(right.unit).amount + right.amount, right.unit);
+    return new Delta(left.amount + right.toUnit(left.unit).amount, left.unit);
 }
 
 function deltaMinusDelta(left: Delta, right: Delta): Delta {
-    return new Delta(left.toUnit(right.unit).amount - right.amount, right.unit);
+    return new Delta(left.amount - right.toUnit(left.unit).amount, left.unit);
 }
 
 export function resolve(node: DateCalcNode): Date | Delta {
