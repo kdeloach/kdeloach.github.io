@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import path from "path";

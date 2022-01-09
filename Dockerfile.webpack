@@ -1,12 +1,10 @@
 FROM node:lts-alpine3.14
 
-COPY package.json .
-COPY yarn.lock .
+ENV NPM_CONFIG_UPDATE_NOTIFIER false
 
+COPY package.json yarn.lock ./
 RUN yarn install
 
 WORKDIR /usr/src/app
-
-COPY . .
 
 ENTRYPOINT ["npx", "webpack"]

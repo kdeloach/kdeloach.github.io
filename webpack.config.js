@@ -2,7 +2,7 @@ import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import path from "path";
 
 export default {
-  mode: "development",
+  mode: process.env.NODE_ENV || "development",
   entry: "./_scripts/index.tsx",
   module: {
     rules: [

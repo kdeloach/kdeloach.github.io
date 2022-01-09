@@ -4,4 +4,4 @@ _site
 .sass-cache
 **/dist/
 node_modules/
-assets/js/bundle.js
+assets/js/
