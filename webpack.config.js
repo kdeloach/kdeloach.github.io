@@ -1,8 +1,10 @@
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import path from "path";
 
-export default {
-  mode: process.env.NODE_ENV || "development",
+const mode = process.env.NODE_ENV || "development";
+
+const config = {
+  mode: mode,
   entry: "./_scripts/index.tsx",
   module: {
     rules: [
@@ -35,3 +37,9 @@ export default {
     }),
   ],
 };
+
+if (mode !== "production") {
+  config.devtool = "eval-cheap-module-source-map";
+}
+
+export default config;
