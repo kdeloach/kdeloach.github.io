@@ -22,7 +22,11 @@ function bindComponents(components: ComponentMap) {
         }
 
         const reactEl = React.createElement(comp, props);
-        ReactDOM.render(reactEl, el);
+        if (process.env.NODE_ENV === "production") {
+            ReactDOM.hydrate(reactEl, el);
+        } else {
+            ReactDOM.render(reactEl, el);
+        }
     });
 }
 
