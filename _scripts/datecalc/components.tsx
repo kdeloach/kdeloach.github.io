@@ -1,7 +1,6 @@
-import { AppContext } from "../context";
 import { ComponentMap } from "../types";
 import { tokenize, parse, resolve, formatTokens, formatAst } from "./datecalc";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 interface DateCalcFormProps {
     initial: string;
@@ -18,16 +17,13 @@ const dateFmt: Intl.DateTimeFormatOptions = {
 };
 
 const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
-    const { state, setState } = useContext(AppContext);
-
-    useEffect(() => {
-        if (!state) {
-            setState(initial);
-        }
-    }, []);
+    const [state, setState] = useState(initial);
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setState(e.target.value);
+    };
+    const onClick = (value: string) => {
+        setState(value);
     };
 
     let tokens, ast, result, output, err;
@@ -71,18 +67,39 @@ const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
                     <pre>{(ast && formatAst(ast)) || "(none)"}</pre>
                 </div>
             </div>
+            <h2 id="examples">Examples</h2>
+            <ul>
+                <li>
+                    What is the date 30 days from now?{" "}
+                    <DateCalcLink
+                        value="12/30/2021 + 30 days"
+                        onClick={onClick}
+                    />
+                </li>
+                <li>
+                    How many days between 2 dates?{" "}
+                    <DateCalcLink
+                        value="12/25/2020 - 12/25/2021"
+                        onClick={onClick}
+                    />
+                </li>
+                <li>
+                    How many hours in a week?{" "}
+                    <DateCalcLink value="1 week as hours" onClick={onClick} />
+                </li>
+            </ul>
         </>
     );
 };
 
 interface DateCalcLinkProps {
     value: string;
+    onClick: (value: string) => void;
 }
 
-const DateCalcLink: React.FC<DateCalcLinkProps> = ({ value }) => {
-    const { setState } = useContext(AppContext);
+const DateCalcLink: React.FC<DateCalcLinkProps> = ({ value, onClick }) => {
     return (
-        <a href="#" onClick={() => setState(value)}>
+        <a href="#" onClick={() => onClick(value)}>
             {value}
         </a>
     );
