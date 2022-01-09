@@ -99,7 +99,13 @@ interface DateCalcLinkProps {
 
 const DateCalcLink: React.FC<DateCalcLinkProps> = ({ value, onClick }) => {
     return (
-        <a href="#" onClick={() => onClick(value)}>
+        <a
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                onClick(value);
+            }}
+        >
             {value}
         </a>
     );
