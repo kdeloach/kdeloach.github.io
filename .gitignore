@@ -3,7 +3,6 @@
 .sass-cache
 node_modules/
 assets/js/
-bin/hugo*
 .hugo*
 public/
 resources/
