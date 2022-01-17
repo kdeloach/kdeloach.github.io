@@ -3,8 +3,8 @@
   <article class="post">
     <h1>{{ .Title }}</h1>
     <div class="date">
-      Published {{ .Date.Format "Jan 2, 2006" }}
-       {{ with .Params.last_modified }} &ndash; Updated {{ . | dateFormat "Jan 2, 2006" }}{{ end }}
+      {{ .Date.Format "Jan 2, 2006" }}
+      {{ with .Params.last_modified }} &ndash; Updated {{ . | dateFormat "Jan 2, 2006" }}{{ end }}
     </div>
     <div class="content">
       {{ .Content }}
