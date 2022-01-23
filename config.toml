@@ -7,6 +7,8 @@ enableRobotsTXT = true
 disableKinds = ['taxonomy', 'term', 'section']
 cleanDestinationDir = true
 
+ignoreFiles = ['\.tsx?$']
+
 [author]
   name = "Kevin DeLoach"
   email = "kdeloach@gmail.com"

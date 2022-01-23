@@ -1,5 +1,5 @@
 {
-    "include": ["./scripts/**/*"],
+    "include": ["./content/**/*"],
     "compilerOptions": {
         "allowJs": true,
         "allowSyntheticDefaultImports": true,

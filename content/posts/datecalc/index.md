@@ -9,7 +9,7 @@ summary: >
     language for date calculations.
 ---
 
-<div data-component="DateCalcForm" data-prop-s-initial="12/25/2021 + 7 days"></div>
+<div id="dateCalcForm" data-component=""></div>
 
 ---
 
