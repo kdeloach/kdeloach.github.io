@@ -589,38 +589,3 @@ To learn more about parsers, interpreters, and compilers, I highly recommend
 reading [Crafting Interpreters](http://craftinginterpreters.com/) by Robert
 Nystrom. This book is an excellent resource for learning how to build
 programming languages from scratch.
-
-<style>
-.calc {
-    display: flex;
-    flex-direction: column;
-    background: aliceblue;
-    border: 2px solid lightblue;
-    border-radius: 10px;
-    padding: 10px;
-}
-.calc > p {
-    margin: 15px 0;
-}
-.calc > .label {
-    margin-bottom: 0;
-}
-.calc > input {
-    font-family: monospace;
-    font-size: 1.2em;
-}
-.output {
-    font-family: monospace;
-    font-size: 1.2em;
-    text-align: center;
-}
-.error {
-    color: red;
-}
-.tokens {
-    display: flex;
-}
-.tokens > .col {
-    flex-grow: 1;
-}
-</style>
