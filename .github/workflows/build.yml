@@ -1,8 +1,6 @@
-name: Build site
+name: Build and deploy
 
-on:
-  push:
-    branches: [ master ]
+on: push
 
 jobs:
   build:
@@ -33,4 +31,11 @@ jobs:
         shopt -s dotglob  # to move .nojekyll
         git mv public/* .
         git commit -m 'Build site from CI'
-        git push -f origin HEAD
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - name: Deploy gh-pages
+      run: git push -f origin HEAD
