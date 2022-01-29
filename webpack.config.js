@@ -3,43 +3,47 @@ import path from "path";
 
 const mode = process.env.NODE_ENV || "development";
 
+const baseDir = path.resolve("./content/posts");
+
 const config = {
-  mode: mode,
-  entry: "./scripts/index.tsx",
-  module: {
-    rules: [
-      {
-        test: /\.(ts|js)x?$/i,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: [
-              "@babel/preset-env",
-              "@babel/preset-react",
-              "@babel/preset-typescript",
-            ],
-          },
-        },
-      },
+    mode: mode,
+    entry: {
+        "datecalc/dist/bundle": path.resolve(baseDir, "datecalc/src/index.tsx"),
+    },
+    output: {
+        filename: "[name].js",
+        path: baseDir,
+    },
+    module: {
+        rules: [
+            {
+                test: /\.(ts|js)x?$/i,
+                exclude: /node_modules/,
+                use: {
+                    loader: "babel-loader",
+                    options: {
+                        presets: [
+                            "@babel/preset-env",
+                            "@babel/preset-react",
+                            "@babel/preset-typescript",
+                        ],
+                    },
+                },
+            },
+        ],
+    },
+    resolve: {
+        extensions: [".tsx", ".ts", ".js"],
+    },
+    plugins: [
+        new ForkTsCheckerWebpackPlugin({
+            async: false,
+        }),
     ],
-  },
-  resolve: {
-    extensions: [".tsx", ".ts", ".js"],
-  },
-  output: {
-    filename: "bundle.js",
-    path: path.resolve("assets/js"),
-  },
-  plugins: [
-    new ForkTsCheckerWebpackPlugin({
-      async: false,
-    }),
-  ],
 };
 
 if (mode !== "production") {
-  config.devtool = "eval-cheap-module-source-map";
+    config.devtool = "eval-cheap-module-source-map";
 }
 
 export default config;

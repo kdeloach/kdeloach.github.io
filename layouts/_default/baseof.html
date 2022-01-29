@@ -13,6 +13,13 @@
 {{- $style = $style | minify | fingerprint }}
 {{- end }}
 <link rel="stylesheet" type="text/css" href="{{ $style.RelPermalink }}" />
+{{- $style2 := .Resources.GetMatch "style.css" }}
+{{- if $style2 }}
+{{- if hugo.IsProduction }}
+{{- $style2 = $style2 | minify | fingerprint }}
+{{- end }}
+<link rel="stylesheet" type="text/css" href="{{ $style2.RelPermalink }}" />
+{{- end }}
 {{ range .AlternativeOutputFormats -}}
     {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
 {{ end -}}
@@ -34,10 +41,12 @@ Generated with <a href="https://gohugo.io/">Hugo</a> on {{ now.Format "Jan 2, 20
 &#x2219; <a href="{{ .Site.Params.repository }}/commit/{{ .GitInfo.Hash }}">{{ .GitInfo.AbbreviatedHash }}</a>
 {{- end }}
 </footer>
-{{- $bundle := resources.Get "js/bundle.js" }}
+{{- $bundle := .Resources.GetMatch "dist/bundle.js" }}
+{{- if $bundle }}
 {{- if hugo.IsProduction }}
 {{- $bundle = $bundle | fingerprint }}
 {{- end }}
 <script src="{{ $bundle.RelPermalink }}"></script>
+{{- end }}
 </body>
 </html>

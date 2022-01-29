@@ -1,22 +1,25 @@
 import fs from "fs";
-import { JSDOM } from "jsdom";
+import { JSDOM, ResourceLoader } from "jsdom";
 import path from "path";
 
-const srcDir = path.resolve("public");
+const bundleRe = /bundle\.[a-z0-9]+\.js$/;
 
-const bundlePath = findBundle(path.resolve(srcDir, "js"));
-console.log("Loading bundle " + bundlePath);
+const siteURL = "http://localhost";
+const publicPath = path.resolve("/usr/src/app/public");
 
-const bundleCode = fs.readFileSync(bundlePath).toString();
-
-function findBundle(dir) {
-    let match = null;
-    walk(dir, (fpath, fname) => {
-        if (fname.startsWith("bundle.")) {
-            match = fpath;
+class CustomResourceLoader extends ResourceLoader {
+    fetch(url, options) {
+        const match = bundleRe.exec(url);
+        if (match) {
+            let relPath = url.replace(siteURL, "");
+            if (relPath.startsWith("/")) {
+                relPath = relPath.slice(1);
+            }
+            const fpath = path.resolve(publicPath, relPath);
+            this.bundlePath = fpath;
         }
-    });
-    return match;
+        return null;
+    }
 }
 
 function walk(dir, cb) {
@@ -49,11 +52,26 @@ function withComponents(cb) {
 
 function renderFile(fpath, data) {
     console.log("Prerendering React components in " + fpath);
+
+    const loader = new CustomResourceLoader();
     const dom = new JSDOM(data, {
         runScripts: "dangerously",
+        url: siteURL,
+        resources: loader,
     });
-    dom.window.eval(bundleCode);
+
+    if (loader.bundlePath) {
+        console.log("Executing: " + loader.bundlePath);
+        const bundleCode = fs.readFileSync(loader.bundlePath);
+        dom.window.eval(bundleCode.toString());
+    } else {
+        console.log("[WARN] Bundle not found");
+    }
+
+    console.log("Writing: " + fpath);
     fs.writeFileSync(fpath, dom.serialize());
 }
+
+const srcDir = path.resolve("public");
 
 walk(srcDir, htmlFiles(withComponents(renderFile)));

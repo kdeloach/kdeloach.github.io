@@ -1,14 +1,5 @@
-import { ComponentMap } from "../types";
 import { tokenize, parse, resolve, formatTokens, formatAst } from "./datecalc";
 import React, { useState, useEffect } from "react";
-
-interface DateCalcFormProps {
-    initial: string;
-}
-
-interface Context {
-    value: string;
-}
 
 const dateFmt: Intl.DateTimeFormatOptions = {
     dateStyle: "full",
@@ -16,7 +7,11 @@ const dateFmt: Intl.DateTimeFormatOptions = {
     hourCycle: "h23",
 };
 
-const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
+interface DateCalcFormProps {
+    initial: string;
+}
+
+export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
     const [state, setState] = useState(initial);
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,8 +105,3 @@ const DateCalcLink: React.FC<DateCalcLinkProps> = ({ value, onClick }) => {
         </a>
     );
 };
-
-export default function registerComponents(components: ComponentMap) {
-    components["DateCalcForm"] = DateCalcForm;
-    components["DateCalcLink"] = DateCalcLink;
-}

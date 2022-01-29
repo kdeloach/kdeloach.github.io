@@ -6,3 +6,4 @@ assets/js/
 .hugo*
 public/
 resources/
+content/posts/*/dist/bundle.*
