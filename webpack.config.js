@@ -9,6 +9,7 @@ const config = {
     mode: mode,
     entry: {
         "datecalc/dist/bundle": path.resolve(baseDir, "datecalc/src/index.tsx"),
+        "wordle/dist/bundle": path.resolve(baseDir, "wordle/src/index.tsx"),
         "gameoflife/dist/bundle": path.resolve(
             baseDir,
             "gameoflife/src/index.tsx"
