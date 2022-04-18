@@ -7,7 +7,7 @@ import {
     CLUE_RIGHT,
     CLUE_WRONG,
     CLUE_MISPLACED,
-    bestWord,
+    candidates,
 } from "./wordle";
 import React, {
     RefObject,
@@ -21,17 +21,15 @@ import React, {
 } from "react";
 
 interface IAppContext {
-    setTile: (rowIndex: number, tileIndex: number) => void;
-    setChar: (rowIndex: number, tileIndex: number, char: string) => void;
-    setClue: (rowIndex: number, tileIndex: number, clue: string) => void;
-    submit: () => void;
+    onTileChange: (char: string) => void;
+    onTileBackspace: () => void;
+    onTileEnter: () => void;
 }
 
 const AppContext = React.createContext<IAppContext>(null);
 
 interface AppState {
-    activeRow: number;
-    activeTile: number;
+    activeTileIndex: number;
     chars: string[];
     clues: string[];
     answer: string;
@@ -46,8 +44,7 @@ function newState(): AppState {
         clues[i] = CLUE_NONE;
     }
     return {
-        activeRow: 0,
-        activeTile: 0,
+        activeTileIndex: 0,
         chars,
         clues,
         answer,
@@ -56,69 +53,83 @@ function newState(): AppState {
 
 export const WordleForm: React.FC = () => {
     const [state, setState] = useState<AppState>(() => newState());
-    const { activeRow, activeTile, chars, clues, answer } = state;
+    const { activeTileIndex, chars, clues, answer } = state;
 
     const appContext = {
-        setTile: (rowIndex: number, tileIndex: number) =>
+        onTileChange: (char: string) => {
+            if (!isAlpha(char)) {
+                return;
+            }
+
+            if (chars[activeTileIndex]) {
+                return;
+            }
+
+            chars[activeTileIndex] = char;
+
+            const lo = getRowIndex(activeTileIndex) * WORD_LENGTH;
+            const hi = lo + WORD_LENGTH - 1;
+            const nextTileIndex = clamp(activeTileIndex + 1, lo, hi);
+
             setState((state) => ({
                 ...state,
-                activeRow: clamp(rowIndex, 0, ROWS_COUNT - 1),
-                activeTile: clamp(tileIndex, 0, WORD_LENGTH - 1),
-            })),
-        setChar: (rowIndex: number, tileIndex: number, char: string) => {
-            const i = rowIndex * WORD_LENGTH + tileIndex;
-            chars[i] = char;
-            setState({ ...state });
+                activeTileIndex: nextTileIndex,
+            }));
         },
-        setClue: (rowIndex: number, tileIndex: number, clue: string) => {
-            const i = rowIndex * WORD_LENGTH + tileIndex;
-            clues[i] = clue;
-            setState({ ...state });
-        },
-        submit: () => {
-            const guess = getCurrentWord();
-            const newClues = generateClues(answer, guess);
+        onTileBackspace: () => {
+            const lo = getRowIndex(activeTileIndex) * WORD_LENGTH;
+            const hi = lo + WORD_LENGTH - 1;
 
-            const i = activeRow * WORD_LENGTH;
+            let nextTileIndex = activeTileIndex;
+            if (!chars[activeTileIndex]) {
+                nextTileIndex = clamp(activeTileIndex - 1, lo, hi);
+            }
+
+            chars[nextTileIndex] = "";
+
+            setState((state) => ({
+                ...state,
+                activeTileIndex: nextTileIndex,
+            }));
+        },
+        onTileEnter: () => {
+            const currentWord = getCurrentWord();
+            const newClues = generateClues(answer, currentWord);
+
+            const rowIndex = getRowIndex(activeTileIndex) * WORD_LENGTH;
             for (let j = 0; j < newClues.length; j++) {
-                clues[i + j] = newClues[j];
+                clues[rowIndex + j] = newClues[j];
             }
 
             setState((state) => ({
                 ...state,
-                activeRow: clamp(activeRow + 1, 0, ROWS_COUNT - 1),
-                activeTile: 0,
+                activeTileIndex: rowIndex + WORD_LENGTH,
             }));
         },
     };
 
     const getCurrentWord = () => {
-        const i = activeRow * WORD_LENGTH;
+        const i = getRowIndex(activeTileIndex) * WORD_LENGTH;
         return chars.slice(i, i + WORD_LENGTH).join("");
     };
 
     const rows = [];
     for (let i = 0; i < ROWS_COUNT; i++) {
-        const rowActive = activeRow == i;
-        const j = i * WORD_LENGTH;
-        const rowChars = chars.slice(j, j + WORD_LENGTH);
-        const rowClues = clues.slice(j, j + WORD_LENGTH);
-        const guess = activeRow + 1 == i ? bestWord(chars, clues) : "";
         const props = {
-            rowActive,
             rowIndex: i,
-            activeTile: activeTile,
-            chars: rowChars,
-            clues: rowClues,
-            guess,
+            activeTileIndex,
+            chars,
+            clues,
         };
         rows.push(<Row key={i} {...props} />);
     }
 
+    const guess = candidates(chars, clues).join(", ");
+
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
-                Answer: {answer}
+                Answer: {answer} - Guess: {guess}
                 {rows}
             </div>
         </AppContext.Provider>
@@ -127,31 +138,26 @@ export const WordleForm: React.FC = () => {
 
 interface RowProps {
     rowIndex: number;
-    rowActive: boolean;
-    activeTile: number;
+    activeTileIndex: number;
     chars: string[];
     clues: string[];
-    guess: string;
 }
 
 const Row: React.FC<RowProps> = ({
     rowIndex,
-    rowActive,
-    activeTile,
+    activeTileIndex,
     chars,
     clues,
-    guess,
 }) => {
     const tiles = [];
     for (let i = 0; i < WORD_LENGTH; i++) {
-        const tileActive = rowActive && activeTile == i;
+        const tileIndex = rowIndex * WORD_LENGTH + i;
+        const tileActive = tileIndex == activeTileIndex;
         const props = {
-            rowIndex,
-            tileIndex: i,
+            tileIndex,
             tileActive,
-            char: chars[i],
-            clue: clues[i],
-            guess: guess[i],
+            char: chars[tileIndex],
+            clue: clues[tileIndex],
         };
         tiles.push(<Tile key={i} {...props} />);
     }
@@ -159,23 +165,15 @@ const Row: React.FC<RowProps> = ({
 };
 
 interface TileProps {
-    rowIndex: number;
     tileIndex: number;
     tileActive: boolean;
     char: string;
     clue: string;
-    guess: string;
 }
 
-const Tile: React.FC<TileProps> = ({
-    rowIndex,
-    tileIndex,
-    tileActive,
-    char,
-    clue,
-    guess,
-}) => {
-    const { setTile, setChar, setClue, submit } = useContext(AppContext);
+const Tile: React.FC<TileProps> = ({ tileIndex, tileActive, char, clue }) => {
+    const { onTileBackspace, onTileEnter, onTileChange } =
+        useContext(AppContext);
 
     const ref = useRef<HTMLInputElement>();
 
@@ -188,60 +186,17 @@ const Tile: React.FC<TileProps> = ({
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         const char = e.target.value[e.target.value.length - 1];
-        if (isAlpha(char)) {
-            setChar(rowIndex, tileIndex, char);
-            setTile(rowIndex, tileIndex + 1);
-        }
+        onTileChange(char);
     };
 
     const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        const up = () => setTile(rowIndex - 1, tileIndex);
-        const down = () => setTile(rowIndex + 1, tileIndex);
-        const left = () => setTile(rowIndex, tileIndex - 1);
-        const right = () => setTile(rowIndex, tileIndex + 1);
-        let preventDefault = true;
-
-        if (e.key === " ") {
-            // setClue(rowIndex, tileIndex, nextClue(clue));
-        } else if (e.key === "Tab") {
-            if (e.shiftKey) {
-                left();
-            } else {
-                right();
-            }
-        } else if (e.key === "ArrowLeft") {
-            left();
-        } else if (e.key === "ArrowRight") {
-            right();
-        } else if (e.key === "Backspace") {
-            if (!char) {
-                left();
-            } else {
-                setChar(rowIndex, tileIndex, "");
-            }
-        } else if (e.key === "ArrowUp") {
-            up();
-        } else if (e.key === "ArrowDown") {
-            down();
-        } else if (e.key === "Delete") {
-            setChar(rowIndex, tileIndex, "");
-        } else if (e.key === "Enter") {
-            submit();
-        } else if (e.key === "Home") {
-            setTile(rowIndex, 0);
-        } else if (e.key === "End") {
-            setTile(rowIndex, WORD_LENGTH - 1);
-        } else {
-            preventDefault = false;
-        }
-
-        if (preventDefault) {
+        if (e.key === "Backspace") {
             e.preventDefault();
+            onTileBackspace();
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+            onTileEnter();
         }
-    };
-
-    const onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-        setTile(rowIndex, tileIndex);
     };
 
     return (
@@ -251,9 +206,8 @@ const Tile: React.FC<TileProps> = ({
             ref={ref}
             onChange={onChange}
             onKeyDown={onKeyDown}
-            onFocus={onFocus}
             value={char}
-            placeholder={guess || ""}
+            disabled={!tileActive}
         />
     );
 };
@@ -271,13 +225,6 @@ function clamp(n: number, lo: number, hi: number): number {
     return n;
 }
 
-function nextClue(clue: string): string {
-    if (clue === CLUE_NONE) {
-        return CLUE_RIGHT;
-    } else if (clue === CLUE_RIGHT) {
-        return CLUE_MISPLACED;
-    } else if (clue === CLUE_MISPLACED) {
-        return CLUE_WRONG;
-    }
-    return CLUE_NONE;
+function getRowIndex(tileIndex: number): number {
+    return Math.floor(tileIndex / WORD_LENGTH);
 }

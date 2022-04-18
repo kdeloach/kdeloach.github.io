@@ -10,18 +10,24 @@ export const CLUE_WRONG = "W";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
-export function bestWord(chars: string[], clues: string[]): string {
+const CANDIDATES_LIMIT = 5;
+
+export function candidates(chars: string[], clues: string[]): string[] {
     const regexes = createRegexes(chars, clues);
     const filterWord = createFilterFn(regexes);
 
+    const result = [];
+
     for (let i = 0; i < words.length; i++) {
         if (filterWord(words[i])) {
-            return words[i];
+            result.push(words[i]);
+            if (result.length >= CANDIDATES_LIMIT) {
+                break;
+            }
         }
     }
 
-    // No solution
-    return "";
+    return result;
 }
 
 function createRegexes(chars: string[], clues: string[]): RegExp[] {
