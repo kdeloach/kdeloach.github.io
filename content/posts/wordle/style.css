@@ -2,6 +2,34 @@
     display: flex;
     flex-direction: column;
 }
+.wordle-form > .guess,
+.wordle-form > .answer {
+    display: flex;
+    justify-content: space-around;
+}
+.wordle-form > .answer  {
+    background: aliceblue;
+}
+.wordle-form .left {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 150px;
+}
+.wordle-form > .answer > .left {
+    justify-content: center;
+}
+.wordle-form > .guess > .left {
+    justify-content: flex-start;
+}
+.wordle-form .left > ul {
+    margin: 0;
+}
+.wordle-form .right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 .row {
     display: flex;
     justify-content: center;

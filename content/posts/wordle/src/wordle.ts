@@ -13,61 +13,54 @@ const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 const CANDIDATES_LIMIT = 5;
 
 export function candidates(chars: string[], clues: string[]): string[] {
-    const regexes = createRegexes(chars, clues);
-    const filterWord = createFilterFn(regexes);
+    const regex = createRegex(chars, clues);
+    console.log(regex);
 
     const result = [];
-
     for (let i = 0; i < words.length; i++) {
-        if (filterWord(words[i])) {
+        if (regex.test(words[i])) {
             result.push(words[i]);
             if (result.length >= CANDIDATES_LIMIT) {
                 break;
             }
         }
     }
-
     return result;
 }
 
-function createRegexes(chars: string[], clues: string[]): RegExp[] {
-    let letters = "[" + LETTERS + "]";
-    let allMatchExact = [letters, letters, letters, letters, letters];
-    let allMatchAny: { [index: string]: number } = {};
-    let noMatch: { [index: string]: number } = {};
+function createRegex(chars: string[], clues: string[]): RegExp {
+    const noMatch: string[] = [];
+    const defaultAllMatch = ".".repeat(WORD_LENGTH);
+    const allMatch: string[] = defaultAllMatch.split("");
+    const anyMatch: { [index: number]: string[] } = {};
 
     for (let i = 0; i < clues.length; i++) {
         const j = i % WORD_LENGTH;
         if (clues[i] == CLUE_RIGHT) {
-            allMatchExact[j] = chars[i];
+            allMatch[j] = chars[i];
         } else if (clues[i] == CLUE_WRONG) {
-            allMatchExact = allMatchExact.map((str) =>
-                str.replace(chars[i], "")
-            );
+            noMatch.push(chars[i]);
         } else if (clues[i] == CLUE_MISPLACED) {
-            allMatchAny[chars[i]] = 1;
-            allMatchExact[j] = allMatchExact[j].replace(chars[i], "");
-        }
-    }
-
-    const patterns = [new RegExp(allMatchExact.join(""))];
-
-    for (const k in allMatchAny) {
-        patterns.push(new RegExp(k));
-    }
-
-    return patterns;
-}
-
-function createFilterFn(regexes: RegExp[]): (word: string) => boolean {
-    return (word: string): boolean => {
-        for (let i = 0; i < regexes.length; i++) {
-            if (!regexes[i].test(word)) {
-                return false;
+            if (!anyMatch[j]) {
+                anyMatch[j] = [];
             }
+            anyMatch[j].push(chars[i]);
         }
-        return true;
-    };
+    }
+
+    const pattern: string[] = [];
+    for (let i = 0; i < WORD_LENGTH; i++) {
+        if (allMatch[i] != ".") {
+            pattern[i] = allMatch[i];
+        } else if (anyMatch[i]) {
+            pattern[i] = "[^" + anyMatch[i].join("") + noMatch.join("") + "]";
+        } else if (noMatch.length > 0) {
+            pattern[i] = "[^" + noMatch.join("") + "]";
+        } else {
+            pattern[i] = ".";
+        }
+    }
+    return new RegExp(pattern.join(""));
 }
 
 export function randomWord(): string {
@@ -79,8 +72,7 @@ export function generateClues(answer: string, guess: string): string[] {
     for (let i = 0; i < answer.length; i++) {
         if (!guess[i]) {
             clues[i] = CLUE_NONE;
-        }
-        if (answer[i] == guess[i]) {
+        } else if (answer[i] == guess[i]) {
             clues[i] = CLUE_RIGHT;
         } else if (answer.includes(guess[i])) {
             clues[i] = CLUE_MISPLACED;

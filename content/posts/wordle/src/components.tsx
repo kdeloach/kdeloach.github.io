@@ -124,13 +124,32 @@ export const WordleForm: React.FC = () => {
         rows.push(<Row key={i} {...props} />);
     }
 
-    const guess = candidates(chars, clues).join(", ");
+    const guess = candidates(chars, clues);
+    const altGuess = candidates(
+        chars,
+        clues.map((c) => (c == CLUE_RIGHT ? CLUE_WRONG : c))
+    );
 
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
-                Answer: {answer} - Guess: {guess}
-                {rows}
+                <div className="guess">
+                    <div className="right">{rows}</div>
+                    <div className="left">
+                        Guess:
+                        <ul>
+                            {guess.map((w) => (
+                                <li>{w}</li>
+                            ))}
+                        </ul>
+                        Alt Guess:
+                        <ul>
+                            {altGuess.map((w) => (
+                                <li>{w}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </AppContext.Provider>
     );
