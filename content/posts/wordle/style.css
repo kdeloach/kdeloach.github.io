@@ -5,7 +5,7 @@
 .wordle-form > .guess,
 .wordle-form > .answer {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
 }
 .wordle-form > .answer  {
     background: aliceblue;

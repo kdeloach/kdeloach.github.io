@@ -30,8 +30,7 @@ export function candidates(chars: string[], clues: string[]): string[] {
 
 function createRegex(chars: string[], clues: string[]): RegExp {
     const noMatch: string[] = [];
-    const defaultAllMatch = ".".repeat(WORD_LENGTH);
-    const allMatch: string[] = defaultAllMatch.split("");
+    const allMatch: string[] = ".".repeat(WORD_LENGTH).split("");
     const anyMatch: { [index: number]: string[] } = {};
 
     for (let i = 0; i < clues.length; i++) {

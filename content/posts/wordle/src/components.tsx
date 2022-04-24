@@ -33,6 +33,8 @@ interface AppState {
     chars: string[];
     clues: string[];
     answer: string;
+    guessWords: string[];
+    guessWordsAlt: string[];
 }
 
 function newState(): AppState {
@@ -43,24 +45,27 @@ function newState(): AppState {
         chars[i] = "";
         clues[i] = CLUE_NONE;
     }
+    const guessWords = candidates(chars, clues);
     return {
         activeTileIndex: 0,
         chars,
         clues,
         answer,
+        guessWords,
+        guessWordsAlt: [],
     };
 }
 
 export const WordleForm: React.FC = () => {
     const [state, setState] = useState<AppState>(() => newState());
-    const { activeTileIndex, chars, clues, answer } = state;
+    const { activeTileIndex, chars, clues, answer, guessWords, guessWordsAlt } =
+        state;
 
     const appContext = {
         onTileChange: (char: string) => {
             if (!isAlpha(char)) {
                 return;
             }
-
             if (chars[activeTileIndex]) {
                 return;
             }
@@ -101,9 +106,21 @@ export const WordleForm: React.FC = () => {
                 clues[rowIndex + j] = newClues[j];
             }
 
+            const guessWords = candidates(chars, clues);
+
+            let guessWordsAlt = [];
+            if (guessWords.length > 1 && clues.includes(CLUE_RIGHT)) {
+                guessWordsAlt = candidates(
+                    chars,
+                    clues.map((c) => (c == CLUE_RIGHT ? CLUE_WRONG : c))
+                );
+            }
+
             setState((state) => ({
                 ...state,
                 activeTileIndex: rowIndex + WORD_LENGTH,
+                guessWords,
+                guessWordsAlt,
             }));
         },
     };
@@ -124,12 +141,6 @@ export const WordleForm: React.FC = () => {
         rows.push(<Row key={i} {...props} />);
     }
 
-    const guess = candidates(chars, clues);
-    const altGuess = candidates(
-        chars,
-        clues.map((c) => (c == CLUE_RIGHT ? CLUE_WRONG : c))
-    );
-
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
@@ -138,16 +149,20 @@ export const WordleForm: React.FC = () => {
                     <div className="left">
                         Guess:
                         <ul>
-                            {guess.map((w) => (
-                                <li>{w}</li>
+                            {guessWords.map((w) => (
+                                <li key={w}>{w}</li>
                             ))}
                         </ul>
-                        Alt Guess:
-                        <ul>
-                            {altGuess.map((w) => (
-                                <li>{w}</li>
-                            ))}
-                        </ul>
+                        {guessWordsAlt.length > 0 && (
+                            <>
+                                Alt Guess:
+                                <ul>
+                                    {guessWordsAlt.map((w) => (
+                                        <li key={w}>{w}</li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
