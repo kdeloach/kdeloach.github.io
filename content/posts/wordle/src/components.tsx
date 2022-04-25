@@ -122,7 +122,7 @@ export const WordleForm: React.FC = () => {
 
             const guessWordsAlt = candidates(
                 chars,
-                clues.map((c) => (c == CLUE_RIGHT ? CLUE_MISPLACED : c)),
+                clues.map((c) => (c == CLUE_RIGHT ? CLUE_WRONG : c)),
                 GUESS_WORDS_ALT_LIMIT
             );
 

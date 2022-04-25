@@ -10,54 +10,83 @@ export const CLUE_WRONG = "W";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
-export function candidates(chars: string[], clues: string[], limit:number): string[] {
-    const regex = createRegex(chars, clues);
-    console.log(regex);
+export function candidates(
+    chars: string[],
+    clues: string[],
+    limit: number
+): string[] {
+    const regexes = createRegexes(chars, clues);
+    console.log(regexes);
+
+    const filterFn = (word: string): boolean => {
+        for (let i = 0; i < regexes.length; i++) {
+            if (!regexes[i].test(word)) {
+                return false;
+            }
+        }
+        return true;
+    };
 
     const result = [];
-    for (let i = 0; i < words.length; i++) {
-        if (regex.test(words[i])) {
+    for (let i = 0; i < words.length && result.length < limit; i++) {
+        if (filterFn(words[i])) {
             result.push(words[i]);
-            if (result.length >= limit) {
-                break;
-            }
         }
     }
     return result;
 }
 
-function createRegex(chars: string[], clues: string[]): RegExp {
-    const noMatch: string[] = [];
+function createRegexes(chars: string[], clues: string[]): RegExp[] {
+    const noMatch=new Set<string>();
     const allMatch: string[] = ".".repeat(WORD_LENGTH).split("");
-    const anyMatch: { [index: number]: string[] } = {};
+    const anyMatch: { [index: number]: Set<string> } = {};
 
     for (let i = 0; i < clues.length; i++) {
         const j = i % WORD_LENGTH;
         if (clues[i] == CLUE_RIGHT) {
             allMatch[j] = chars[i];
         } else if (clues[i] == CLUE_WRONG) {
-            noMatch.push(chars[i]);
+            noMatch.add(chars[i]);
         } else if (clues[i] == CLUE_MISPLACED) {
             if (!anyMatch[j]) {
-                anyMatch[j] = [];
+                anyMatch[j] = new Set<string>();
             }
-            anyMatch[j].push(chars[i]);
+            anyMatch[j].add(chars[i]);
         }
     }
 
-    const pattern: string[] = [];
+    const patterns: RegExp[] = [];
+
+    const matchRe: string[] = [];
     for (let i = 0; i < WORD_LENGTH; i++) {
         if (allMatch[i] != ".") {
-            pattern[i] = allMatch[i];
+            matchRe[i] = allMatch[i];
         } else if (anyMatch[i]) {
-            pattern[i] = "[^" + anyMatch[i].join("") + noMatch.join("") + "]";
-        } else if (noMatch.length > 0) {
-            pattern[i] = "[^" + noMatch.join("") + "]";
+            matchRe[i] = "[^" + Array.from(anyMatch[i]).join("") + Array.from(noMatch).join("") + "]";
+        } else if (noMatch.size > 0) {
+            matchRe[i] = "[^" + Array.from(noMatch).join("") + "]";
         } else {
-            pattern[i] = ".";
+            matchRe[i] = ".";
         }
     }
-    return new RegExp(pattern.join(""));
+    patterns.push(new RegExp(matchRe.join("")));
+
+    for (let i in anyMatch) {
+        for (let c of anyMatch[i]) {
+            const anyRe: string[] = [];
+            for (let k = 0; k < WORD_LENGTH; k++) {
+                if (anyMatch[k] && anyMatch[k].has(c)) {
+                    continue;
+                }
+                const left = ".".repeat(Number(k));
+                const right = ".".repeat(WORD_LENGTH - Number(k) - 1);
+                anyRe.push(left + c + right);
+            }
+            patterns.push(new RegExp(anyRe.join("|")));
+        }
+    }
+
+    return patterns;
 }
 
 export function randomWord(): string {
