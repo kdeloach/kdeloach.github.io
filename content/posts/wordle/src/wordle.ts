@@ -8,7 +8,7 @@ export const CLUE_RIGHT = "G";
 export const CLUE_MISPLACED = "Y";
 export const CLUE_WRONG = "W";
 
-const LETTERS = "abcdefghijklmnopqrstuvwxyz";
+const RANK_WORDS_LIMIT = 1000;
 
 export function candidates(
     chars: string[],
@@ -28,16 +28,21 @@ export function candidates(
     };
 
     const result = [];
-    for (let i = 0; i < words.length && result.length < limit; i++) {
+    for (let i = 0; i < words.length; i++) {
         if (filterFn(words[i])) {
             result.push(words[i]);
         }
     }
-    return result;
+
+    if (result.length < RANK_WORDS_LIMIT) {
+        rankWords(result);
+    }
+
+    return result.splice(0, limit);
 }
 
 function createRegexes(chars: string[], clues: string[]): RegExp[] {
-    const noMatch=new Set<string>();
+    const noMatch = new Set<string>();
     const allMatch: string[] = ".".repeat(WORD_LENGTH).split("");
     const anyMatch: { [index: number]: Set<string> } = {};
 
@@ -62,7 +67,11 @@ function createRegexes(chars: string[], clues: string[]): RegExp[] {
         if (allMatch[i] != ".") {
             matchRe[i] = allMatch[i];
         } else if (anyMatch[i]) {
-            matchRe[i] = "[^" + Array.from(anyMatch[i]).join("") + Array.from(noMatch).join("") + "]";
+            matchRe[i] =
+                "[^" +
+                Array.from(anyMatch[i]).join("") +
+                Array.from(noMatch).join("") +
+                "]";
         } else if (noMatch.size > 0) {
             matchRe[i] = "[^" + Array.from(noMatch).join("") + "]";
         } else {
@@ -107,4 +116,59 @@ export function generateClues(answer: string, guess: string): string[] {
         }
     }
     return clues;
+}
+
+function rankWords(words: string[]): string[] {
+    let total = 0;
+    const wins: { [index: string]: number } = {};
+
+    for (let a of words) {
+        for (let b of words) {
+            if (a == b) {
+                continue;
+            }
+            const s = score(a, b);
+            if (wins[a]) {
+                wins[a] += s;
+            } else {
+                wins[a] = s;
+            }
+            total += s;
+        }
+    }
+
+    for (let i in wins) {
+        wins[i] = wins[i] / total;
+    }
+
+    words.sort((a: string, b: string): number => {
+        return wins[b] - wins[a];
+    });
+
+    return words;
+}
+
+function score(a: string, b: string): number {
+    let rightSpot = 0;
+    let wrongSpot = 0;
+
+    for (let i = 0; i < WORD_LENGTH; i++) {
+        if (a[i] == b[i]) {
+            a = a.substring(0, i) + "_" + a.substring(i + 1);
+            rightSpot++;
+        }
+    }
+
+    for (let i = 0; i < WORD_LENGTH; i++) {
+        if (a[i] == "_") {
+            continue;
+        }
+        let j = b.indexOf(a[i]);
+        if (j != -1) {
+            b = b.substring(0, j) + "_" + b.substring(j + 1);
+            wrongSpot++;
+        }
+    }
+
+    return rightSpot + wrongSpot / 2;
 }

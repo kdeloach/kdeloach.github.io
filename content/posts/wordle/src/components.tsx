@@ -120,17 +120,22 @@ export const WordleForm: React.FC = () => {
                 clues[rowIndex + j] = newClues[j];
             }
 
-            const guessWordsAlt = candidates(
+            let guessWords = candidates(chars, clues, GUESS_WORDS_LIMIT);
+            let guessWordsAlt = candidates(
                 chars,
                 clues.map((c) => (c == CLUE_RIGHT ? CLUE_WRONG : c)),
-                GUESS_WORDS_ALT_LIMIT
+                GUESS_WORDS_LIMIT
             );
 
-            const guessWords = candidates(
-                chars,
-                clues,
-                GUESS_WORDS_LIMIT - guessWordsAlt.length
-            );
+            if (arrayEquals(guessWords, guessWordsAlt)) {
+                guessWordsAlt = [];
+            } else {
+                guessWordsAlt = guessWordsAlt.splice(0, GUESS_WORDS_ALT_LIMIT);
+                guessWords = guessWords.splice(
+                    0,
+                    GUESS_WORDS_LIMIT - guessWordsAlt.length
+                );
+            }
 
             setState((state) => ({
                 ...state,
@@ -178,17 +183,16 @@ export const WordleForm: React.FC = () => {
                             <li key={w}>{w}</li>
                         ))}
                     </ul>
-                    {guessWords.length > 1 && guessWordsAlt.length > 0 &&
-                        !arrayEquals(guessWords, guessWordsAlt) && (
-                            <>
-                                Alt Guess:
-                                <ul>
-                                    {guessWordsAlt.map((w) => (
-                                        <li key={w}>{w}</li>
-                                    ))}
-                                </ul>
-                            </>
-                        )}
+                    {guessWords.length > 1 && guessWordsAlt.length > 0 && (
+                        <>
+                            Alt Guess:
+                            <ul>
+                                {guessWordsAlt.map((w) => (
+                                    <li key={w}>{w}</li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
                 </div>
             </div>
         </AppContext.Provider>
