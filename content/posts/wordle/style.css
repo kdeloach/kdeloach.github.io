@@ -1,34 +1,22 @@
 .wordle-form {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-around;
 }
-.wordle-form > .guess,
-.wordle-form > .answer {
-    display: flex;
-    justify-content: space-evenly;
-}
-.wordle-form > .answer  {
-    background: aliceblue;
-}
-.wordle-form .left {
+.wordle-form .grid {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+}
+.wordle-form > .guess {
+    display: flex;
+    flex-direction: column;
     width: 150px;
 }
-.wordle-form > .answer > .left {
-    justify-content: center;
-}
-.wordle-form > .guess > .left {
-    justify-content: flex-start;
-}
-.wordle-form .left > ul {
+.wordle-form > .guess > ul {
     margin: 0;
 }
-.wordle-form .right {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.wordle-form > .guess > button {
+    margin-bottom: 6px;
 }
 .row {
     display: flex;

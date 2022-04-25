@@ -28,6 +28,9 @@ interface IAppContext {
 
 const AppContext = React.createContext<IAppContext>(null);
 
+const GUESS_WORDS_LIMIT = 6;
+const GUESS_WORDS_ALT_LIMIT = 3;
+
 interface AppState {
     activeTileIndex: number;
     chars: string[];
@@ -37,15 +40,14 @@ interface AppState {
     guessWordsAlt: string[];
 }
 
-function newState(): AppState {
-    const answer = randomWord();
+function newState(answer: string): AppState {
     const chars = [];
     const clues = [];
     for (let i = 0; i < ROWS_COUNT * WORD_LENGTH; i++) {
         chars[i] = "";
         clues[i] = CLUE_NONE;
     }
-    const guessWords = candidates(chars, clues);
+    const guessWords = candidates(chars, clues, GUESS_WORDS_LIMIT);
     return {
         activeTileIndex: 0,
         chars,
@@ -56,8 +58,20 @@ function newState(): AppState {
     };
 }
 
+function wordFromQuerystring(): string {
+    if (location.search.length > 0) {
+        const qs = location.search.split("=");
+        if (qs.length == 2) {
+            return qs[1];
+        }
+    }
+    return randomWord();
+}
+
 export const WordleForm: React.FC = () => {
-    const [state, setState] = useState<AppState>(() => newState());
+    const [state, setState] = useState<AppState>(() =>
+        newState(wordFromQuerystring())
+    );
     const { activeTileIndex, chars, clues, answer, guessWords, guessWordsAlt } =
         state;
 
@@ -106,15 +120,17 @@ export const WordleForm: React.FC = () => {
                 clues[rowIndex + j] = newClues[j];
             }
 
-            const guessWords = candidates(chars, clues);
+            const guessWordsAlt = candidates(
+                chars,
+                clues.map((c) => (c == CLUE_RIGHT ? CLUE_MISPLACED : c)),
+                GUESS_WORDS_ALT_LIMIT
+            );
 
-            let guessWordsAlt = [];
-            if (guessWords.length > 1 && clues.includes(CLUE_RIGHT)) {
-                guessWordsAlt = candidates(
-                    chars,
-                    clues.map((c) => (c == CLUE_RIGHT ? CLUE_WRONG : c))
-                );
-            }
+            const guessWords = candidates(
+                chars,
+                clues,
+                GUESS_WORDS_LIMIT - guessWordsAlt.length
+            );
 
             setState((state) => ({
                 ...state,
@@ -128,6 +144,14 @@ export const WordleForm: React.FC = () => {
     const getCurrentWord = () => {
         const i = getRowIndex(activeTileIndex) * WORD_LENGTH;
         return chars.slice(i, i + WORD_LENGTH).join("");
+    };
+
+    const newGame = () => {
+        setState(newState(randomWord()));
+    };
+
+    const retry = () => {
+        setState({ ...newState(randomWord()), answer });
     };
 
     const rows = [];
@@ -144,16 +168,18 @@ export const WordleForm: React.FC = () => {
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
+                <div className="grid">{rows}</div>
                 <div className="guess">
-                    <div className="right">{rows}</div>
-                    <div className="left">
-                        Guess:
-                        <ul>
-                            {guessWords.map((w) => (
-                                <li key={w}>{w}</li>
-                            ))}
-                        </ul>
-                        {guessWordsAlt.length > 0 && (
+                    <button onClick={newGame}>New Game</button>
+                    <button onClick={retry}>Retry</button>
+                    Guess:
+                    <ul>
+                        {guessWords.map((w) => (
+                            <li key={w}>{w}</li>
+                        ))}
+                    </ul>
+                    {guessWords.length > 1 && guessWordsAlt.length > 0 &&
+                        !arrayEquals(guessWords, guessWordsAlt) && (
                             <>
                                 Alt Guess:
                                 <ul>
@@ -163,7 +189,6 @@ export const WordleForm: React.FC = () => {
                                 </ul>
                             </>
                         )}
-                    </div>
                 </div>
             </div>
         </AppContext.Provider>
@@ -261,4 +286,16 @@ function clamp(n: number, lo: number, hi: number): number {
 
 function getRowIndex(tileIndex: number): number {
     return Math.floor(tileIndex / WORD_LENGTH);
+}
+
+function arrayEquals(a: any[], b: any[]): boolean {
+    if (a.length != b.length) {
+        return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] != b[i]) {
+            return false;
+        }
+    }
+    return true;
 }

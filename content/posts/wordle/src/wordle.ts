@@ -10,9 +10,7 @@ export const CLUE_WRONG = "W";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
 
-const CANDIDATES_LIMIT = 5;
-
-export function candidates(chars: string[], clues: string[]): string[] {
+export function candidates(chars: string[], clues: string[], limit:number): string[] {
     const regex = createRegex(chars, clues);
     console.log(regex);
 
@@ -20,7 +18,7 @@ export function candidates(chars: string[], clues: string[]): string[] {
     for (let i = 0; i < words.length; i++) {
         if (regex.test(words[i])) {
             result.push(words[i]);
-            if (result.length >= CANDIDATES_LIMIT) {
+            if (result.length >= limit) {
                 break;
             }
         }
