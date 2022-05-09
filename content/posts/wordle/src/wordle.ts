@@ -29,7 +29,7 @@ export function candidates(
     words: string[]
 ): string[] {
     const regexes = createRegexes(chars, clues);
-    // console.log(regexes);
+    console.log(regexes);
 
     const filterFn = (word: string): boolean => {
         for (let i = 0; i < regexes.length; i++) {
@@ -88,8 +88,12 @@ function createRegexes(chars: string[], clues: string[]): RegExp[] {
     }
     patterns.push(new RegExp(matchRe.join("")));
 
+    const seen = new Set<string>();
     for (let i in anyMatch) {
         for (let c of anyMatch[i]) {
+            if (seen.has(c)) {
+                continue;
+            }
             const anyRe: string[] = [];
             for (let k = 0; k < WORD_LENGTH; k++) {
                 if (anyMatch[k] && anyMatch[k].has(c)) {
@@ -100,6 +104,7 @@ function createRegexes(chars: string[], clues: string[]): RegExp[] {
                 anyRe.push(left + c + right);
             }
             patterns.push(new RegExp(anyRe.join("|")));
+            seen.add(c);
         }
     }
 
@@ -130,6 +135,9 @@ function rankWordsFast(words: string[]): string[] {
     const wins: { [index: string]: number } = {};
 
     for (let a of words) {
+        if (!WORDS_ANSWERS.includes(a)) {
+            continue;
+        }
         const h = handicap(a);
         for (let b of words) {
             if (a == b) {
@@ -146,8 +154,9 @@ function rankWordsFast(words: string[]): string[] {
 
     words.sort((a: string, b: string): number => {
         // descending
-        return wins[b] - wins[a];
+        return (wins[b] || 0) - (wins[a] || 0);
     });
+    console.log(words);
     return words;
 }
 
