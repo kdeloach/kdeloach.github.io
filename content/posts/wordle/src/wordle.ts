@@ -1,4 +1,4 @@
-import words from "./words";
+import { WORD_LIST, WORDS_ANSWERS } from "./words";
 
 export const ROWS_COUNT = 5;
 export const WORD_LENGTH = 5;
@@ -10,13 +10,26 @@ export const CLUE_WRONG = "W";
 
 const RANK_WORDS_LIMIT = 1000;
 
+export function candidatesRanked(
+    chars: string[],
+    clues: string[],
+    words: string[],
+    limit: number = -1
+): string[] {
+    const result = candidates(chars, clues, words);
+    if (result.length < RANK_WORDS_LIMIT) {
+        rankWordsFast(result);
+    }
+    return result.slice(0, limit);
+}
+
 export function candidates(
     chars: string[],
     clues: string[],
-    limit: number
+    words: string[]
 ): string[] {
     const regexes = createRegexes(chars, clues);
-    console.log(regexes);
+    // console.log(regexes);
 
     const filterFn = (word: string): boolean => {
         for (let i = 0; i < regexes.length; i++) {
@@ -33,12 +46,7 @@ export function candidates(
             result.push(words[i]);
         }
     }
-
-    if (result.length < RANK_WORDS_LIMIT) {
-        rankWords(result);
-    }
-
-    return result.splice(0, limit);
+    return result;
 }
 
 function createRegexes(chars: string[], clues: string[]): RegExp[] {
@@ -99,7 +107,7 @@ function createRegexes(chars: string[], clues: string[]): RegExp[] {
 }
 
 export function randomWord(): string {
-    return words[Math.floor(Math.random() * words.length)];
+    return WORDS_ANSWERS[Math.floor(Math.random() * WORDS_ANSWERS.length)];
 }
 
 export function generateClues(answer: string, guess: string): string[] {
@@ -118,8 +126,32 @@ export function generateClues(answer: string, guess: string): string[] {
     return clues;
 }
 
-function rankWords(words: string[]): string[] {
-    let total = 0;
+function rankWordsFast(words: string[]): string[] {
+    const wins: { [index: string]: number } = {};
+
+    for (let a of words) {
+        const h = handicap(a);
+        for (let b of words) {
+            if (a == b) {
+                continue;
+            }
+            const s = score(a, b) - h;
+            if (wins[a]) {
+                wins[a] += s;
+            } else {
+                wins[a] = s;
+            }
+        }
+    }
+
+    words.sort((a: string, b: string): number => {
+        // descending
+        return wins[b] - wins[a];
+    });
+    return words;
+}
+
+function rankWordsSlow(words: string[]): string[] {
     const wins: { [index: string]: number } = {};
 
     for (let a of words) {
@@ -127,24 +159,19 @@ function rankWords(words: string[]): string[] {
             if (a == b) {
                 continue;
             }
-            const s = score(a, b);
+            const s = score2(a, b, words);
             if (wins[a]) {
                 wins[a] += s;
             } else {
                 wins[a] = s;
             }
-            total += s;
         }
     }
 
-    for (let i in wins) {
-        wins[i] = wins[i] / total;
-    }
-
     words.sort((a: string, b: string): number => {
-        return wins[b] - wins[a];
+        // ascending
+        return wins[a] - wins[b];
     });
-
     return words;
 }
 
@@ -171,4 +198,21 @@ function score(a: string, b: string): number {
     }
 
     return rightSpot + wrongSpot / 2;
+}
+
+function handicap(a: string): number {
+    const seen: { [index: string]: boolean } = {};
+    for (let i = 0; i < a.length; i++) {
+        if (seen[a[i]]) {
+            return 1;
+        }
+        seen[a[i]] = true;
+    }
+    return 0;
+}
+
+function score2(a: string, b: string, words: string[]): number {
+    const chars = a.split("");
+    const clues = generateClues(a, b);
+    return candidates(chars, clues, words).length;
 }

@@ -7,8 +7,9 @@ import {
     CLUE_RIGHT,
     CLUE_WRONG,
     CLUE_MISPLACED,
-    candidates,
+    candidatesRanked,
 } from "./wordle";
+import { WORD_LIST, WORDS_ALLOWED, WORDS_ANSWERS } from "./words";
 import React, {
     RefObject,
     MouseEvent,
@@ -28,7 +29,7 @@ interface IAppContext {
 
 const AppContext = React.createContext<IAppContext>(null);
 
-const GUESS_WORDS_LIMIT = 6;
+const GUESS_WORDS_LIMIT = 7;
 const GUESS_WORDS_ALT_LIMIT = 3;
 
 interface AppState {
@@ -38,6 +39,7 @@ interface AppState {
     answer: string;
     guessWords: string[];
     guessWordsAlt: string[];
+    error: string;
 }
 
 function newState(answer: string): AppState {
@@ -47,7 +49,12 @@ function newState(answer: string): AppState {
         chars[i] = "";
         clues[i] = CLUE_NONE;
     }
-    const guessWords = candidates(chars, clues, GUESS_WORDS_LIMIT);
+    const guessWords = candidatesRanked(
+        chars,
+        clues,
+        WORDS_ANSWERS,
+        GUESS_WORDS_LIMIT
+    );
     return {
         activeTileIndex: 0,
         chars,
@@ -55,6 +62,7 @@ function newState(answer: string): AppState {
         answer,
         guessWords,
         guessWordsAlt: [],
+        error: "",
     };
 }
 
@@ -72,8 +80,15 @@ export const WordleForm: React.FC = () => {
     const [state, setState] = useState<AppState>(() =>
         newState(wordFromQuerystring())
     );
-    const { activeTileIndex, chars, clues, answer, guessWords, guessWordsAlt } =
-        state;
+    const {
+        activeTileIndex,
+        chars,
+        clues,
+        answer,
+        guessWords,
+        guessWordsAlt,
+        error,
+    } = state;
 
     const appContext = {
         onTileChange: (char: string) => {
@@ -96,15 +111,16 @@ export const WordleForm: React.FC = () => {
             }));
         },
         onTileBackspace: () => {
-            const lo = getRowIndex(activeTileIndex) * WORD_LENGTH;
-            const hi = lo + WORD_LENGTH - 1;
-
             let nextTileIndex = activeTileIndex;
             if (!chars[activeTileIndex]) {
-                nextTileIndex = clamp(activeTileIndex - 1, lo, hi);
+                nextTileIndex = activeTileIndex - 1;
+            }
+            if (nextTileIndex < 0) {
+                nextTileIndex = 0;
             }
 
             chars[nextTileIndex] = "";
+            clues[nextTileIndex] = CLUE_NONE;
 
             setState((state) => ({
                 ...state,
@@ -113,32 +129,49 @@ export const WordleForm: React.FC = () => {
         },
         onTileEnter: () => {
             const currentWord = getCurrentWord();
+            if (currentWord.length < WORD_LENGTH) {
+                setState((state) => ({
+                    ...state,
+                    error: "incomplete word",
+                }));
+                return;
+            }
+            if (!WORD_LIST.includes(currentWord)) {
+                setState((state) => ({
+                    ...state,
+                    error: "unknown word",
+                }));
+                return;
+            }
+
             const newClues = generateClues(answer, currentWord);
 
             const rowIndex = getRowIndex(activeTileIndex) * WORD_LENGTH;
-            for (let j = 0; j < newClues.length; j++) {
-                clues[rowIndex + j] = newClues[j];
+            for (let i = 0; i < newClues.length; i++) {
+                clues[rowIndex + i] = newClues[i];
             }
 
-            let guessWords = candidates(chars, clues, GUESS_WORDS_LIMIT);
-            let guessWordsAlt = candidates(
+            let guessWords = candidatesRanked(
                 chars,
-                clues.map((c) => (c == CLUE_RIGHT ? CLUE_WRONG : c)),
+                clues,
+                WORDS_ANSWERS,
+                GUESS_WORDS_LIMIT
+            );
+            let guessWordsAlt = candidatesRanked(
+                chars,
+                // clues,
+                clues.map((c) => (c == CLUE_RIGHT ? CLUE_NONE : c)),
+                WORDS_ALLOWED,
                 GUESS_WORDS_LIMIT
             );
 
-            if (arrayEquals(guessWords, guessWordsAlt)) {
-                guessWordsAlt = [];
-            } else {
-                guessWordsAlt = guessWordsAlt.splice(0, GUESS_WORDS_ALT_LIMIT);
-                guessWords = guessWords.splice(
-                    0,
-                    GUESS_WORDS_LIMIT - guessWordsAlt.length
-                );
-            }
+            guessWordsAlt = guessWordsAlt.filter(
+                (w) => !guessWords.includes(w)
+            );
 
             setState((state) => ({
                 ...state,
+                error: "",
                 activeTileIndex: rowIndex + WORD_LENGTH,
                 guessWords,
                 guessWordsAlt,
@@ -170,6 +203,16 @@ export const WordleForm: React.FC = () => {
         rows.push(<Row key={i} {...props} />);
     }
 
+    let guessWordsAltDisplay: string[] = [];
+    if (guessWords.length > 1 && guessWordsAlt.length > 0) {
+        guessWordsAltDisplay = guessWordsAlt.slice(0, GUESS_WORDS_ALT_LIMIT);
+    }
+
+    let guessWordsDisplay = guessWords.slice(
+        0,
+        GUESS_WORDS_LIMIT - guessWordsAltDisplay.length
+    );
+
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
@@ -177,17 +220,22 @@ export const WordleForm: React.FC = () => {
                 <div className="guess">
                     <button onClick={newGame}>New Game</button>
                     <button onClick={retry}>Retry</button>
+                    {error.length > 0 ? (
+                        <span className="error">Error: {error}</span>
+                    ) : (
+                        ""
+                    )}
                     Guess:
                     <ul>
-                        {guessWords.map((w) => (
+                        {guessWordsDisplay.map((w) => (
                             <li key={w}>{w}</li>
                         ))}
                     </ul>
-                    {guessWords.length > 1 && guessWordsAlt.length > 0 && (
+                    {guessWordsAltDisplay.length > 0 && (
                         <>
                             Alt Guess:
                             <ul>
-                                {guessWordsAlt.map((w) => (
+                                {guessWordsAltDisplay.map((w) => (
                                     <li key={w}>{w}</li>
                                 ))}
                             </ul>
@@ -224,7 +272,7 @@ const Row: React.FC<RowProps> = ({
         };
         tiles.push(<Tile key={i} {...props} />);
     }
-    return <div className="row">{tiles}</div>;
+    return <div className="tile-row">{tiles}</div>;
 };
 
 interface TileProps {
@@ -290,16 +338,4 @@ function clamp(n: number, lo: number, hi: number): number {
 
 function getRowIndex(tileIndex: number): number {
     return Math.floor(tileIndex / WORD_LENGTH);
-}
-
-function arrayEquals(a: any[], b: any[]): boolean {
-    if (a.length != b.length) {
-        return false;
-    }
-    for (let i = 0; i < a.length; i++) {
-        if (a[i] != b[i]) {
-            return false;
-        }
-    }
-    return true;
 }

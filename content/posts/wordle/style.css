@@ -10,7 +10,7 @@
 .wordle-form > .guess {
     display: flex;
     flex-direction: column;
-    width: 150px;
+    width: 200px;
 }
 .wordle-form > .guess > ul {
     margin: 0;
@@ -18,19 +18,32 @@
 .wordle-form > .guess > button {
     margin-bottom: 6px;
 }
-.row {
+.tile-row {
     display: flex;
     justify-content: center;
 }
 .tile {
     width: 50px;
     height: 50px;
+    line-height: 50px;
     border: 2px solid #ccc;
+    font-family: monospace;
     font-size: 2em;
     text-align: center;
-    font-family: monospace;
     margin: 5px;
     color: inherit;
+}
+.tile-row-small .tile {
+    height: auto;
+    font-size: 1em;
+    line-height: 1em;
+    margin: 0;
+    border-width: 1px;
+    border-right-width: 0;
+    padding: 0 2px;
+}
+.tile-row-small .tile:last-child {
+    border-right-width: 1px;
 }
 .tile-G {
     background: green;
@@ -44,4 +57,7 @@
 .tile-W {
     background: gray;
     border-color: gray;
+}
+.error {
+    color: red;
 }

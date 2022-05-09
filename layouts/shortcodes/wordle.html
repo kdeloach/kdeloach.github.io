@@ -1,0 +1,8 @@
+{{ $chars := split (.Get 0) "" }}
+{{ $clues := split (.Get 1) "" }}
+<span class="tile-row-small">
+{{ range $i, $c := $chars -}}
+{{ $clue := index $clues $i -}}
+<span class="tile tile-{{ $clue }}">{{ $c }}</span>
+{{- end }}
+</span>
