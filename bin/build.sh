@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 user=$(id -u):$(id -g)
 
 docker-compose run --rm --user ${user} -e NODE_ENV=production webpack build
