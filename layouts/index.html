@@ -1,9 +1,26 @@
+{{ define "header" }}
+<header>
+  <h1>Kevin DeLoach</h1>
+  <h2>Software Engineer, Philadelphia, PA</h2>
+</header>
+{{ end }}
+
 {{ define "main" }}
-<main class="posts">
+<main>
+  {{ .Content }}
+
+  <h3>Contact</h3>
+  <ul>
+    <li><a href="{{ "Resume.pdf" | relURL }}">Resume</a></li>
+    <li><a href="https://github.com/kdeloach">GitHub</a></li>
+    <li><a href="mailto:kdeloach@gmail.com">Email</a></li>
+  </ul>
+
+  <h3>Projects</h3>
   <ul>
   {{- range where .Site.RegularPages "Section" "posts" }}
-    <li>{{ .Date.Format "2006-01-02" }} <a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
   {{- end }}
   </ul>
 </main>
-{{- end }}
+{{ end }}
