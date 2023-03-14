@@ -1,3 +1,3 @@
 #!/bin/bash
 
-npm i markdown-spellcheck -g
+npm i markdown-spellcheck prettier -g
