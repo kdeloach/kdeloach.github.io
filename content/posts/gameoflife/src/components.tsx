@@ -74,30 +74,16 @@ export const GameOfLife: React.FC = () => {
     }, [paused]);
 
     useEffect(() => {
-        const togglePause = (e: KeyboardEvent) => {
+        const onKeyUp = (e: KeyboardEvent) => {
             if (e.key === " ") {
-                if (paused) {
-                    play();
-                } else {
-                    pause();
-                }
+                togglePause();
             }
         };
-        document.addEventListener("keyup", togglePause);
-        return () => document.removeEventListener("keyup", togglePause);
+        document.addEventListener("keyup", onKeyUp);
+        return () => document.removeEventListener("keyup", onKeyUp);
     }, [paused]);
 
-    const play = () => {
-        if (paused) {
-            setPaused(false);
-        }
-    };
-
-    const pause = () => {
-        if (!paused) {
-            setPaused(true);
-        }
-    };
+    const togglePause = () => setPaused((paused) => !paused);
 
     const step = () => {
         setGrid((grid) => grid.map(conwayRules));
@@ -145,8 +131,9 @@ export const GameOfLife: React.FC = () => {
         >
             <div className="grid">{rows}</div>
             <div className="actions">
-                <button onClick={play}>Play</button>
-                <button onClick={pause}>Pause</button>
+                <button onClick={togglePause}>
+                    {(paused && "Play") || "Pause"}
+                </button>
                 <button onClick={step}>Step</button>
                 <button onClick={reset}>Reset</button>
             </div>

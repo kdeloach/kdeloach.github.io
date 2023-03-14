@@ -27,5 +27,6 @@
 }
 .actions > button {
     flex-grow: 1;
+    width: 33%;
     font-size: 1.2em;
 }
