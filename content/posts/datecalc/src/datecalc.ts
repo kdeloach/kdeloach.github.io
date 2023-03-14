@@ -143,9 +143,7 @@ class TokenIterator extends Iterator<Token> {
         }
         let token = super.next();
         if (token.tokenType != tokenType) {
-            throw new ParseError(
-                `expected "${tokenType}" but got "${token.tokenType}"`
-            );
+            throw new ParseError(`expected "${tokenType}" but got "${token.tokenType}"`);
         }
         return token;
     }
@@ -286,11 +284,7 @@ export function parse(tokens: Token[]): DateCalcNode {
 
     let result = parseProgram();
     if (stream.hasNext()) {
-        throw new ParseError(
-            `unexpected tokens after program end: ${tokens.splice(
-                stream.index + 1
-            )}`
-        );
+        throw new ParseError(`unexpected tokens after program end: ${tokens.splice(stream.index + 1)}`);
     }
     return result;
 }
@@ -373,9 +367,7 @@ export function resolve(node: DateCalcNode): Date | Delta {
         } else if (left instanceof Delta && right instanceof Delta) {
             return deltaPlusDelta(left, right);
         }
-        throw new ParseError(
-            `expected date or delta but got "${left}" and "${right}"`
-        );
+        throw new ParseError(`expected date or delta but got "${left}" and "${right}"`);
     }
 
     function visitMinusNode(op: MinusNode): Date | Delta {
@@ -386,15 +378,11 @@ export function resolve(node: DateCalcNode): Date | Delta {
         } else if (left instanceof Date && right instanceof Delta) {
             return dateMinusDelta(left, right);
         } else if (left instanceof Delta && right instanceof Date) {
-            throw new ParseError(
-                `subtracting date from delta is not supported`
-            );
+            throw new ParseError(`subtracting date from delta is not supported`);
         } else if (left instanceof Delta && right instanceof Delta) {
             return deltaMinusDelta(left, right);
         }
-        throw new ParseError(
-            `expected date or delta but got "${left}" and "${right}"`
-        );
+        throw new ParseError(`expected date or delta but got "${left}" and "${right}"`);
     }
 
     return visit(node);

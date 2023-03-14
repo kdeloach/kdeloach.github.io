@@ -10,12 +10,7 @@ export const CLUE_WRONG = "W";
 
 const RANK_WORDS_LIMIT = 1000;
 
-export function candidatesRanked(
-    chars: string[],
-    clues: string[],
-    words: string[],
-    limit: number = -1
-): string[] {
+export function candidatesRanked(chars: string[], clues: string[], words: string[], limit: number = -1): string[] {
     const result = candidates(chars, clues, words);
     if (result.length < RANK_WORDS_LIMIT) {
         rankWordsFast(result);
@@ -23,11 +18,7 @@ export function candidatesRanked(
     return result.slice(0, limit);
 }
 
-export function candidates(
-    chars: string[],
-    clues: string[],
-    words: string[]
-): string[] {
+export function candidates(chars: string[], clues: string[], words: string[]): string[] {
     const regexes = createRegexes(chars, clues);
     console.log(regexes);
 
@@ -75,11 +66,7 @@ function createRegexes(chars: string[], clues: string[]): RegExp[] {
         if (allMatch[i] != ".") {
             matchRe[i] = allMatch[i];
         } else if (anyMatch[i]) {
-            matchRe[i] =
-                "[^" +
-                Array.from(anyMatch[i]).join("") +
-                Array.from(noMatch).join("") +
-                "]";
+            matchRe[i] = "[^" + Array.from(anyMatch[i]).join("") + Array.from(noMatch).join("") + "]";
         } else if (noMatch.size > 0) {
             matchRe[i] = "[^" + Array.from(noMatch).join("") + "]";
         } else {
@@ -239,10 +226,7 @@ function clueValue(clue: string) {
     return -1;
 }
 
-export function bestGuessForEachLetter(
-    chars: string[],
-    clues: string[]
-): Record<string, string> {
+export function bestGuessForEachLetter(chars: string[], clues: string[]): Record<string, string> {
     const best: Record<string, string> = {};
     for (let i = 0; i < chars.length; i++) {
         const char = chars[i];

@@ -56,9 +56,7 @@ const conwayRules: MapCallback<number> = ({ cell, neighbors }) => {
 export const GameOfLife: React.FC = () => {
     const [mouseDown, setMouseDown] = useState(false);
     const [paused, setPaused] = useState(false);
-    const [grid, setGrid] = useState(
-        new CellGrid<number>(ROWS, COLS).map(initialValue)
-    );
+    const [grid, setGrid] = useState(new CellGrid<number>(ROWS, COLS).map(initialValue));
 
     useEffect(() => {
         if (paused) {
@@ -131,9 +129,7 @@ export const GameOfLife: React.FC = () => {
         >
             <div className="grid">{rows}</div>
             <div className="actions">
-                <button onClick={togglePause}>
-                    {(paused && "Play") || "Pause"}
-                </button>
+                <button onClick={togglePause}>{(paused && "Play") || "Pause"}</button>
                 <button onClick={step}>Step</button>
                 <button onClick={reset}>Reset</button>
             </div>

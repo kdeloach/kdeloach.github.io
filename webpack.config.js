@@ -10,10 +10,7 @@ const config = {
     entry: {
         "datecalc/dist/bundle": path.resolve(baseDir, "datecalc/src/index.tsx"),
         "wordle/dist/bundle": path.resolve(baseDir, "wordle/src/index.tsx"),
-        "gameoflife/dist/bundle": path.resolve(
-            baseDir,
-            "gameoflife/src/index.tsx"
-        ),
+        "gameoflife/dist/bundle": path.resolve(baseDir, "gameoflife/src/index.tsx"),
     },
     output: {
         filename: "[name].js",
@@ -27,11 +24,7 @@ const config = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: [
-                            "@babel/preset-env",
-                            "@babel/preset-react",
-                            "@babel/preset-typescript",
-                        ],
+                        presets: ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"],
                     },
                 },
             },

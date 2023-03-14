@@ -28,10 +28,7 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
             tokens = tokenize(state);
             ast = parse(tokens);
             result = resolve(ast);
-            output =
-                result instanceof Date
-                    ? result.toLocaleString("en-US", dateFmt)
-                    : result.toString();
+            output = result instanceof Date ? result.toLocaleString("en-US", dateFmt) : result.toString();
         }
     } catch (ex) {
         err = ex.toString();
@@ -41,16 +38,9 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
         <>
             <div className="calc">
                 <p className="label">Input:</p>
-                <input
-                    type="text"
-                    autoComplete="off"
-                    value={state || ""}
-                    onChange={onChange}
-                />
+                <input type="text" autoComplete="off" value={state || ""} onChange={onChange} />
                 <p className="label">Output:</p>
-                <p className={"output" + ((err && " error") || "")}>
-                    {output || err || "(none)"}
-                </p>
+                <p className={"output" + ((err && " error") || "")}>{output || err || "(none)"}</p>
             </div>
             <div className="tokens">
                 <div className="col">
@@ -65,22 +55,13 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
             <h2 id="examples">Examples</h2>
             <ul>
                 <li>
-                    What is the date 30 days from now?{" "}
-                    <DateCalcLink
-                        value="12/30/2021 + 30 days"
-                        onClick={onClick}
-                    />
+                    What is the date 30 days from now? <DateCalcLink value="12/30/2021 + 30 days" onClick={onClick} />
                 </li>
                 <li>
-                    How many days between 2 dates?{" "}
-                    <DateCalcLink
-                        value="12/25/2020 - 12/25/2021"
-                        onClick={onClick}
-                    />
+                    How many days between 2 dates? <DateCalcLink value="12/25/2020 - 12/25/2021" onClick={onClick} />
                 </li>
                 <li>
-                    How many hours in a week?{" "}
-                    <DateCalcLink value="1 week as hours" onClick={onClick} />
+                    How many hours in a week? <DateCalcLink value="1 week as hours" onClick={onClick} />
                 </li>
             </ul>
         </>

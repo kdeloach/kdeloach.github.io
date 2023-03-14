@@ -65,9 +65,7 @@ function wordFromQuerystring(): string {
 }
 
 export const WordleForm = () => {
-    const [state, setState] = useState<AppState>(() =>
-        newState(wordFromQuerystring())
-    );
+    const [state, setState] = useState<AppState>(() => newState(wordFromQuerystring()));
     const { activeTileIndex, chars, clues, answer, error } = state;
     const bestClues = bestGuessForEachLetter(chars, clues);
 
@@ -166,10 +164,7 @@ export const WordleForm = () => {
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
-                {(error.length > 0 && (
-                    <span className="error">Error: {error}</span>
-                )) ||
-                    null}
+                {(error.length > 0 && <span className="error">Error: {error}</span>) || null}
                 <div className="grid">{rows}</div>
                 <div className="letters">{letters}</div>
             </div>
@@ -208,8 +203,7 @@ interface TileProps {
 }
 
 const Tile = ({ tileIndex, tileActive, char, clue }: TileProps) => {
-    const { onTileBackspace, onTileEnter, onTileChange } =
-        useContext(AppContext);
+    const { onTileBackspace, onTileEnter, onTileChange } = useContext(AppContext);
 
     const ref = useRef<HTMLInputElement>();
 

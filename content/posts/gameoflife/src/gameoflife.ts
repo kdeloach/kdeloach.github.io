@@ -9,11 +9,7 @@ export type MapCallback<T> = (args: CallbackArgs<T>) => T;
 export type ForEachCallback<T> = (args: CallbackArgs<T>) => void;
 
 export class CellGrid<T> {
-    constructor(
-        readonly rows: number,
-        readonly cols: number,
-        readonly cells: T[] = []
-    ) {}
+    constructor(readonly rows: number, readonly cols: number, readonly cells: T[] = []) {}
 
     map(cb: MapCallback<T>): CellGrid<T> {
         const cells: T[] = [];
