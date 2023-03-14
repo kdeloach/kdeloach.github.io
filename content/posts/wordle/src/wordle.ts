@@ -225,3 +225,31 @@ function score2(a: string, b: string, words: string[]): number {
     const clues = generateClues(a, b);
     return candidates(chars, clues, words).length;
 }
+
+function clueValue(clue: string) {
+    if (clue === CLUE_NONE) {
+        return 0;
+    } else if (clue === CLUE_WRONG) {
+        return 1;
+    } else if (clue === CLUE_MISPLACED) {
+        return 2;
+    } else if (clue === CLUE_RIGHT) {
+        return 3;
+    }
+    return -1;
+}
+
+export function bestGuessForEachLetter(
+    chars: string[],
+    clues: string[]
+): Record<string, string> {
+    const best: Record<string, string> = {};
+    for (let i = 0; i < chars.length; i++) {
+        const char = chars[i];
+        const clue = clues[i];
+        if (!best[char] || clueValue(clue) > clueValue(best[char])) {
+            best[char] = clue;
+        }
+    }
+    return best;
+}

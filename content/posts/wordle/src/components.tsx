@@ -8,6 +8,7 @@ import {
     CLUE_WRONG,
     CLUE_MISPLACED,
     candidatesRanked,
+    bestGuessForEachLetter,
 } from "./wordle";
 import { WORD_LIST, WORDS_ALLOWED, WORDS_ANSWERS } from "./words";
 import React, {
@@ -29,16 +30,11 @@ interface IAppContext {
 
 const AppContext = React.createContext<IAppContext>(null);
 
-const GUESS_WORDS_LIMIT = 7;
-const GUESS_WORDS_ALT_LIMIT = 3;
-
 interface AppState {
     activeTileIndex: number;
     chars: string[];
     clues: string[];
     answer: string;
-    guessWords: string[];
-    guessWordsAlt: string[];
     error: string;
 }
 
@@ -49,19 +45,11 @@ function newState(answer: string): AppState {
         chars[i] = "";
         clues[i] = CLUE_NONE;
     }
-    const guessWords = candidatesRanked(
-        chars,
-        clues,
-        WORDS_ANSWERS,
-        GUESS_WORDS_LIMIT
-    );
     return {
         activeTileIndex: 0,
         chars,
         clues,
         answer,
-        guessWords,
-        guessWordsAlt: [],
         error: "",
     };
 }
@@ -76,19 +64,12 @@ function wordFromQuerystring(): string {
     return randomWord();
 }
 
-export const WordleForm: React.FC = () => {
+export const WordleForm = () => {
     const [state, setState] = useState<AppState>(() =>
         newState(wordFromQuerystring())
     );
-    const {
-        activeTileIndex,
-        chars,
-        clues,
-        answer,
-        guessWords,
-        guessWordsAlt,
-        error,
-    } = state;
+    const { activeTileIndex, chars, clues, answer, error } = state;
+    const bestClues = bestGuessForEachLetter(chars, clues);
 
     const appContext = {
         onTileChange: (char: string) => {
@@ -151,30 +132,10 @@ export const WordleForm: React.FC = () => {
                 clues[rowIndex + i] = newClues[i];
             }
 
-            let guessWords = candidatesRanked(
-                chars,
-                clues,
-                WORDS_ANSWERS,
-                GUESS_WORDS_LIMIT
-            );
-            let guessWordsAlt = candidatesRanked(
-                chars,
-                // clues,
-                clues.map((c) => (c == CLUE_RIGHT ? CLUE_NONE : c)),
-                WORDS_ALLOWED,
-                GUESS_WORDS_LIMIT
-            );
-
-            guessWordsAlt = guessWordsAlt.filter(
-                (w) => !guessWords.includes(w)
-            );
-
             setState((state) => ({
                 ...state,
                 error: "",
                 activeTileIndex: rowIndex + WORD_LENGTH,
-                guessWords,
-                guessWordsAlt,
             }));
         },
     };
@@ -182,14 +143,6 @@ export const WordleForm: React.FC = () => {
     const getCurrentWord = () => {
         const i = getRowIndex(activeTileIndex) * WORD_LENGTH;
         return chars.slice(i, i + WORD_LENGTH).join("");
-    };
-
-    const newGame = () => {
-        setState(newState(randomWord()));
-    };
-
-    const retry = () => {
-        setState({ ...newState(randomWord()), answer });
     };
 
     const rows = [];
@@ -203,45 +156,22 @@ export const WordleForm: React.FC = () => {
         rows.push(<Row key={i} {...props} />);
     }
 
-    let guessWordsAltDisplay: string[] = [];
-    if (guessWords.length > 1 && guessWordsAlt.length > 0) {
-        guessWordsAltDisplay = guessWordsAlt.slice(0, GUESS_WORDS_ALT_LIMIT);
+    const letters = [];
+    for (let n = 97; n < 123; n++) {
+        const char = String.fromCharCode(n);
+        const clue = bestClues[char] || CLUE_NONE;
+        letters.push(<ReadOnlyTile key={n} char={char} clue={clue} />);
     }
-
-    let guessWordsDisplay = guessWords.slice(
-        0,
-        GUESS_WORDS_LIMIT - guessWordsAltDisplay.length
-    );
 
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
+                {(error.length > 0 && (
+                    <span className="error">Error: {error}</span>
+                )) ||
+                    null}
                 <div className="grid">{rows}</div>
-                <div className="guess">
-                    <button onClick={newGame}>New Game</button>
-                    <button onClick={retry}>Retry</button>
-                    {error.length > 0 ? (
-                        <span className="error">Error: {error}</span>
-                    ) : (
-                        ""
-                    )}
-                    Guess:
-                    <ul>
-                        {guessWordsDisplay.map((w) => (
-                            <li key={w}>{w}</li>
-                        ))}
-                    </ul>
-                    {guessWordsAltDisplay.length > 0 && (
-                        <>
-                            Alt Guess:
-                            <ul>
-                                {guessWordsAltDisplay.map((w) => (
-                                    <li key={w}>{w}</li>
-                                ))}
-                            </ul>
-                        </>
-                    )}
-                </div>
+                <div className="letters">{letters}</div>
             </div>
         </AppContext.Provider>
     );
@@ -254,12 +184,7 @@ interface RowProps {
     clues: string[];
 }
 
-const Row: React.FC<RowProps> = ({
-    rowIndex,
-    activeTileIndex,
-    chars,
-    clues,
-}) => {
+const Row = ({ rowIndex, activeTileIndex, chars, clues }: RowProps) => {
     const tiles = [];
     for (let i = 0; i < WORD_LENGTH; i++) {
         const tileIndex = rowIndex * WORD_LENGTH + i;
@@ -282,7 +207,7 @@ interface TileProps {
     clue: string;
 }
 
-const Tile: React.FC<TileProps> = ({ tileIndex, tileActive, char, clue }) => {
+const Tile = ({ tileIndex, tileActive, char, clue }: TileProps) => {
     const { onTileBackspace, onTileEnter, onTileChange } =
         useContext(AppContext);
 
@@ -321,6 +246,15 @@ const Tile: React.FC<TileProps> = ({ tileIndex, tileActive, char, clue }) => {
             disabled={!tileActive}
         />
     );
+};
+
+interface ReadOnlyTileProps {
+    char: string;
+    clue: string;
+}
+
+const ReadOnlyTile = ({ char, clue }: ReadOnlyTileProps) => {
+    return <div className={`tile tile-small tile-${clue}`}>{char}</div>;
 };
 
 function isAlpha(c: string): boolean {

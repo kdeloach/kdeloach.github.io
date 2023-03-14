@@ -1,6 +1,6 @@
 .wordle-form {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-around;
 }
 .wordle-form .grid {
@@ -33,17 +33,12 @@
     margin: 5px;
     color: inherit;
 }
-.tile-row-small .tile {
-    height: auto;
+.tile.tile-small {
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
     font-size: 1em;
-    line-height: 1em;
-    margin: 0;
     border-width: 1px;
-    border-right-width: 0;
-    padding: 0 2px;
-}
-.tile-row-small .tile:last-child {
-    border-right-width: 1px;
 }
 .tile-G {
     background: green;
@@ -60,4 +55,11 @@
 }
 .error {
     color: red;
+    text-align: center;
+}
+.letters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 25px;
 }
