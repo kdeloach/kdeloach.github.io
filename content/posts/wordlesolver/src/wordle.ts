@@ -8,7 +8,8 @@ export const CLUE_RIGHT = "G";
 export const CLUE_MISPLACED = "Y";
 export const CLUE_WRONG = "W";
 
-export function firstMatch(chars: string[], clues: string[]): string {
+// Return first word which matches the given clues.
+export function findMatchingWords(chars: string[], clues: string[]): string[] {
     const regexes = createRegexes(chars, clues);
     console.log(regexes);
 
@@ -21,12 +22,13 @@ export function firstMatch(chars: string[], clues: string[]): string {
         return true;
     };
 
+    const result = [];
     for (let word of WORDS_ANSWERS) {
         if (allMatch(word)) {
-            return word;
+            result.push(word);
         }
     }
-    return null;
+    return result;
 }
 
 function createRegexes(chars: string[], clues: string[]): RegExp[] {

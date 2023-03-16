@@ -1,5 +1,13 @@
 import React, { KeyboardEvent, ChangeEvent, useState, useEffect, useRef, useContext } from "react";
-import { ROWS_COUNT, WORD_LENGTH, CLUE_NONE, CLUE_RIGHT, CLUE_WRONG, CLUE_MISPLACED, firstMatch } from "./wordle";
+import {
+    ROWS_COUNT,
+    WORD_LENGTH,
+    CLUE_NONE,
+    CLUE_RIGHT,
+    CLUE_WRONG,
+    CLUE_MISPLACED,
+    findMatchingWords,
+} from "./wordle";
 import { WORD_LIST, WORDS_ALLOWED, WORDS_ANSWERS } from "./words";
 
 interface IAppContext {
@@ -84,9 +92,11 @@ export const WordleForm = () => {
         },
     };
 
-    const guess = firstMatch(chars, clues);
+    const matches = findMatchingWords(chars, clues) || [];
+    const guess = (matches.length && matches[0]) || "";
+    const chance = formatPercent((matches.length && 1 / matches.length) || 0);
     const guessTiles = [];
-    for (let i = 0; i < guess?.length || 0; i++) {
+    for (let i = 0; i < guess.length; i++) {
         guessTiles.push(<ReadOnlyTile key={i} char={guess[i]} clue={CLUE_NONE} />);
     }
 
@@ -99,7 +109,13 @@ export const WordleForm = () => {
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
-                <div className="guess">{(guess && <>Try...{guessTiles}</>) || <>No solution?</>}</div>
+                <div className="guess">
+                    {(guess.length && (
+                        <>
+                            Try...{guessTiles} ({chance})
+                        </>
+                    )) || <>No solution?</>}
+                </div>
                 <div className="grid">{rows}</div>
             </div>
         </AppContext.Provider>
@@ -206,4 +222,12 @@ function clamp(n: number, lo: number, hi: number): number {
 
 function getRowIndex(tileIndex: number): number {
     return Math.floor(tileIndex / WORD_LENGTH);
+}
+
+function formatPercent(perc: number): string {
+    const n = Math.round(perc * 100);
+    if (n == 0) {
+        return "< 1%";
+    }
+    return `${n}%`;
 }
