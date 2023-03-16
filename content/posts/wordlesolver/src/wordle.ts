@@ -31,6 +31,32 @@ export function findMatchingWords(chars: string[], clues: string[]): string[] {
     return result;
 }
 
+// Return first word which matches the given clues, but inverse the clues such
+// that correct/misplaced letters are excluded.
+export function findMatchingWordsUnknownLettersOnly(chars: string[], clues: string[]): string[] {
+    const exclude = [];
+    for (let i = 0; i < clues.length; i++) {
+        if (clues[i] !== CLUE_NONE && chars[i] !== "") {
+            exclude.push(chars[i]);
+        }
+    }
+
+    const pattern = new RegExp(`[^${exclude.join("")}]`.repeat(WORD_LENGTH));
+    console.log(pattern);
+
+    const allMatch = (word: string): boolean => {
+        return pattern.test(word);
+    };
+
+    const result = [];
+    for (let word of WORDS_ANSWERS) {
+        if (allMatch(word)) {
+            result.push(word);
+        }
+    }
+    return result;
+}
+
 function createRegexes(chars: string[], clues: string[]): RegExp[] {
     const noMatch = new Set<string>();
     const allMatch: string[] = ".".repeat(WORD_LENGTH).split("");

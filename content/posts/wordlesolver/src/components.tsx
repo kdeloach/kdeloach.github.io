@@ -7,6 +7,7 @@ import {
     CLUE_WRONG,
     CLUE_MISPLACED,
     findMatchingWords,
+    findMatchingWordsUnknownLettersOnly,
 } from "./wordle";
 import { WORD_LIST, WORDS_ALLOWED, WORDS_ANSWERS } from "./words";
 
@@ -100,6 +101,14 @@ export const WordleForm = () => {
         guessTiles.push(<ReadOnlyTile key={i} char={guess[i]} clue={CLUE_NONE} />);
     }
 
+    const altMatches = findMatchingWordsUnknownLettersOnly(chars, clues) || [];
+    const altGuess = (altMatches.length && altMatches[0]) || "";
+    const altChance = formatPercent((altMatches.length && 1 / altMatches.length) || 0);
+    const altGuessTiles = [];
+    for (let i = 0; i < altGuess.length; i++) {
+        altGuessTiles.push(<ReadOnlyTile key={i} char={altGuess[i]} clue={CLUE_NONE} />);
+    }
+
     const rows = [];
     for (let i = 0; i < ROWS_COUNT; i++) {
         const props = { rowIndex: i, activeTileIndex, chars, clues };
@@ -113,6 +122,15 @@ export const WordleForm = () => {
                     {(guess.length && (
                         <>
                             Try...{guessTiles} ({chance})
+                            {(altGuess.length && altGuess !== guess && (
+                                <>
+                                    <br />
+                                    or
+                                    <br />
+                                    {altGuessTiles} ({altChance})
+                                </>
+                            )) ||
+                                null}
                         </>
                     )) || <>No solution?</>}
                 </div>
