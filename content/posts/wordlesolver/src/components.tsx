@@ -75,7 +75,11 @@ export const WordleForm = () => {
         },
         onTileEnter: () => {},
         onClueChanged: (tileIndex: number, clue: string) => {
-            clues[tileIndex] = clue;
+            if (clues[tileIndex] === clue) {
+                clues[tileIndex] = CLUE_NONE;
+            } else {
+                clues[tileIndex] = clue;
+            }
             setState((state) => ({ ...state }));
         },
     };
