@@ -118,23 +118,26 @@ export const WordleForm = () => {
     return (
         <AppContext.Provider value={appContext}>
             <div className="wordle-form">
+                <div className="grid">{rows}</div>
                 <div className="guess">
                     {(guess.length && (
-                        <>
-                            Try...{guessTiles} ({chance})
+                        <p>
+                            <div>Try...</div>
+                            <div>
+                                {guessTiles} ({chance})
+                            </div>
                             {(altGuess.length && altGuess !== guess && (
                                 <>
-                                    <br />
-                                    or
-                                    <br />
-                                    {altGuessTiles} ({altChance})
+                                    <div>or</div>
+                                    <div>
+                                        {altGuessTiles} ({altChance})
+                                    </div>
                                 </>
                             )) ||
                                 null}
-                        </>
+                        </p>
                     )) || <>No solution?</>}
                 </div>
-                <div className="grid">{rows}</div>
             </div>
         </AppContext.Provider>
     );
