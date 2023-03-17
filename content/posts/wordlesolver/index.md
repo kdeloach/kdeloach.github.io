@@ -8,4 +8,4 @@ date: 2023-03-14
 
 ### Related:
 
-- [Wordle]({{< ref "/wordle" >}})
+-   [Wordle]({{< ref "/wordle" >}})
