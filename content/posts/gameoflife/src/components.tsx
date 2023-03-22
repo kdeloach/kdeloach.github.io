@@ -1,10 +1,14 @@
-import { CellGrid, MapCallback } from "./gameoflife";
 import React, { useState, useEffect } from "react";
+import { CellGrid, MapCallback } from "./gameoflife";
 
-const ROWS = 20;
+const ROWS = 40;
 const COLS = 40;
 
 const TIMEOUT_INTERVAL = 100;
+
+const ERASER = new CellGrid(1, 1, [0]);
+
+const DOT = new CellGrid(1, 1, [1]);
 
 // prettier-ignore
 const GLIDER = new CellGrid(3, 3, [
@@ -31,10 +35,7 @@ const PULSAR = new CellGrid(13, 13, [
 ]);
 
 const initialValue: MapCallback<number> = ({ x, y }) => {
-    const offset = { x: 0, y: 0 };
-    return GLIDER.cellAt(x - offset.x, y - offset.y) || 0;
-    // const offset = { x: 13, y: 3 };
-    // return PULSAR.cellAt(x - offset.x, y - offset.y) || 0;
+    return GLIDER.cellAt(x, y) || PULSAR.cellAt(x - 14, y - 14) || 0;
 };
 
 const cellStyle = (value: number) => {
@@ -57,19 +58,19 @@ export const GameOfLife: React.FC = () => {
     const [mouseDown, setMouseDown] = useState(false);
     const [paused, setPaused] = useState(false);
     const [grid, setGrid] = useState(new CellGrid<number>(ROWS, COLS).map(initialValue));
+    const [brush, setBrush] = useState(DOT);
+    const [frame, setFrame] = useState(0);
 
     useEffect(() => {
-        if (paused) {
+        if (paused || mouseDown) {
             return;
         }
-        let id: any;
-        const queueNextFrame = () => {
+        const timeoutID = setTimeout(() => {
             step();
-            id = setTimeout(queueNextFrame, TIMEOUT_INTERVAL);
-        };
-        id = setTimeout(queueNextFrame, TIMEOUT_INTERVAL);
-        return () => clearTimeout(id);
-    }, [paused]);
+            setFrame((frame) => (frame + 1) % 1000);
+        }, TIMEOUT_INTERVAL);
+        return () => clearTimeout(timeoutID);
+    }, [paused, mouseDown, frame]);
 
     useEffect(() => {
         const onKeyUp = (e: KeyboardEvent) => {
@@ -79,21 +80,20 @@ export const GameOfLife: React.FC = () => {
         };
         document.addEventListener("keyup", onKeyUp);
         return () => document.removeEventListener("keyup", onKeyUp);
-    }, [paused]);
+    }, []);
 
     const togglePause = () => setPaused((paused) => !paused);
 
-    const step = () => {
-        setGrid((grid) => grid.map(conwayRules));
-    };
+    const step = () => setGrid((grid) => grid.map(conwayRules));
 
     const reset = () => {
         setGrid(grid.map(initialValue));
     };
 
-    const toggle = (x: number, y: number) => {
-        grid.setCell(x, y, 1 - grid.cellAt(x, y));
-        setGrid((grid) => new CellGrid(ROWS, COLS, grid.cells));
+    const drawBrush = (mx: number, my: number) => {
+        setGrid((grid) =>
+            new CellGrid<number>(ROWS, COLS).map(({ x, y }) => brush.cellAt(x - mx, y - my) ?? grid.cellAt(x, y))
+        );
     };
 
     const rows = [];
@@ -107,8 +107,8 @@ export const GameOfLife: React.FC = () => {
                     data-y={y}
                     className="cell"
                     style={cellStyle(grid.cellAt(x, y))}
-                    onMouseDown={() => toggle(x, y)}
-                    onMouseEnter={() => mouseDown && toggle(x, y)}
+                    onMouseDown={() => drawBrush(x, y)}
+                    onMouseEnter={() => mouseDown && drawBrush(x, y)}
                 ></div>
             );
         }
@@ -120,19 +120,28 @@ export const GameOfLife: React.FC = () => {
     }
 
     return (
-        <div
-            onMouseDown={(e) => {
-                e.preventDefault();
-                setMouseDown(true);
-            }}
-            onMouseUp={() => setMouseDown(false)}
-        >
-            <div className="grid">{rows}</div>
+        <>
+            <div
+                className="grid"
+                onMouseDown={(e) => {
+                    e.preventDefault();
+                    setMouseDown(true);
+                }}
+                onMouseUp={() => setMouseDown(false)}
+            >
+                {rows}
+            </div>
+            <div className="brushes">
+                <button onClick={() => setBrush(DOT)}>{(brush === DOT && "[Dot]") || "Dot"}</button>
+                <button onClick={() => setBrush(GLIDER)}>{(brush === GLIDER && "[Glider]") || "Glider"}</button>
+                <button onClick={() => setBrush(PULSAR)}>{(brush === PULSAR && "[Pulsar]") || "Pulsar"}</button>
+                <button onClick={() => setBrush(ERASER)}>{(brush === ERASER && "[Eraser]") || "Eraser"}</button>
+            </div>
             <div className="actions">
                 <button onClick={togglePause}>{(paused && "Play") || "Pause"}</button>
                 <button onClick={step}>Step</button>
                 <button onClick={reset}>Reset</button>
             </div>
-        </div>
+        </>
     );
 };
