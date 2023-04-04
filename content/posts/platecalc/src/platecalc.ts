@@ -189,7 +189,20 @@ export function sortByFrequency(arr: ValueNode[][]) {
 
     // Sort the subarrays based on the frequency of their keys
     arr.forEach((subArr, i) => {
-        subArr.sort((a, b) => freqMap[b.key] - freqMap[a.key]);
+        subArr.sort((a, b) => {
+            if (freqMap[b.key] !== freqMap[a.key]) {
+                return freqMap[b.key] - freqMap[a.key];
+            } else if (i > 0) {
+                // Prefer not to move plates from previous set, for plates
+                // with equal frequencies.
+                const indexA = arr[i - 1].findIndex((node) => node.equals(a));
+                const indexB = arr[i - 1].findIndex((node) => node.equals(b));
+                if (indexA === -1) return 1; // Move a to the end of the array if not found in the previous subarray
+                if (indexB === -1) return -1; // Move b to the end of the array if not found in the previous subarray
+                return indexA - indexB;
+            }
+            return 0;
+        });
     });
 }
 
