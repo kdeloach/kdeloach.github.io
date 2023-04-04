@@ -9,17 +9,17 @@ import {
     sortByFirst,
     sortByLast,
     sortByFrequency,
-    formatTreeNodeArr,
+    sortFrontToBack,
+    sortBackToFront,
     summarizeDifference,
 } from "./platecalc";
 
-type SortMethod = "first" | "last" | "firstLast" | "lastFirst" | "frequency" | "none";
+type SortMethod = "first" | "last" | "frontToBack" | "backToFront" | "frequency" | "none";
 
 export const PlateCalcForm = () => {
     const [barWeight, setBarWeight] = useState(45);
-    const [sortMethod, setSortMethod] = useState<SortMethod>("frequency");
+    const [sortMethod, setSortMethod] = useState<SortMethod>("frontToBack");
     const [platesInput, setPlatesInput] = useState("45, 35, 25, 10, 10, 5, 5, 2.5, 1.25");
-    const [preferLight, setPreferLight] = useState(false);
 
     const plates = useMemo(() => {
         const plates = parseNumbersFromString(platesInput);
@@ -32,22 +32,17 @@ export const PlateCalcForm = () => {
         return tuplesToTree(tuples);
     }, [plates]);
 
-    // XXX for debugging
-    (window as any).tree = tree;
-
-    const [weightsInput, setWeightsInput] = useState("100 200 300 120");
+    const [weightsInput, setWeightsInput] = useState("100 150 200 120");
     const weights = parseNumbersFromString(weightsInput);
 
     const candidates = weights.map((n) => tree.getNodesWithTotalValue(barWeight, n));
-    const setNodes = findLowestScore(candidates, preferLight) || [];
+    const setNodes = findLowestScore(candidates) || [];
     const result: ValueNode[][] = setNodes.map((node) => node.nodes());
 
-    if (sortMethod == "firstLast") {
-        sortByFirst(result);
-        sortByLast(result);
-    } else if (sortMethod == "lastFirst") {
-        sortByLast(result);
-        sortByFirst(result);
+    if (sortMethod == "frontToBack") {
+        sortFrontToBack(result);
+    } else if (sortMethod == "backToFront") {
+        sortBackToFront(result);
     } else if (sortMethod == "first") {
         sortByFirst(result);
     } else if (sortMethod == "last") {
@@ -59,12 +54,12 @@ export const PlateCalcForm = () => {
     const sortMethods: { label: string; value: SortMethod; help: string }[] = [
         {
             label: "First to Last",
-            value: "firstLast",
+            value: "frontToBack",
             help: "Sort by First then Last Set. Prefer position of plates from later sets.",
         },
         {
             label: "Last to First",
-            value: "lastFirst",
+            value: "backToFront",
             help: "Sort by Last then First Set. Prefer position of plates from earlier sets.",
         },
         {
@@ -139,19 +134,6 @@ export const PlateCalcForm = () => {
                         ))}
                     </div>
                 </div>
-                <div style={{ display: "flex", justifyContent: "flex-start", gap: 20 }}>
-                    <div className="form-item">
-                        <label htmlFor="preferLight" style={{ width: "auto" }}>
-                            Prefer Light Plates?
-                        </label>
-                        <input
-                            id="preferLight"
-                            type="checkbox"
-                            checked={preferLight}
-                            onChange={(e) => setPreferLight(e.target.checked)}
-                        />
-                    </div>
-                </div>
             </div>
             <div className="summary">
                 <div>Plates added/removed: {summary.platesAddedRemoved}</div>
@@ -170,7 +152,6 @@ export const PlateCalcForm = () => {
                         <tr>
                             <th>Weight</th>
                             <th>Plates</th>
-                            <th>Score</th>
                         </tr>
                     </thead>
                     {weights.map((n, i) => (
@@ -180,8 +161,7 @@ export const PlateCalcForm = () => {
                             </tr>
                             {candidates[i].map((node, i) => (
                                 <tr key={i}>
-                                    <td>{node.values().join(", ")}</td>
-                                    <td>{preferLight ? node.scoreLight : node.score}</td>
+                                    <td>{node.toString()}</td>
                                 </tr>
                             ))}
                         </tbody>

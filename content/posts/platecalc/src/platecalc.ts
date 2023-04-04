@@ -3,21 +3,12 @@ export class TreeNode {
     parent: TreeNode | null;
     children: { [key: number]: TreeNode };
     totalValue: number;
-    height: number;
-    score: number;
-    scoreLight: number;
 
     constructor(value: number = 0, parent: TreeNode | null = null) {
         this.value = value;
         this.parent = parent;
         this.children = {};
         this.totalValue = this.value + (this.parent?.totalValue ?? 0);
-        this.height = (this.parent?.height ?? -1) + 1;
-
-        const scale = Math.round(value / 10);
-
-        this.score = (this.parent?.score ?? 0) + Math.round(this.value * this.height);
-        this.scoreLight = (this.parent?.scoreLight ?? 0) + Math.round(this.value * this.height * scale);
     }
 
     find(...values: number[]): TreeNode | null {
@@ -57,35 +48,6 @@ export class TreeNode {
         return results;
     }
 
-    distanceTo(otherNode: TreeNode | null) {
-        if (otherNode === null) {
-            throw new Error("The specified node is null");
-        }
-
-        let currentNode: TreeNode | null = this;
-        let distance = 0;
-
-        while (currentNode !== null && otherNode !== null && currentNode !== otherNode) {
-            if (currentNode.height > otherNode.height) {
-                currentNode = currentNode.parent;
-                distance++;
-            } else if (currentNode.height < otherNode.height) {
-                otherNode = otherNode.parent;
-                distance++;
-            } else {
-                currentNode = currentNode.parent;
-                otherNode = otherNode.parent;
-                distance += 2;
-            }
-        }
-
-        if (currentNode === null || otherNode === null) {
-            throw new Error("The specified nodes are not in the same tree");
-        }
-
-        return distance;
-    }
-
     walkDFS(callback: (node: TreeNode) => void) {
         callback(this);
         for (const childKey in this.children) {
@@ -119,12 +81,8 @@ export class TreeNode {
         return path;
     }
 
-    values(): number[] {
-        return this.nodes().map((node) => node.value);
-    }
-
     toString(): string {
-        return `[${this.values()}]`;
+        return ValueNodeUtil.toString(this.nodes());
     }
 }
 
@@ -161,8 +119,18 @@ class ValueNodeUtil {
         return dist;
     }
 
-    static toString(a: ValueNode[]): string {
-        return "[" + a.map((node) => node.value).join(",") + "]";
+    static score(nodes: ValueNode[]): number {
+        let totalScore = 0;
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
+            const height = i + 1;
+            totalScore += Math.round(node.value * height);
+        }
+        return totalScore;
+    }
+
+    static toString(nodes: ValueNode[]): string {
+        return "[" + nodes.map((node) => node.value).join(", ") + "]";
     }
 }
 
@@ -173,62 +141,18 @@ export function distinctSubsets(numbers: number[]): number[][] {
         if (startIndex > 0) {
             subsets.push([...currentSubset]);
         }
-
         for (let i = startIndex; i < numbers.length; i++) {
             if (i > startIndex && numbers[i] === numbers[i - 1]) {
                 continue;
             }
-
             currentSubset.push(numbers[i]);
-
             generateSubsets(currentSubset, i + 1);
-
             currentSubset.pop();
         }
     };
 
     generateSubsets([], 0);
-
     return subsets;
-}
-
-// TODO: delete, not used
-function distinctSubsetsAndPermutations(numbers: number[]): number[][] {
-    const subsetsAndPermutations: number[][] = [];
-
-    const generateSubsetsAndPermutations = (currentSubset: number[], startIndex: number, used: boolean[]) => {
-        if (startIndex > 0) {
-            subsetsAndPermutations.push([...currentSubset]);
-        }
-
-        for (let i = startIndex; i < numbers.length; i++) {
-            if (used[i] || (i > startIndex && numbers[i] === numbers[i - 1] && !used[i - 1])) {
-                continue;
-            }
-
-            used[i] = true;
-            currentSubset.push(numbers[i]);
-
-            generateSubsetsAndPermutations(currentSubset, startIndex, used);
-
-            for (let j = startIndex; j < i; j++) {
-                if (!used[j]) {
-                    used[j] = true;
-                    currentSubset.push(numbers[j]);
-                    generateSubsetsAndPermutations(currentSubset, i, used);
-                    currentSubset.pop();
-                    used[j] = false;
-                }
-            }
-
-            currentSubset.pop();
-            used[i] = false;
-        }
-    };
-
-    generateSubsetsAndPermutations([], 0, new Array(numbers.length).fill(false));
-
-    return subsetsAndPermutations;
 }
 
 export function tuplesToTree(tuples: number[][]): TreeNode {
@@ -249,7 +173,6 @@ export function tuplesToTree(tuples: number[][]): TreeNode {
     return root;
 }
 
-// Test case: 100 150 200 250
 export function sortByFrequency(arr: ValueNode[][]) {
     // Create an object to store the frequency of each key
     const freqMap: Record<string, number> = {};
@@ -264,24 +187,21 @@ export function sortByFrequency(arr: ValueNode[][]) {
         });
     });
 
-    // Sort the subarrays based on the frequency of their keys and first index
+    // Sort the subarrays based on the frequency of their keys
     arr.forEach((subArr, i) => {
-        subArr.sort((a, b) => {
-            if (freqMap[b.key] !== freqMap[a.key]) {
-                return freqMap[b.key] - freqMap[a.key];
-            } else if (i > 0) {
-                const indexA = arr[i - 1].findIndex((node) => node.equals(a));
-                const indexB = arr[i - 1].findIndex((node) => node.equals(b));
-                if (indexA === -1) return 1; // Move a to the end of the array if not found in the previous subarray
-                if (indexB === -1) return -1; // Move b to the end of the array if not found in the previous subarray
-                return indexA - indexB;
-            }
-            return 0;
-        });
+        subArr.sort((a, b) => freqMap[b.key] - freqMap[a.key]);
     });
 }
 
-// TODO: test 100 200 125
+export function sortFrontToBack(arr: ValueNode[][]) {
+    sortByFirst(arr);
+    sortByLast(arr);
+}
+
+export function sortBackToFront(arr: ValueNode[][]) {
+    sortByLast(arr);
+    sortByFirst(arr);
+}
 
 export function sortByFirst(arr: ValueNode[][]) {
     // Sort each subarray by the previous subarray in ascending order
@@ -309,42 +229,55 @@ export function sortByLast(arr: ValueNode[][]) {
     }
 }
 
-function prettyPrintTree(root: TreeNode, path: (number | string)[] = []): string {
-    const value = root.value !== undefined && root.value !== null ? root.value : "root";
-    const result = [`- ${path.length === 0 ? value : `[${path.concat(+value || 0).join(", ")}]`}`];
-    const children = Object.values(root.children);
-    children.forEach((child) => {
-        const childPath = [...path, value];
-        result.push(...prettyPrintTree(child, childPath).split("\n"));
-    });
-    return result.join("\n");
-}
-
-export function formatTreeNodeArr(arr: TreeNode[]): string {
-    return "[" + arr.map((node) => node.value).join(", ") + "]";
-}
-
-function calculateTotalScore(nodes: TreeNode[], preferLight: boolean): number {
+function calculateTotalScore(nodes: TreeNode[]): number {
     if (nodes.length === 0) {
         return 0;
     }
 
-    const score = (node: TreeNode): number => (preferLight ? node.scoreLight : node.score);
+    const valueNodesUnsorted = nodes.map((node) => node.nodes());
 
-    let totalScore = score(nodes[0]);
-    for (let i = 1; i < nodes.length; i++) {
-        const prevNode = nodes[i - 1];
-        const currNode = nodes[i];
+    const valueNodes = nodes.map((node) => node.nodes());
+    sortFrontToBack(valueNodes);
 
-        const sorted = [prevNode.nodes(), currNode.nodes()];
-        sortByFrequency(sorted);
-        const dist = ValueNodeUtil.distance(sorted[0], sorted[1]);
+    // const debugTable = [];
 
-        const score = (preferLight ? currNode.scoreLight : currNode.score) * dist;
-        //console.log(prevNode.toString(), currNode.toString(), dist, score);
-        totalScore += score;
+    let totalDist = valueNodes[0].length;
+    let totalPlates = valueNodes[0].length;
+    let prevScore = ValueNodeUtil.score(valueNodes[0]);
+    let totalScore = prevScore * totalDist;
+
+    // debugTable.push([
+    //     ValueNodeUtil.toString(valueNodesUnsorted[0]),
+    //     ValueNodeUtil.toString(valueNodes[0]),
+    //     `score=${prevScore} dist=${totalDist}`,
+    // ]);
+
+    for (let i = 1; i < valueNodes.length; i++) {
+        const prevNode = valueNodes[i - 1];
+        const currNode = valueNodes[i];
+
+        const dist = ValueNodeUtil.distance(prevNode, currNode);
+        const score = ValueNodeUtil.score(currNode);
+        const scoreDelta = Math.abs(score - prevScore);
+
+        // debugTable.push([
+        //     ValueNodeUtil.toString(valueNodesUnsorted[i]),
+        //     ValueNodeUtil.toString(currNode),
+        //     `score=${scoreDelta} dist=${dist}`,
+        // ]);
+
+        totalDist += dist;
+        totalPlates += currNode.length;
+        totalScore += scoreDelta * dist;
+
+        prevScore = score;
     }
-    return totalScore;
+
+    // debugTable.push(["", `total=${totalScore} dist=${totalDist} plates=${totalPlates}`]);
+
+    // Multiply final score by total number of plates added/removed as a tie
+    // breaker between solutions with equal scores.
+    return totalScore * totalDist;
 }
 
 function walkCombinations<T>(inputs: T[][], callback: (args: T[]) => void) {
@@ -369,11 +302,11 @@ function walkCombinations<T>(inputs: T[][], callback: (args: T[]) => void) {
     recurse(0, []);
 }
 
-export function findLowestScore(nodesList: TreeNode[][], preferLight: boolean): TreeNode[] | undefined {
+export function findLowestScore(nodesList: TreeNode[][]): TreeNode[] | undefined {
     let lowestScore = Infinity;
     let lowestNodes: TreeNode[] | undefined;
     walkCombinations(nodesList, (nodes) => {
-        const score = calculateTotalScore(nodes, preferLight);
+        const score = calculateTotalScore(nodes);
         if (score < lowestScore) {
             lowestScore = score;
             lowestNodes = nodes;
@@ -406,7 +339,7 @@ export function summarizeDifference(arr: ValueNode[][]): Summary {
     }
 
     const added: ValueNode[] = [...arr[0]];
-    const removed: ValueNode[] = [];
+    const removed: ValueNode[] = [...arr[arr.length - 1]];
 
     for (let i = 1; i < arr.length; i++) {
         // Previous and current sublist
