@@ -256,13 +256,13 @@ function calculateTotalScore(nodes: TreeNode[]): number {
 
     let totalDist = valueNodes[0].length;
     let totalPlates = valueNodes[0].length;
-    let prevScore = ValueNodeUtil.score(valueNodes[0]);
-    let totalScore = prevScore * totalDist;
+    let initialScore = ValueNodeUtil.score(valueNodes[0]);
+    let totalScore = initialScore * totalDist;
 
     // debugTable.push([
     //     ValueNodeUtil.toString(valueNodesUnsorted[0]),
     //     ValueNodeUtil.toString(valueNodes[0]),
-    //     `score=${prevScore} dist=${totalDist}`,
+    //     `score=${initialScore} dist=${totalDist}`,
     // ]);
 
     for (let i = 1; i < valueNodes.length; i++) {
@@ -271,19 +271,16 @@ function calculateTotalScore(nodes: TreeNode[]): number {
 
         const dist = ValueNodeUtil.distance(prevNode, currNode);
         const score = ValueNodeUtil.score(currNode);
-        const scoreDelta = Math.abs(score - prevScore);
 
         // debugTable.push([
         //     ValueNodeUtil.toString(valueNodesUnsorted[i]),
         //     ValueNodeUtil.toString(currNode),
-        //     `score=${scoreDelta} dist=${dist}`,
+        //     `score=${score} dist=${dist}`,
         // ]);
 
         totalDist += dist;
         totalPlates += currNode.length;
-        totalScore += scoreDelta * dist;
-
-        prevScore = score;
+        totalScore += score * dist;
     }
 
     // debugTable.push(["", `total=${totalScore} dist=${totalDist} plates=${totalPlates}`]);
