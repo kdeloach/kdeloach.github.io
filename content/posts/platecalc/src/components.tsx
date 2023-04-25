@@ -9,6 +9,7 @@ import {
     sortByFirst,
     sortByLast,
     sortByFrequency,
+    ValueNodeUtil,
     sortFrontToBack,
     sortBackToFront,
     summarizeDifference,
@@ -31,6 +32,10 @@ export const PlateCalcForm = () => {
         const tuples = distinctSubsets(plates);
         return tuplesToTree(tuples);
     }, [plates]);
+
+    // XXX for debugging
+    (window as any).tree = tree;
+    (window as any).ValueNodeUtil = ValueNodeUtil;
 
     const [weightsInput, setWeightsInput] = useState("100 150 200 120");
     const weights = parseNumbersFromString(weightsInput);

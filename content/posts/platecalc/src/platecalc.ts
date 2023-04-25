@@ -107,7 +107,7 @@ export class ValueNode {
     }
 }
 
-class ValueNodeUtil {
+export class ValueNodeUtil {
     static distance(a: ValueNode[], b: ValueNode[]): number {
         const n = Math.min(a.length, b.length);
         let i = 0;
@@ -287,6 +287,7 @@ function calculateTotalScore(nodes: TreeNode[]): number {
     }
 
     // debugTable.push(["", `total=${totalScore} dist=${totalDist} plates=${totalPlates}`]);
+    // console.table(debugTable);
 
     // Multiply final score by total number of plates added/removed as a tie
     // breaker between solutions with equal scores.
