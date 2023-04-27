@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kevin DeLoach</title>
+    <link>https://kdeloach.me/</link>
+    <description>Recent content on Kevin DeLoach</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>kdeloach@gmail.com (Kevin DeLoach)</managingEditor>
+    <webMaster>kdeloach@gmail.com (Kevin DeLoach)</webMaster><atom:link href="https://kdeloach.me/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Plate Calculator</title>
+      <link>https://kdeloach.me/platecalc/</link>
+      <pubDate>Wed, 29 Mar 2023 00:00:00 +0000</pubDate>
+      <author>kdeloach@gmail.com (Kevin DeLoach)</author>
+      <guid>https://kdeloach.me/platecalc/</guid>
+      <description> </description>
+    </item>
+    
+    <item>
+      <title>Wordle Solver</title>
+      <link>https://kdeloach.me/wordlesolver/</link>
+      <pubDate>Tue, 14 Mar 2023 00:00:00 +0000</pubDate>
+      <author>kdeloach@gmail.com (Kevin DeLoach)</author>
+      <guid>https://kdeloach.me/wordlesolver/</guid>
+      <description> Related:  Wordle  </description>
+    </item>
+    
+    <item>
+      <title>Wordle</title>
+      <link>https://kdeloach.me/wordle/</link>
+      <pubDate>Mon, 25 Apr 2022 00:00:00 +0000</pubDate>
+      <author>kdeloach@gmail.com (Kevin DeLoach)</author>
+      <guid>https://kdeloach.me/wordle/</guid>
+      <description> Related:  Wordle Solver  </description>
+    </item>
+    
+    <item>
+      <title>Game of Life</title>
+      <link>https://kdeloach.me/gameoflife/</link>
+      <pubDate>Wed, 19 Jan 2022 00:00:00 +0000</pubDate>
+      <author>kdeloach@gmail.com (Kevin DeLoach)</author>
+      <guid>https://kdeloach.me/gameoflife/</guid>
+      <description> </description>
+    </item>
+    
+    <item>
+      <title>Date Calculator</title>
+      <link>https://kdeloach.me/datecalc/</link>
+      <pubDate>Thu, 30 Dec 2021 00:00:00 +0000</pubDate>
+      <author>kdeloach@gmail.com (Kevin DeLoach)</author>
+      <guid>https://kdeloach.me/datecalc/</guid>
+      <description>Syntax The calculator supports adding and subtracting date and delta objects.
+Dates must be in MM/DD/YYYY format.
+Deltas must be in &amp;lt;number&amp;gt; &amp;lt;unit&amp;gt; format where &amp;lt;number&amp;gt; is a whole number and &amp;lt;unit&amp;gt; is one of: second, minute, hour, day, week, month, or year. For example, 24 hours, 1 week, or 30 years.
+Deltas may be converted to another time unit by ending the expression in as &amp;lt;unit&amp;gt;. For example, 1 week as days returns 7 days.</description>
+    </item>
+    
+  </channel>
+</rss>

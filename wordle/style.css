@@ -1,0 +1,65 @@
+.wordle-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+.wordle-form .grid {
+    display: flex;
+    flex-direction: column;
+}
+.wordle-form > .guess {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+}
+.wordle-form > .guess > ul {
+    margin: 0;
+}
+.wordle-form > .guess > button {
+    margin-bottom: 6px;
+}
+.tile-row {
+    display: flex;
+    justify-content: center;
+}
+.tile {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    border: 2px solid #ccc;
+    font-family: monospace;
+    font-size: 2em;
+    text-align: center;
+    margin: 5px;
+    color: inherit;
+}
+.tile.tile-small {
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    font-size: 1em;
+    border-width: 1px;
+}
+.tile-G {
+    background: green;
+    border-color: green;
+    color: #fff;
+}
+.tile-Y {
+    background: gold;
+    border-color: gold;
+}
+.tile-W {
+    background: gray;
+    border-color: gray;
+}
+.error {
+    color: red;
+    text-align: center;
+}
+.letters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 25px;
+}
