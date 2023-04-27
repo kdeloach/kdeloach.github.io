@@ -6,6 +6,7 @@ import {
     distinctSubsets,
     tuplesToTree,
     findLowestScore,
+    calculateTotalScore,
     sortByFirst,
     sortByLast,
     sortByFrequency,
@@ -36,6 +37,8 @@ export const PlateCalcForm = () => {
     // XXX for debugging
     (window as any).tree = tree;
     (window as any).ValueNodeUtil = ValueNodeUtil;
+    (window as any).ValueNode = ValueNode;
+    (window as any).calculateTotalScore = calculateTotalScore;
 
     const [weightsInput, setWeightsInput] = useState("100 150 200 120");
     const weights = parseNumbersFromString(weightsInput);

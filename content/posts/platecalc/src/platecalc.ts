@@ -242,7 +242,7 @@ export function sortByLast(arr: ValueNode[][]) {
     }
 }
 
-function calculateTotalScore(nodes: TreeNode[]): number {
+export function calculateTotalScore(nodes: TreeNode[], debug: boolean = false): number {
     if (nodes.length === 0) {
         return 0;
     }
@@ -252,18 +252,20 @@ function calculateTotalScore(nodes: TreeNode[]): number {
     const valueNodes = nodes.map((node) => node.nodes());
     sortFrontToBack(valueNodes);
 
-    // const debugTable = [];
+    const debugTable = [];
 
     let totalDist = valueNodes[0].length;
     let totalPlates = valueNodes[0].length;
     let initialScore = ValueNodeUtil.score(valueNodes[0]);
     let totalScore = initialScore * totalDist;
 
-    // debugTable.push([
-    //     ValueNodeUtil.toString(valueNodesUnsorted[0]),
-    //     ValueNodeUtil.toString(valueNodes[0]),
-    //     `score=${initialScore} dist=${totalDist}`,
-    // ]);
+    if (debug) {
+        debugTable.push([
+            ValueNodeUtil.toString(valueNodesUnsorted[0]),
+            ValueNodeUtil.toString(valueNodes[0]),
+            `score=${initialScore} dist=${totalDist} total=${initialScore * totalDist}`,
+        ]);
+    }
 
     for (let i = 1; i < valueNodes.length; i++) {
         const prevNode = valueNodes[i - 1];
@@ -272,19 +274,23 @@ function calculateTotalScore(nodes: TreeNode[]): number {
         const dist = ValueNodeUtil.distance(prevNode, currNode);
         const score = ValueNodeUtil.score(currNode);
 
-        // debugTable.push([
-        //     ValueNodeUtil.toString(valueNodesUnsorted[i]),
-        //     ValueNodeUtil.toString(currNode),
-        //     `score=${score} dist=${dist}`,
-        // ]);
+        if (debug) {
+            debugTable.push([
+                ValueNodeUtil.toString(valueNodesUnsorted[i]),
+                ValueNodeUtil.toString(currNode),
+                `score=${score} dist=${dist} total=${score * dist}`,
+            ]);
+        }
 
         totalDist += dist;
         totalPlates += currNode.length;
         totalScore += score * dist;
     }
 
-    // debugTable.push(["", `total=${totalScore} dist=${totalDist} plates=${totalPlates}`]);
-    // console.table(debugTable);
+    if (debug) {
+        debugTable.push(["", `total=${totalScore} dist=${totalDist} plates=${totalPlates}`]);
+        console.table(debugTable);
+    }
 
     // Multiply final score by total number of plates added/removed as a tie
     // breaker between solutions with equal scores.
