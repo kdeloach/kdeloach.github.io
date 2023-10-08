@@ -1,13 +1,11 @@
 ---
 title: "Books 2021"
-slug: books-2021
 date: 2022-01-18
-summary: |
-    I read 16 books in 2021. Mostly science fiction and software, followed by
-    productivity & self-help, and non-fiction.
+templates: [templates/base.html, templates/page.html]
 ---
 
-{{< param summary >}}
+I read 16 books in 2021. Mostly science fiction and software, followed by
+productivity & self-help, and non-fiction.
 
 My favorite science fiction book this year was **Across a Billion Years** by
 Robert Silverberg. I enjoyed this book so much that it led me to seek out other

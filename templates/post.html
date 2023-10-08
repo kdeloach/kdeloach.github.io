@@ -1,0 +1,27 @@
+{{ define "style" }}
+<link rel="stylesheet" type="text/css" href="style.css" />
+{{ end }}
+
+{{- block "script" . }}
+<script src="bundle.js"></script>
+{{ end }}
+
+{{ define "header" }}
+<header>
+  <nav>
+    <a href="/">Home</a>
+  </nav>
+</header>
+{{ end }}
+
+{{ define "main" }}
+<main>
+  <h1>{{ .Title }}</h1>
+  <div class="date">
+    {{ .Date.Format "Jan 2, 2006" }}
+  </div>
+  <div class="content">
+    {{ .Content }}
+  </div>
+</main>
+{{ end }}

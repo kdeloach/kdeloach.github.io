@@ -1,3 +1,3 @@
 #!/bin/bash
 
-prettier -w content/
+prettier -w ./

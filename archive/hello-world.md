@@ -1,7 +1,7 @@
 ---
 title: Hello World
-slug: hello-world
 date: 2021-01-16
+templates: [templates/base.html, templates/page.html]
 ---
 
 Welcome to my website. This is a place where I can share my thoughts on

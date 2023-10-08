@@ -4,4 +4,4 @@
 mdspell --en-us --ignore-numbers --ignore-acronyms --report \
     "**/*.md" "!**/node_modules/**/*.md"
 
-prettier -c content/
+prettier -c ./

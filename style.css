@@ -1,0 +1,40 @@
+body {
+    font-size: 14pt;
+    line-height: 1.5em;
+    background: #f5f5f5;
+}
+
+code,
+pre {
+    font-size: 10pt;
+    line-height: 1.2em;
+    overflow: auto;
+}
+
+footer {
+    padding: 10px 0;
+    margin: 10px 0;
+    font-size: 0.9em;
+    text-align: right;
+    color: #999;
+}
+
+.date {
+    font-size: 0.9em;
+    margin: -0.8em 0 1em;
+}
+
+header,
+footer,
+main {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.avatar {
+    width: 200px;
+    border-radius: 5px;
+    margin: 0 0 10px 10px;
+    float: right;
+}

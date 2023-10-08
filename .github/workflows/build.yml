@@ -1,26 +1,17 @@
 name: Build site
 
 on:
-  push:
-    branches: [ master ]
+    push:
+        branches: [master]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
 
-    - name: Setup
-      run: ./scripts/setup.sh
+            - name: Setup
+              run: ./scripts/setup.sh
 
-    - name: Build Docker image
-      run: ./scripts/docker-build.sh
-
-    - name: Lint
-      run: ./scripts/lint.sh
-
-    - name: Build site
-      run: ./scripts/build.sh
-
-    - name: Commit to gh-pages branch
-      run: ./scripts/publish.sh
+            - name: Lint
+              run: ./scripts/lint.sh

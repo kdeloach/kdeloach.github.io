@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker-compose up
+python3.9 -m http.server 8000
