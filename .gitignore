@@ -2,10 +2,8 @@
 *.swp
 .sass-cache
 node_modules/
-assets/js/
-.hugo*
-public/
-resources/
-content/posts/*/dist/bundle.*
-*.html
 bundle.js
+
+# Ignore all HTML files except for those in the templates directory
+*.html
+!templates/*.html
