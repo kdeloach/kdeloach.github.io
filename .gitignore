@@ -7,3 +7,5 @@ assets/js/
 public/
 resources/
 content/posts/*/dist/bundle.*
+*.html
+bundle.js

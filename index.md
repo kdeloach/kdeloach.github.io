@@ -1,5 +1,7 @@
 ---
-templates: [templates/base.html, templates/index.html]
+templates:
+    - templates/base.html
+    - templates/index.html
 ---
 
 <img src="/images/kdeloach.jpg" class="avatar" alt="Image of Kevin DeLoach" />
