@@ -1,4 +1,5 @@
 import path from "path";
+import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 
 const mode = process.env.NODE_ENV || "development";
 
@@ -25,6 +26,7 @@ const config = {
             },
         ],
     },
+    plugins: [new ForkTsCheckerWebpackPlugin()],
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
     },
