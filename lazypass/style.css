@@ -1,0 +1,61 @@
+.smart-tv-keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: sans-serif;
+}
+
+.keyboard-row {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.keyboard-key {
+    flex: 1;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.keyboard-key.active.first {
+    background-color: dodgerblue;
+}
+
+.keyboard-key.active {
+    background-color: gray;
+    color: #fff;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.password {
+    font-family: monospace;
+    font-size: xx-large;
+    text-align: center;
+    background: lightyellow;
+    padding: 0.5em;
+}
+
+.error {
+    color: #f00;
+}
+
+button {
+    font-size: larger;
+}
+
+label {
+    cursor: pointer;
+}
