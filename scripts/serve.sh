@@ -13,7 +13,7 @@ build_mdsite() {
     watch_dir="."
     command_to_run="./scripts/build.sh"
     echo "Watching markdown files..."
-    fswatch --recursive --exclude ".*" --include "\\.md$" --event=Updated "$watch_dir" | while read -r event
+    fswatch --recursive --exclude ".*" --include "\\.md$" --include "templates/*" --event=Updated "$watch_dir" | while read -r event
     do
       echo "Change detected: $event"
       # Run the specified command
