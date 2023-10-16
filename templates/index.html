@@ -7,6 +7,15 @@
 
 {{ define "main" }}
 <main>
+
+<div class="profile">
+  <img src="/images/kdeloach.jpg" class="avatar" alt="Image of Kevin DeLoach" />
+  <a href="Resume.pdf">Resume (PDF)</a>
+  <a href="https://github.com/kdeloach">github.com/kdeloach</a>
+  <a href="https://linkedin.com/in/kdeloach">linkedin.com/in/kdeloach</a>
+  <a href="mailto:kdeloach@gmail.com">kdeloach@gmail.com</a>
+</div>
+
   {{ .Content }}
 
   <h3>Posts</h3>
@@ -14,13 +23,6 @@
   {{- range .Site.PagesByTag.post }}
   <li><span class="date">{{ .Date.Format "2006-01-02" }}</span> <a href="{{ .Dir }}">{{ .Title }}</a></li>
   {{- end }}
-  </ul>
-
-  <h3>Contact</h3>
-  <ul>
-    <li><a href="Resume.pdf">Resume</a></li>
-    <li><a href="https://github.com/kdeloach">github.com/kdeloach</a></li>
-    <li><a href="mailto:kdeloach@gmail.com">kdeloach@gmail.com</a></li>
   </ul>
 </main>
 {{ end }}

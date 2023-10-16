@@ -4,12 +4,12 @@ templates:
     - templates/index.html
 ---
 
-<img src="/images/kdeloach.jpg" class="avatar" alt="Image of Kevin DeLoach" />
+I'm a full stack software engineer with 12+ years experience building web
+applications for companies like Penn National Gaming, Warner Bros. Digital
+Labs, and more.
 
-I'm a software engineer specializing in full stack web application development.
+My area of expertise includes backend server-side programming, API design,
+building microservices, and automating tasks using Go, Python, Django, React,
+and AWS.
 
-My area of expertise is backend server-side programming, API design, and
-automation using Go, Python, Django, and AWS.
-
-Previously, I worked for IBM Tealeaf, Azavea, TellusLabs, Warner Bros. Digital
-Labs, and Penn Interactive Ventures.
+<a href="mailto:kevin@deloach.software">I'm available for hire!</a>
