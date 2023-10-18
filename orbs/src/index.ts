@@ -6,7 +6,7 @@ let canvasRect: { top: number; left: number };
 
 const context = canvas.getContext("2d");
 
-const windowWidth = 700;
+const windowWidth = el.clientWidth;
 const windowHeight = 500;
 const circleRadius = 110;
 const personRadius = 40;
