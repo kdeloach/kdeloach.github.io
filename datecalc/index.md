@@ -10,8 +10,6 @@ tags:
 
 <div id="dateCalcForm" data-component=""></div>
 
----
-
 ## Syntax
 
 The calculator supports adding and subtracting _date_ and _delta_ objects.
@@ -28,11 +26,6 @@ Deltas may be converted to another time unit by ending the expression in
 The output will be either a _date_ or _delta_ depending on the context.
 
 ## Grammar
-
-Here's the language grammar in Backus–Naur form. You can use this to generate
-random valid programs with [BNF Playground][bnf].
-
-[bnf]: https://bnfplayground.pauliankline.com/
 
 ```js
 <dateExpr>    ::= <dateOrDelta> <castExpr>? (<op> <dateExpr>)?
@@ -55,15 +48,6 @@ random valid programs with [BNF Playground][bnf].
 <ws>          ::= " "+
 ```
 
-## Next Steps
+## Updates
 
-Here's a list of features, fixes, and improvements that I'd like to make in
-future versions.
-
--   Improve output formatting (display `1.25 days` as `1 day 6 hours`)
--   Option to skip weekends, holidays, etc.
--   Add shortcuts for `now`, `today`, etc.
--   Support other date formats besides `MM/DD/YYYY`
--   Support general purpose math (`1 week * 5/7 as hours` should yield `120 hours`)
--   Better error messages
--   Unit tests
+-   10/19/2023 - Added `now` and `today` keywords

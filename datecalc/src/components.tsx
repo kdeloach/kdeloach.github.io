@@ -1,5 +1,5 @@
-import { tokenize, parse, resolve, formatTokens, formatAst } from "./datecalc";
 import React, { useState, useEffect } from "react";
+import { tokenize, parse, resolve, formatTokens, formatAst } from "./datecalc";
 
 const dateFmt: Intl.DateTimeFormatOptions = {
     dateStyle: "full",
@@ -22,6 +22,8 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
     };
 
     let tokens, ast, result, output, err;
+    let formattedTokens = "";
+    let formattedAst = "";
 
     try {
         if (state) {
@@ -29,8 +31,11 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
             ast = parse(tokens);
             result = resolve(ast);
             output = result instanceof Date ? result.toLocaleString("en-US", dateFmt) : result.toString();
+            formattedTokens = formatTokens(tokens);
+            formattedAst = formatAst(ast);
         }
     } catch (ex) {
+        console.log(ex);
         err = ex.toString();
     }
 
@@ -40,22 +45,12 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
                 <p className="label">Input:</p>
                 <input type="text" autoComplete="off" value={state || ""} onChange={onChange} />
                 <p className="label">Output:</p>
-                <p className={"output" + ((err && " error") || "")}>{output || err || "(none)"}</p>
-            </div>
-            <div className="tokens">
-                <div className="col">
-                    <p className="label">Tokens:</p>
-                    <pre>{(tokens && formatTokens(tokens)) || "(none)"}</pre>
-                </div>
-                <div className="col">
-                    <p className="label">AST:</p>
-                    <pre>{(ast && formatAst(ast)) || "(none)"}</pre>
-                </div>
+                <p className={"output" + ((err && " error") || "")}>{err || output || "(none)"}</p>
             </div>
             <h2 id="examples">Examples</h2>
             <ul>
                 <li>
-                    What is the date 30 days from now? <DateCalcLink value="12/30/2021 + 30 days" onClick={onClick} />
+                    What is the date 30 days from today? <DateCalcLink value="today + 30 days" onClick={onClick} />
                 </li>
                 <li>
                     How many days between 2 dates? <DateCalcLink value="12/25/2020 - 12/25/2021" onClick={onClick} />
@@ -64,6 +59,17 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
                     How many hours in a week? <DateCalcLink value="1 week as hours" onClick={onClick} />
                 </li>
             </ul>
+            <h2 id="debug">Debug</h2>
+            <div className="tokens">
+                <div className="col">
+                    <span className="label">Tokens:</span>
+                    <pre>{formattedTokens || "(none)"}</pre>
+                </div>
+                <div className="col">
+                    <span className="label">AST:</span>
+                    <pre>{formattedAst || "(none)"}</pre>
+                </div>
+            </div>
         </>
     );
 };

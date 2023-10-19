@@ -5,6 +5,8 @@ enum TokenType {
     Plus = "PLUS",
     Minus = "MINUS",
     As = "AS",
+    Now = "NOW",
+    Today = "TODAY",
 }
 
 class Token {
@@ -125,6 +127,22 @@ class MinusNode implements DateCalcNode {
     }
 }
 
+class NowNode implements DateCalcNode {
+    constructor() {}
+
+    toString(): string {
+        return `NowNode()`;
+    }
+}
+
+class TodayNode implements DateCalcNode {
+    constructor() {}
+
+    toString(): string {
+        return `TodayNode()`;
+    }
+}
+
 interface Indexable<T> {
     [index: number]: T;
     length: number;
@@ -219,6 +237,10 @@ export function tokenize(program: string): Token[] {
             let word = scanWord().toLowerCase();
             if (word == "as") {
                 tokens.push(new Token(TokenType.As));
+            } else if (word == "now") {
+                tokens.push(new Token(TokenType.Now));
+            } else if (word == "today") {
+                tokens.push(new Token(TokenType.Today));
             } else if (word in UNIT_TO_ENUM) {
                 tokens.push(new Token(TokenType.Unit, UNIT_TO_ENUM[word]));
             } else {
@@ -247,17 +269,29 @@ export function parse(tokens: Token[]): DateCalcNode {
     }
 
     function parseDateOrDelta(): DateCalcNode {
-        let token = stream.expect(TokenType.Number);
-        if (stream.hasNext()) {
-            let nextToken = stream.peek();
-            if (nextToken.tokenType == TokenType.Slash) {
-                return parseDate();
-            } else if (nextToken.tokenType == TokenType.Unit) {
-                return parseDelta();
-            }
-            throw new ParseError(`unexpected token: ${nextToken}`);
+        let nextToken = stream.peek();
+        if (!nextToken) {
+            throw new ParseError(`unexpected end of token stream`);
         }
-        throw new ParseError(`unexpected token: ${token}`);
+        if (nextToken.tokenType == TokenType.Now) {
+            stream.expect(TokenType.Now);
+            return new NowNode();
+        } else if (nextToken.tokenType == TokenType.Today) {
+            stream.expect(TokenType.Today);
+            return new TodayNode();
+        } else if (nextToken.tokenType == TokenType.Number) {
+            stream.expect(TokenType.Number);
+            if (stream.hasNext()) {
+                let nextToken = stream.peek();
+                if (nextToken.tokenType == TokenType.Slash) {
+                    return parseDate();
+                } else if (nextToken.tokenType == TokenType.Unit) {
+                    return parseDelta();
+                }
+                throw new ParseError(`unexpected token: ${nextToken}`);
+            }
+        }
+        throw new ParseError(`unexpected token: ${nextToken}`);
     }
 
     function parseDate(): DateCalcNode {
@@ -357,6 +391,10 @@ export function resolve(node: DateCalcNode): Date | Delta {
             return visitPlusNode(node);
         } else if (node instanceof MinusNode) {
             return visitMinusNode(node);
+        } else if (node instanceof NowNode) {
+            return visitNowNode(node);
+        } else if (node instanceof TodayNode) {
+            return visitTodayNode(node);
         }
         throw new ParseError(`unexpected node: ${node}`);
     }
@@ -366,6 +404,15 @@ export function resolve(node: DateCalcNode): Date | Delta {
         let d = parseInt(date.d.value, 10);
         let y = parseInt(date.y.value, 10);
         return new Date(y, m - 1, d);
+    }
+
+    function visitNowNode(node: NowNode): Date {
+        return new Date();
+    }
+
+    function visitTodayNode(node: TodayNode): Date {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
     }
 
     function visitDeltaNode(delta: DeltaNode): Delta {
@@ -446,6 +493,10 @@ export function formatAst(node: DateCalcNode): string {
             visitPlusNode(node, indent);
         } else if (node instanceof MinusNode) {
             visitMinusNode(node, indent);
+        } else if (node instanceof NowNode) {
+            visitNowNode(node, indent);
+        } else if (node instanceof TodayNode) {
+            visitTodayNode(node, indent);
         } else {
             throw new ParseError(`unexpected node: ${node}`);
         }
@@ -474,6 +525,14 @@ export function formatAst(node: DateCalcNode): string {
         writeIndent("MinusNode", indent);
         visit(op.left, indent + 1);
         visit(op.right, indent + 1);
+    }
+
+    function visitNowNode(node: NowNode, indent: number) {
+        writeIndent("NowNode", indent);
+    }
+
+    function visitTodayNode(node: TodayNode, indent: number) {
+        writeIndent("TodayNode", indent);
     }
 
     visit(node, 0);
