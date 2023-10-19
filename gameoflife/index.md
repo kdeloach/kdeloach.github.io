@@ -15,6 +15,7 @@ tags:
 -   P: Pause
 -   R: Reset
 -   S: Step
+-   C: Clear
 -   1: Dot
 -   2: Glider
 -   3: Pulsar
@@ -25,3 +26,4 @@ tags:
 ### 10/19/2023
 
 -   Rewrite from React to Canvas
+-   Add keyboard shortcuts

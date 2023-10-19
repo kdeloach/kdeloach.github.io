@@ -87,6 +87,8 @@ function main() {
             reset();
         } else if (e.key === "s") {
             update();
+        } else if (e.key === "c") {
+            clear();
         } else if (e.key === "1") {
             setBrush(DOT);
         } else if (e.key === "2") {
@@ -155,6 +157,12 @@ function main() {
     resetButton.onclick = reset;
     controls.appendChild(resetButton);
 
+    // Clear button
+    const clearButton = document.createElement("button");
+    clearButton.textContent = "Clear";
+    clearButton.onclick = clear;
+    controls.appendChild(clearButton);
+
     // Dot brush
     const dotBrush = document.createElement("button");
     dotBrush.textContent = "[Dot]";
@@ -188,6 +196,10 @@ function main() {
     };
 
     requestAnimationFrame(render);
+}
+
+function clear() {
+    grid = grid.map(() => 0);
 }
 
 function reset() {
