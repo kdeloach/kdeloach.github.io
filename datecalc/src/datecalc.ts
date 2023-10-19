@@ -34,18 +34,23 @@ enum UnitType {
     Year = "YEAR",
 }
 
+// Register unit keywords
 const UNIT_TO_ENUM: { [key: string]: UnitType } = {
-    millisecond: UnitType.Millisecond,
-    second: UnitType.Second,
-    minute: UnitType.Minute,
-    hour: UnitType.Hour,
-    day: UnitType.Day,
-    week: UnitType.Week,
-    month: UnitType.Month,
-    year: UnitType.Year,
+    seconds: UnitType.Second,
+    minutes: UnitType.Minute,
+    milliseconds: UnitType.Millisecond, // put after "minute" so "1 m" matches minute
+    hours: UnitType.Hour,
+    days: UnitType.Day,
+    weeks: UnitType.Week,
+    months: UnitType.Month,
+    years: UnitType.Year,
 };
+// Register unit aliases (years -> year, yea, ye, y)
 for (let k in UNIT_TO_ENUM) {
-    UNIT_TO_ENUM[k + "s"] = UNIT_TO_ENUM[k];
+    for (let i = 0; i < k.length; i++) {
+        const alias = k.substr(0, i + 1);
+        UNIT_TO_ENUM[alias] = UNIT_TO_ENUM[k];
+    }
 }
 
 const MILLISECOND = 1;
@@ -235,7 +240,7 @@ export function tokenize(program: string): Token[] {
             tokens.push(new Token(TokenType.Minus));
         } else if (isAlpha(c)) {
             let word = scanWord().toLowerCase();
-            if (word == "as") {
+            if (word == "as" || word == "to") {
                 tokens.push(new Token(TokenType.As));
             } else if (word == "now") {
                 tokens.push(new Token(TokenType.Now));

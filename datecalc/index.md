@@ -30,24 +30,27 @@ The output will be either a _date_ or _delta_ depending on the context.
 ```js
 <dateExpr>    ::= <dateOrDelta> <castExpr>? (<op> <dateExpr>)?
 
-<castExpr>    ::= <ws> "as" <ws> <unit>
+<castExpr>    ::= ("as" | "to") <unit>
 
 <dateOrDelta> ::= <date> | <delta>
 
-<date>        ::= <number> "/" <number> "/" <number>
+<date>        ::= ("now" | "today" | <number> "/" <number> "/" <number>)
 
-<delta>       ::= <number> <ws> <unit>
+<delta>       ::= <number> <unit>
 
 <op>          ::= ("+" | "-")
 
 <number>      ::= [0-9]+
 
 <unit>        ::= ("millisecond" | "second" | "minute" | "hour"
-                    | "day" | "week" | "month" | "year") "s"?
-
-<ws>          ::= " "+
+                    | "day" | "week" | "month" | "year")
 ```
 
 ## Updates
 
--   10/19/2023 - Added `now` and `today` keywords
+### 10/19/2023
+
+-   Added `now` (ex. `now + 12 hours`)
+-   Added `today` (ex. `today + 30 days`)
+-   Added aliases for units of time (min, m, sec, s, etc.)
+-   Added `to` alias (ex. `1 hour to minutes`)
