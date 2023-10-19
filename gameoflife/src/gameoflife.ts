@@ -3,7 +3,6 @@ export type CallbackArgs<T> = {
     x: number;
     y: number;
     cell: T;
-    neighbors: T[];
 };
 export type MapCallback<T> = (args: CallbackArgs<T>) => T;
 export type ForEachCallback<T> = (args: CallbackArgs<T>) => void;
@@ -28,8 +27,7 @@ export class CellGrid<T> {
             const x = i % this.cols;
             const y = Math.floor(i / this.cols);
             const cell = this.cells[i];
-            const neighbors = this.neighbors(x, y);
-            cb({ i, x, y, cell, neighbors });
+            cb({ i, x, y, cell });
         }
     }
 
