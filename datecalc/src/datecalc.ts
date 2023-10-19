@@ -36,14 +36,14 @@ enum UnitType {
 
 // Register unit keywords
 const UNIT_TO_ENUM: { [key: string]: UnitType } = {
+    milliseconds: UnitType.Millisecond,
     seconds: UnitType.Second,
-    minutes: UnitType.Minute,
-    milliseconds: UnitType.Millisecond, // put after "minute" so "1 m" matches minute
     hours: UnitType.Hour,
     days: UnitType.Day,
     weeks: UnitType.Week,
     months: UnitType.Month,
     years: UnitType.Year,
+    minutes: UnitType.Minute, // put last so "m" alias matches this instead of milliseconds/months
 };
 // Register unit aliases (years -> year, yea, ye, y)
 for (let k in UNIT_TO_ENUM) {
