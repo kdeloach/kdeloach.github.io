@@ -1,0 +1,17 @@
+#sketch {
+    margin-bottom: 1em;
+}
+
+#form {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+label {
+    cursor: pointer;
+}
+
+#restart {
+    font-size: x-large;
+}
