@@ -6,10 +6,13 @@ templates:
     - templates/post.html
 tags:
     - post
+summary: >-
+    Animated sketch of floating orbs, which attract and repulse each other based on
+    their relationships, featuring the characters of Smallville.
 ---
 
-Canvas 2D sketch of animated orbs which move according to forces of attraction,
-featuring the characters of Smallville.
+Animated sketch of floating orbs, which attract and repulse each other based on
+their relationships, featuring the characters of Smallville.
 
 <div id="sketch"></div>
 
@@ -18,3 +21,9 @@ featuring the characters of Smallville.
 -   P: Pause
 -   R: Reset
 -   D: Draw debug lines (cycles between "attract", "detract", and "both")
+
+## Updates
+
+### 11/17/2023
+
+-   Scale animation with screen width

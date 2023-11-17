@@ -6,11 +6,12 @@ let canvasRect: { top: number; left: number };
 
 const context = canvas.getContext("2d");
 
-const windowWidth = el.clientWidth;
-const windowHeight = 500;
-const circleRadius = 110;
-const personRadius = 40;
 const maxVel = 100;
+
+let windowWidth = el.clientWidth;
+let windowHeight = windowWidth * (9 / 16);
+let circleRadius = 110; // radius of initial position circle
+let personRadius = 40; // size of orb
 
 let lastUpdateTime = 0;
 const frameInterval = 1000 / 120; // FPS
@@ -93,13 +94,10 @@ let paused = false;
 let debug = 0;
 
 function main() {
-    canvas.width = windowWidth;
-    canvas.height = windowHeight;
-    canvasRect = canvas.getBoundingClientRect();
-
-    mousePos = { x: windowWidth / 2, y: windowHeight / 2 };
-
-    reset();
+    createPeople();
+    shufflePeople();
+    setDimensions();
+    resetPosition();
 
     // canvas.addEventListener("mousemove", (event) => {
     //     mousePos.x = event.clientX - canvasRect.left;
@@ -115,17 +113,38 @@ function main() {
             paused = !paused;
         }
         if (event.key === "r") {
-            reset();
+            shufflePeople();
+            resetPosition();
         }
         if (event.key === "d") {
             debug++;
         }
     });
 
+    window.addEventListener("resize", (event: Event) => {
+        setDimensions();
+        // on resize... go back to "starting" position instead of random
+        resetPosition();
+    });
+
     requestAnimationFrame(render);
 }
 
-function reset() {
+function setDimensions() {
+    windowWidth = el.clientWidth;
+    windowHeight = windowWidth * (9 / 16);
+
+    mousePos = { x: windowWidth / 2, y: windowHeight / 2 };
+
+    canvas.width = windowWidth;
+    canvas.height = windowHeight;
+    canvasRect = canvas.getBoundingClientRect();
+
+    circleRadius = windowWidth * (20 / 100);
+    personRadius = windowWidth * (6 / 100);
+}
+
+function createPeople() {
     const clark = new Person("Clark");
     const lex = new Person("Lex");
     const lana = new Person("Lana");
@@ -181,19 +200,26 @@ function reset() {
     lionel.family(lex);
 
     // Assign colors (should always be the same per person)
-    // people = [clark, lex, lana, lois, chloe, pete, jimmy, oliver, martha, jonathan, lionel];
     people = [clark, lex, lana, lois, chloe, pete, jimmy, oliver, martha, jonathan];
+    // people = [clark, lex, lana, lois, chloe, pete, jimmy, oliver, martha, jonathan, lionel];
     for (let i = 0; i < people.length; i++) {
         people[i].bg = bgColors[i % bgColors.length];
         people[i].fg = fgColors[i % fgColors.length];
     }
+}
 
-    // Assign start position (should be random per person)
+function shufflePeople() {
     people = shuffleArray(people);
+}
+
+function resetPosition() {
+    // Assign start position (should be random per person)
     for (let i = 0; i < people.length; i++) {
         const theta = (2 * Math.PI * i) / people.length;
         people[i].pos.x = Math.cos(theta) * circleRadius + mousePos.x;
         people[i].pos.y = Math.sin(theta) * circleRadius + mousePos.y;
+        people[i].vel.x = 0;
+        people[i].vel.y = 0;
     }
 }
 
@@ -224,7 +250,7 @@ function updatePeople() {
         // if (distance <= personRadius * 2) {
         //     continue;
         // }
-        const speed = distance / 8000;
+        const speed = distance / (windowWidth * 10);
         p1.vel.x += Math.cos(angle) * speed;
         p1.vel.y += Math.sin(angle) * speed;
     }
@@ -252,7 +278,7 @@ function updatePeople() {
                 }
 
                 const scale = 1 / distance;
-                const speed = attraction * scale * 10;
+                const speed = attraction * scale * (personRadius / 4);
 
                 p1.vel.x += Math.cos(angle) * speed;
                 p1.vel.y += Math.sin(angle) * speed;
@@ -312,10 +338,15 @@ function parseHex(s: string): Color {
 function render(currentTime: number) {
     const deltaTime = currentTime - lastUpdateTime;
 
+    let font = "16px Arial";
+    if (windowWidth <= 300) {
+        font = "10px Arial";
+    } else if (windowWidth <= 500) {
+        font = "12px Arial";
+    }
+
     if (deltaTime >= frameInterval) {
-        // context.clearRect(0, 0, windowWidth, windowHeight);
-        context.fillStyle = "white";
-        context.fillRect(0, 0, windowWidth, windowHeight);
+        context.clearRect(0, 0, windowWidth, windowHeight);
 
         const drawLove = debug % 4 === 1;
         const drawHate = debug % 4 === 2;
@@ -361,7 +392,7 @@ function render(currentTime: number) {
             // Draw name
             const person = people[i];
             context.fillStyle = person.fg.rgb;
-            context.font = "16px Arial";
+            context.font = font;
             context.fillText(person.name, person.pos.x - context.measureText(person.name).width / 2, person.pos.y + 3);
         }
 
