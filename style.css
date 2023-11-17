@@ -19,8 +19,11 @@ footer {
     color: #999;
 }
 
-.date {
+.home-date {
     margin-right: 0.5em;
+}
+.post-date {
+    font-style: italic;
 }
 
 header,

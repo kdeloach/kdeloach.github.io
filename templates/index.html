@@ -37,7 +37,7 @@
 
   <ul>
   {{- range .Site.PagesByTag.post }}
-  <li><span class="date">{{ .Date.Format "2006-01-02" }}</span> <a href="{{ .Dir }}">{{ .Title }}</a></li>
+  <li><span class="home-date">{{ .Date.Format "2006-01-02" }}</span> <a href="{{ .Dir }}">{{ .Title }}</a></li>
   {{- end }}
   </ul>
 </main>
