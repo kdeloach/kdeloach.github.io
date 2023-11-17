@@ -34,4 +34,3 @@ build_mdsite_pid=$!
 # Keep the script running until Ctrl+C is pressed
 echo "Press Ctrl+C to stop..."
 wait
-

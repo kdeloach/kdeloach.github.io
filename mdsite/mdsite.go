@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"text/template"
 	"time"
 
 	"log"
@@ -17,40 +18,67 @@ import (
 )
 
 type Site struct {
-	Title      string
+	Title       string
+	Author      string
+	Description string
+	URL         string
+	PubDate     time.Time
+	LastBuild   time.Time
+
 	Pages      []*Page
 	PagesByTag map[string][]*Page
 }
 
 type Page struct {
-	*Frontmatter
-	Path     string
-	Dir      string
-	Markdown string
-	Content  template.HTML
+	// File info
+	Path string
+	Dir  string
 
-	// To access Site object on page template conveniently
+	// YAML content
+	*Frontmatter
+	Markdown string
+
+	// Calculated fields
+	Content    string
+	URL        string
+	OutputFile string
+
+	// Reference to Site for convenient access in templates
 	Site *Site
 }
 
 type Frontmatter struct {
 	Title     string    `yaml:"title"`
+	Summary   string    `yaml:"summary"`
 	Date      time.Time `yaml:"date"`
 	Templates []string  `yaml:"templates"`
 	Tags      []string  `yaml:"tags"`
+	Output    string    `yaml:"output"`
 }
 
 func main() {
 	rootDir := "."
-
 	if len(os.Args) > 1 {
 		rootDir = os.Args[1]
 	}
 
+	siteURL, err := url.Parse("https://kdeloach.me")
+	if err != nil {
+		log.Printf("error parsing URL: %s", err)
+		return
+	}
+
 	site := &Site{}
-	site.Title = "Kevin DeLoach"
 	site.Pages = []*Page{}
 	site.PagesByTag = map[string][]*Page{}
+
+	// TODO: Move to site settings file
+	site.Title = "Kevin DeLoach"
+	site.Author = "Kevin DeLoach"
+	site.Description = "Full Stack Software Engineer, Philadelphia, PA"
+	site.URL = siteURL.String()
+	site.PubDate = time.Date(2021, time.December, 30, 12, 0, 0, 0, time.UTC) // Datecalc post publish date (first post)
+	site.LastBuild = time.Now().UTC()
 
 	processMarkdownFile := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -79,12 +107,37 @@ func main() {
 				return nil
 			}
 
+			baseName := filepath.Base(path)                                          // index.html
+			withoutExtension := strings.TrimSuffix(baseName, filepath.Ext(baseName)) // index
+			outputFile := fmt.Sprintf("%s.%s", withoutExtension, "html")             // index.md
+
+			// Check frontmatter for custom filename
+			if frontmatter.Output != "" {
+				outputFile = frontmatter.Output
+			}
+
+			baseDir := filepath.Dir(path)                    // ./rings
+			outputPath := filepath.Join(baseDir, outputFile) // ./rings/index.md
+
+			relPath, err := filepath.Rel(rootDir, outputPath)
+			if err != nil {
+				return err
+			}
+
+			// omit index.html from path if present
+			urlPath := strings.TrimSuffix(relPath, "index.html")
+
+			url := *siteURL
+			url.Path = urlPath
+
 			page := &Page{
-				Frontmatter: &frontmatter,
+				Site:        site,
 				Path:        path,
 				Dir:         filepath.Dir(path),
-				Site:        site,
+				Frontmatter: &frontmatter,
 				Markdown:    parts[2],
+				URL:         url.String(),
+				OutputFile:  outputPath,
 			}
 			site.Pages = append(site.Pages, page)
 
@@ -117,26 +170,25 @@ func main() {
 		}
 
 		htmlContent := markdown.ToHTML([]byte(page.Markdown), nil, nil)
-		page.Content = template.HTML(htmlContent)
+		page.Content = string(htmlContent)
 
 		var htmlBuffer strings.Builder
 		if err := tmpl.ExecuteTemplate(&htmlBuffer, baseTemplate, page); err != nil {
 			return fmt.Errorf("Error rendering Markdown in file %s: %w", page.Path, err)
 		}
 
-		htmlFileName := strings.TrimSuffix(page.Path, ".md") + ".html"
-		err = ioutil.WriteFile(htmlFileName, []byte(htmlBuffer.String()), 0644)
+		err = ioutil.WriteFile(page.OutputFile, []byte(htmlBuffer.String()), 0644)
 		if err != nil {
-			return fmt.Errorf("Error writing HTML file %s: %w", htmlFileName, err)
+			return fmt.Errorf("Error writing HTML file %s: %w", page.OutputFile, err)
 		}
 
-		fmt.Printf("Converted %s to %s\n", page.Path, htmlFileName)
+		fmt.Printf("Converted %s to %s\n", page.Path, page.OutputFile)
 
 		return nil
 	}
 
 	// Process markdown files and populate Site object
-	err := filepath.Walk(rootDir, processMarkdownFile)
+	err = filepath.Walk(rootDir, processMarkdownFile)
 	if err != nil {
 		log.Fatalf("Error processing markdown files: %v", err)
 	}

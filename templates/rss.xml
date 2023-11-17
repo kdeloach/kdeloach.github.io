@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>{{ .Site.Title }}</title>
+    <link>{{ .Site.URL }}</link>
+    <description>{{ .Site.Description }}</description>
+    <language>en-us</language>
+    <pubDate>{{ .Site.PubDate.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</pubDate>
+    <lastBuildDate>{{ .Site.LastBuild.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</lastBuildDate>
+    {{- range .Site.PagesByTag.post }}
+    <item>
+    {{- with .Frontmatter }}
+      <title>{{ .Title }}</title>
+      <description>{{ .Summary }}</description>
+      <pubDate>{{ .Date.UTC.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</pubDate>
+    {{- end }}
+      <link>{{ .URL }}</link>
+    </item>
+    {{- end }}
+  </channel>
+</rss>

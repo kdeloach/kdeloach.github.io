@@ -1,11 +1,12 @@
 ---
 title: Rings
-date: 2023-11-10
+date: 2023-11-10T00:00:00-05:00
 templates:
     - templates/base.html
     - templates/post.html
 tags:
     - post
+summary: How many different ways can you slice six-pack rings?
 ---
 
 How many different ways can you slice six-pack rings?

@@ -1,6 +1,6 @@
 ---
 title: Date Calculator
-date: 2021-12-30
+date: 2021-12-30T00:00:00-05:00
 templates:
     - templates/base.html
     - templates/post.html

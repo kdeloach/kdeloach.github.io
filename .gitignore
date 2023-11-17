@@ -6,4 +6,6 @@ bundle.js
 
 # Ignore all HTML files except for those in the templates directory
 *.html
+*.xml
 !templates/*.html
+!templates/*.xml
