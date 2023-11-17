@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -24,6 +26,7 @@ type Site struct {
 	URL         string
 	PubDate     time.Time
 	LastBuild   time.Time
+	GitSHA      string
 
 	Pages      []*Page
 	PagesByTag map[string][]*Page
@@ -68,6 +71,12 @@ func main() {
 		return
 	}
 
+	gitSHA, err := getCurrentGitSHA(rootDir)
+	if err != nil {
+		log.Printf("error getting git SHA: %s", err)
+		return
+	}
+
 	site := &Site{}
 	site.Pages = []*Page{}
 	site.PagesByTag = map[string][]*Page{}
@@ -79,6 +88,7 @@ func main() {
 	site.URL = siteURL.String()
 	site.PubDate = time.Date(2021, time.December, 30, 12, 0, 0, 0, time.UTC) // Datecalc post publish date (first post)
 	site.LastBuild = time.Now().UTC()
+	site.GitSHA = gitSHA
 
 	processMarkdownFile := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -239,4 +249,24 @@ func makeIncludeFunc(path string, page *Page) func(string) (string, error) {
 
 		return includeBuffer.String(), nil
 	}
+}
+
+func getCurrentGitSHA(dir string) (string, error) {
+	// Check if the current directory is within a Git repository
+	cmd := exec.Command("git", "rev-parse", "HEAD")
+	cmd.Dir = dir // Use the current directory
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	err := cmd.Run()
+	if err != nil {
+		return "", err
+	}
+
+	// Trim leading and trailing white spaces
+	sha := out.String()
+	sha = strings.TrimSpace(sha)
+
+	return sha, nil
 }
