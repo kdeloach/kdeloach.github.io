@@ -1,0 +1,552 @@
+-- test-comments.asm --
+NOTE 1 2
+NOTE 3 ; 4
+NOTE 5;6
+NOTE 7; 8
+; 9
+;0
+
+-- test-comments.asm.output --
+NOTE 1 2
+NOTE 3 ; 4
+NOTE 5 ; 6
+NOTE 7 ; 8
+; 9
+; 0
+
+-- test-0args.asm --
+HALT
+MODE
+KILL
+MAKE
+DROP
+WIPE
+NOOP
+
+-- test-0args.asm.output --
+HALT
+MODE
+KILL
+MAKE
+DROP
+WIPE
+NOOP
+
+-- test-1arg.asm --
+LINK 800
+GRAB 199
+TJMP L2
+FJMP L3
+FILE X
+SEEK 9999
+VOID M
+REPL L4
+HOST X
+@REP 3
+MARK L0
+JUMP L0
+
+-- test-1arg.asm.output --
+LINK 800
+GRAB 199
+TJMP L2
+FJMP L3
+FILE X
+SEEK 9999
+VOID M
+REPL L4
+HOST X
+@REP 3
+MARK L0
+JUMP L0
+
+-- test-2args.asm --
+COPY T M
+
+-- test-2args.asm.output --
+COPY T M
+
+-- test-3args.asm --
+ADDI X 1 M
+SUBI 1 X M
+DIVI X 4 M
+MODI X 2 M
+SWIZ X 123 M
+RAND 1 10 X
+TEST X = 1
+
+-- test-3args.asm.output --
+ADDI X 1 M
+SUBI 1 X M
+DIVI X 4 M
+MODI X 2 M
+SWIZ X 123 M
+RAND 1 10 X
+TEST X = 1
+
+-- test-rep.asm --
+@REP 3
+COPY @{1,1} X
+@END
+
+-- test-rep.asm.output --
+@REP 3
+COPY @{1,1} X
+@END
+
+-- test-assign.asm --
+X = 0
+X = T + 1
+X = T - 2
+X = T * 3
+X = T / 4
+X = T % 5
+X = T SWIZ 123
+X = RAND 1 10
+
+-- test-assign.asm.output --
+COPY 0 X
+ADDI T 1 X
+SUBI T 2 X
+MULI T 3 X
+DIVI T 4 X
+MODI T 5 X
+SWIZ T 123 X
+RAND 1 10 X
+
+-- test-shortassign.asm --
+X += 1
+X -= 2
+X *= 3
+X /= 4
+X %= 5
+
+-- test-shortassign.asm.output --
+ADDI X 1 X
+SUBI X 2 X
+MULI X 3 X
+DIVI X 4 X
+MODI X 5 X
+
+-- test-inverse-cond.asm --
+TEST X != 1
+TEST X >= 2
+TEST X <= 3
+
+-- test-inverse-cond.asm.output --
+TEST X = 1
+SUBI 1 T T
+TEST X < 2
+SUBI 1 T T
+TEST X > 3
+SUBI 1 T T
+
+-- test-if.asm --
+IF X < 10
+    COPY 0 M
+END
+
+-- test-if.asm.output --
+TEST X < 10
+FJMP L0
+COPY 0 M
+MARK L0
+
+-- test-if-not.asm --
+IF NOT X < 10
+    COPY 0 M
+END
+
+-- test-if-not.asm.output --
+TEST X < 10
+TJMP L0
+COPY 0 M
+MARK L0
+
+-- test-else.asm --
+IF X < 10
+    COPY 0 M
+ELSE
+    COPY 1 M
+END
+
+-- test-else.asm.output --
+TEST X < 10
+FJMP IF_0_NEXT
+COPY 0 M
+JUMP IF_0_END
+MARK IF_0_NEXT
+COPY 1 M
+MARK IF_0_END
+
+-- test-else-if.asm --
+IF X > 5
+    COPY 5 M
+ELSE IF X > 4
+    COPY 4 M
+ELSE IF X > 3
+    COPY 3 M
+END
+
+-- test-else-if.asm.output --
+TEST X > 5
+FJMP L0
+COPY 5 M
+JUMP L4
+MARK L0
+TEST X > 4
+FJMP L2
+COPY 4 M
+JUMP L4
+MARK L2
+TEST X > 3
+FJMP L4
+COPY 3 M
+MARK L4
+
+-- test-if-full.asm --
+IF X > 5
+    COPY 5 M
+ELSE IF X > 4
+    COPY 4 M
+ELSE IF X > 3
+    COPY 3 M
+ELSE
+    COPY 2 M
+END
+
+-- test-if-full.asm.output --
+TEST X > 5
+FJMP L0
+COPY 5 M
+JUMP IF_0_END
+MARK L0
+TEST X > 4
+FJMP L2
+COPY 4 M
+JUMP IF_0_END
+MARK L2
+TEST X > 3
+FJMP L3
+COPY 3 M
+JUMP IF_0_END
+MARK L3
+COPY 2 M
+MARK IF_0_END
+
+-- test-if-nested.asm --
+IF X > 5
+    IF X < 10
+        COPY 5 M
+    ELSE IF X < 20
+        COPY 6 M
+    END
+    COPY M T
+ELSE
+    IF X > 2
+        COPY 2 M
+    END
+    COPY M X
+END
+
+-- test-if-nested.asm.output --
+TEST X > 5
+FJMP L3
+TEST X < 10
+FJMP L0
+COPY 5 M
+JUMP L2
+MARK L0
+TEST X < 20
+FJMP L2
+COPY 6 M
+MARK L2
+COPY M T
+JUMP IF_0_END
+MARK L3
+TEST X > 2
+FJMP L4
+COPY 2 M
+MARK L4
+COPY M X
+MARK IF_0_END
+
+-- test-while.asm --
+WHILE X < 10
+    X += 1
+LOOP
+
+-- test-while.asm.output --
+MARK WHILE_0
+TEST X < 10
+FJMP WHILE_0_END
+ADDI X 1 X
+JUMP WHILE_0
+MARK WHILE_0_END
+
+-- test-while-forever.asm --
+WHILE
+    X += 1
+LOOP
+
+-- test-while-forever.asm.output --
+MARK WHILE_0
+ADDI X 1 X
+JUMP WHILE_0
+
+-- test-while-break.asm --
+WHILE X < 10
+    X += 1
+    BREAK
+LOOP
+
+-- test-while-break.asm.output --
+TEST X < 10
+FJMP WHILE_0_END
+ADDI X 1 X
+MARK WHILE_0_END
+
+-- test-while-continue.asm --
+WHILE X < 10
+    X += 1
+    CONTINUE
+LOOP
+
+-- test-while-continue.asm.output --
+MARK WHILE_0
+TEST X < 10
+FJMP WHILE_0_END
+ADDI X 1 X
+JUMP WHILE_0 ; CONTINUE
+MARK WHILE_0_END
+
+-- test-do.asm --
+DO
+    COPY M X
+LOOP
+
+-- test-do.asm.output --
+MARK DO_0
+COPY M X
+JUMP DO_0
+
+-- test-do-continue.asm --
+DO
+    CONTINUE
+LOOP
+
+-- test-do-continue.asm.output --
+MARK DO_0
+JUMP DO_0 ; CONTINUE
+
+-- test-do-break.asm --
+DO
+    COPY 1 X
+    BREAK
+LOOP
+
+-- test-do-break.asm.output --
+COPY 1 X
+
+-- test-do-while.asm --
+DO
+    COPY M X
+LOOP WHILE X < 10
+
+-- test-do-while.asm.output --
+MARK DO_0
+COPY M X
+TEST X < 10
+TJMP DO_0
+
+-- test-eof.asm --
+IF EOF
+    COPY 0 X
+END
+WHILE EOF
+    COPY F M
+LOOP
+DO
+    COPY F X
+LOOP WHILE EOF
+
+-- test-eof.asm.output --
+TEST EOF
+FJMP L1
+COPY 0 X
+MARK L1
+TEST EOF
+FJMP L2
+COPY F M
+JUMP L1
+MARK L2
+COPY F X
+TEST EOF
+TJMP L2
+
+-- test-mrd.asm --
+TEST MRD
+
+-- test-mrd.asm.output --
+TEST MRD
+
+-- test-not-eof.asm --
+IF NOT EOF
+COPY 0 X
+END
+WHILE NOT EOF
+    COPY F M
+LOOP
+DO
+    COPY F X
+LOOP WHILE NOT EOF
+
+-- test-not-eof.asm.output --
+TEST EOF
+TJMP L1
+COPY 0 X
+MARK L1
+TEST EOF
+TJMP L2
+COPY F M
+JUMP L1
+MARK L2
+COPY F X
+TEST EOF
+FJMP L2
+
+-- test-istrue.asm --
+IF ISTRUE
+    COPY 1 M
+END
+WHILE ISTRUE
+    COPY M T
+LOOP
+DO
+    COPY M T
+LOOP WHILE ISTRUE
+
+-- test-istrue.asm.output --
+FJMP L1
+COPY 1 M
+MARK L1
+FJMP L2
+COPY M T
+JUMP L1
+MARK L2
+COPY M T
+TJMP L2
+
+-- test-isfalse.asm --
+IF ISFALSE
+    COPY 1 M
+END
+WHILE ISFALSE
+    COPY M T
+LOOP
+DO
+    COPY M T
+LOOP WHILE ISFALSE
+
+-- test-isfalse.asm.output --
+TJMP L1
+COPY 1 M
+MARK L1
+TJMP L2
+COPY M T
+JUMP L1
+MARK L2
+COPY M T
+FJMP L2
+
+-- test-break-iftrue.asm --
+DO
+    COPY M T
+    BREAK IFTRUE
+    COPY T F
+LOOP
+
+-- test-break-iftrue.asm.output --
+MARK DO_0
+COPY M T
+TJMP DO_0_END ; BREAK
+COPY T F
+JUMP DO_0
+MARK DO_0_END
+
+-- test-break-iffalse.asm --
+DO
+    COPY M T
+    BREAK IFFALSE
+    COPY T F
+LOOP
+
+-- test-break-iffalse.asm.output --
+MARK DO_0
+COPY M T
+FJMP DO_0_END ; BREAK
+COPY T F
+JUMP DO_0
+MARK DO_0_END
+
+-- test-continue-iftrue.asm --
+DO
+    COPY M T
+    CONTINUE IFTRUE
+    COPY T F
+LOOP
+
+-- test-continue-iftrue.asm.output --
+MARK DO_0
+COPY M T
+TJMP DO_0 ; CONTINUE
+COPY T F
+JUMP DO_0
+
+-- test-continue-iffalse.asm --
+DO
+    COPY M T
+    CONTINUE IFFALSE
+    COPY T F
+LOOP
+
+-- test-continue-iffalse.asm.output --
+MARK DO_0
+COPY M T
+FJMP DO_0 ; CONTINUE
+COPY T F
+JUMP DO_0
+
+-- test-while-negate-optimization.asm --
+WHILE X != 100
+    COPY X M
+LOOP
+WHILE NOT X != 100
+    COPY X M
+LOOP
+
+-- test-while-negate-optimization.asm.output --
+MARK WHILE_0
+TEST X = 100
+TJMP L0
+COPY X M
+JUMP WHILE_0
+MARK L0
+TEST X = 100
+FJMP WHILE_1_END
+COPY X M
+JUMP L0
+MARK WHILE_1_END
+
+-- test-optimize-skip-lines.asm --
+TJMP A
+FJMP B
+MARK A
+
+MARK B
+
+-- test-optimize-skip-lines.asm.output --
+TJMP L0
+FJMP L0
+
+MARK L0

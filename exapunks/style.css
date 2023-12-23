@@ -1,0 +1,40 @@
+#editor {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: monospace;
+}
+
+#split {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+#split,
+#input {
+    color: #ddd;
+}
+
+#input {
+    background: #333;
+}
+
+#output {
+    background: #222;
+}
+
+#input,
+#output {
+    flex: 1;
+    text-transform: uppercase;
+    border: 0;
+    padding: 20px;
+    margin: 0;
+}
+
+#error {
+    width: 100%;
+    color: #f00;
+}
