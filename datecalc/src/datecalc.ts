@@ -1,23 +1,42 @@
+const fullDateTimeFormat: Intl.DateTimeFormatOptions = {
+    dateStyle: "full",
+    timeStyle: "short",
+    hourCycle: "h23",
+};
+
+const shortDateTimeFormat: Intl.DateTimeFormatOptions = {
+    dateStyle: "short",
+    timeStyle: "short",
+    hourCycle: "h23",
+};
+
 enum TokenType {
+    Date = "DATE",
+    Duration = "DURATION",
+    Cast = "CAST",
+    Op = "OP",
     Number = "NUMBER",
-    Unit = "UNIT",
-    Slash = "SLASH",
-    Plus = "PLUS",
-    Minus = "MINUS",
-    As = "AS",
-    Now = "NOW",
-    Today = "TODAY",
+    EOF = "EOF",
 }
+
+const OP_PREC: { [key: string]: number } = {
+    "+": 0,
+    "-": 1,
+};
 
 class Token {
     constructor(
         public tokenType: TokenType,
-        public value: string = "",
+        public value: any = null,
     ) {}
 
     toString() {
         if (this.value) {
-            return `Token(${this.tokenType}, ${this.value})`;
+            if (this.value instanceof Date) {
+                return `Token(${this.tokenType}, ${formatDate(this.value)})`;
+            } else {
+                return `Token(${this.tokenType}, ${this.value})`;
+            }
         }
         return `Token(${this.tokenType})`;
     }
@@ -85,32 +104,18 @@ function getConversionFactor(unit: UnitType): number {
     }
 }
 
-interface DateCalcNode {}
+type DateCalcNode = DateNode | DurationNode | PlusNode | MinusNode | CastNode;
+type DateOrDuration = Date | Duration;
 
-class DateNode implements DateCalcNode {
-    constructor(
-        public m: Token,
-        public d: Token,
-        public y: Token,
-    ) {}
+class DateNode {
+    constructor(public date: Date) {}
 
     toString(): string {
-        return `DateNode(${this.m}, ${this.d}, ${this.y})`;
+        return `DateNode(${formatDate(this.date)})`;
     }
 }
 
-class DeltaNode implements DateCalcNode {
-    constructor(
-        public amount: Token,
-        public unit: Token,
-    ) {}
-
-    toString(): string {
-        return `DeltaNode(${this.amount}, ${this.unit})`;
-    }
-}
-
-class PlusNode implements DateCalcNode {
+class PlusNode {
     constructor(
         public left: DateCalcNode,
         public right: DateCalcNode,
@@ -121,7 +126,7 @@ class PlusNode implements DateCalcNode {
     }
 }
 
-class MinusNode implements DateCalcNode {
+class MinusNode {
     constructor(
         public left: DateCalcNode,
         public right: DateCalcNode,
@@ -132,59 +137,22 @@ class MinusNode implements DateCalcNode {
     }
 }
 
-class NowNode implements DateCalcNode {
-    constructor() {}
+class DurationNode {
+    constructor(public duration: Duration) {}
 
     toString(): string {
-        return `NowNode()`;
+        return `DurationNode(${this.duration})`;
     }
 }
 
-class TodayNode implements DateCalcNode {
-    constructor() {}
+class CastNode {
+    constructor(
+        public left: DateCalcNode,
+        public unit: UnitType,
+    ) {}
 
     toString(): string {
-        return `TodayNode()`;
-    }
-}
-
-interface Indexable<T> {
-    [index: number]: T;
-    length: number;
-}
-
-class Iterator<T> {
-    index: number = -1;
-
-    constructor(private source: Indexable<T>) {}
-
-    hasNext(): boolean {
-        return this.index < this.source.length - 1;
-    }
-
-    next(): T {
-        return this.source[++this.index];
-    }
-
-    current(): T {
-        return this.source[this.index];
-    }
-
-    peek(): T {
-        return this.source[this.index + 1];
-    }
-}
-
-class TokenIterator extends Iterator<Token> {
-    expect(tokenType: TokenType): Token {
-        if (!this.hasNext()) {
-            throw new ParseError(`expected "${tokenType}" but got nothing`);
-        }
-        let token = super.next();
-        if (token.tokenType != tokenType) {
-            throw new ParseError(`expected "${tokenType}" but got "${token.tokenType}"`);
-        }
-        return token;
+        return `CastNode(${this.left}, ${this.unit})`;
     }
 }
 
@@ -204,60 +172,134 @@ function isDigit(c: string): boolean {
     return /[0-9]/.test(c);
 }
 
-export function tokenize(program: string): Token[] {
-    if (!program) {
+export function tokenize(input: string): Token[] {
+    const tokens: Token[] = [];
+
+    let index = 0;
+    const current = () => input[index];
+    const consume = () => input[index++];
+    const isEOF = () => index >= input.length;
+
+    function expect(want: string): ParseError {
+        const got = consume();
+        if (got != want) {
+            return new ParseError(`expected "${want}" but got "${got}"`);
+        }
         return null;
     }
 
-    let tokens: Token[] = [];
-    let stream = new Iterator(program);
-
-    function scanWord(): string {
-        let word = stream.current();
-        while (stream.hasNext() && isAlpha(stream.peek())) {
-            word += stream.next();
+    function scanWord(): [string, ParseError] {
+        if (isEOF()) {
+            return ["", new ParseError(`error parsing word: unexpected end of program`)];
         }
-        return word;
+        let word = consume();
+        while (!isEOF() && isAlpha(current())) {
+            word += consume();
+        }
+        return [word.toLowerCase(), null];
     }
 
-    function scanNumber(): string {
-        let num = stream.current();
-        while (stream.hasNext() && isDigit(stream.peek())) {
-            num += stream.next();
+    function scanNumber(): [number, ParseError] {
+        if (isEOF()) {
+            return [0, new ParseError(`error parsing number: unexpected end of program`)];
         }
-        return num;
+        if (!isDigit(current())) {
+            return [0, new ParseError(`expected digit but got "${current()}"`)];
+        }
+        let word = consume();
+        while (!isEOF() && isDigit(current())) {
+            word += consume();
+        }
+        const num = parseInt(word, 10);
+        return [num, null];
     }
 
-    while (stream.hasNext()) {
-        let c = stream.next();
+    function scanUnit(): [UnitType, ParseError] {
+        const [word, err] = scanWord();
+        if (err) {
+            return [null, new ParseError(`error parsing unit: ${err.message}`)];
+        }
+        if (word in UNIT_TO_ENUM) {
+            return [UNIT_TO_ENUM[word], null];
+        }
+        return [null, new ParseError(`invalid unit: ${word}`)];
+    }
+
+    function skipWhitespace() {
+        while (!isEOF() && current() === " ") {
+            consume();
+        }
+    }
+
+    while (!isEOF()) {
+        let c = current();
         if (c == " ") {
-            continue;
-        } else if (c == "/") {
-            tokens.push(new Token(TokenType.Slash));
-        } else if (c == "+") {
-            tokens.push(new Token(TokenType.Plus));
-        } else if (c == "-") {
-            tokens.push(new Token(TokenType.Minus));
+            skipWhitespace();
+        } else if (c == "+" || c == "-") {
+            tokens.push(new Token(TokenType.Op, c));
+            consume();
         } else if (isAlpha(c)) {
-            let word = scanWord().toLowerCase();
-            if (word == "as" || word == "to") {
-                tokens.push(new Token(TokenType.As));
-            } else if (word == "now") {
-                tokens.push(new Token(TokenType.Now));
-            } else if (word == "today") {
-                tokens.push(new Token(TokenType.Today));
-            } else if (word in UNIT_TO_ENUM) {
-                tokens.push(new Token(TokenType.Unit, UNIT_TO_ENUM[word]));
+            const [word, err1] = scanWord();
+            if (err1) {
+                throw err1;
+            }
+            skipWhitespace();
+            if (word == "now" || word == "today") {
+                tokens.push(new Token(TokenType.Date, word));
+            } else if (word == "as" || word == "to") {
+                if (isAlpha(current())) {
+                    const [unit, err2] = scanUnit();
+                    if (err2) {
+                        throw new ParseError(`error parsing cast: ${err2.message}`);
+                    }
+                    tokens.push(new Token(TokenType.Cast, unit));
+                } else {
+                    // TODO: continue?
+                    throw new ParseError(`unexpected character after cast token: ${current()}`);
+                }
             } else {
-                throw new ParseError(`unexpected unit: ${word}`);
+                // TODO: continue?
+                throw new ParseError(`unexpected word: ${word}`);
             }
         } else if (isDigit(c)) {
-            tokens.push(new Token(TokenType.Number, scanNumber()));
+            const [m, err1] = scanNumber();
+            if (err1) {
+                throw err1;
+            }
+            skipWhitespace();
+            c = current();
+            if (c === "/") {
+                consume();
+                const [d, err2] = scanNumber();
+                if (err2) {
+                    throw new ParseError(`error parsing date: ${err2.message}`);
+                }
+                const err3 = expect("/");
+                if (err3) {
+                    throw new ParseError(`error parsing date: ${err3.message}`);
+                }
+                const [y, err4] = scanNumber();
+                if (err4) {
+                    throw new ParseError(`error parsing date: ${err4.message}`);
+                }
+                const date = new Date(y, m - 1, d);
+                tokens.push(new Token(TokenType.Date, date));
+            } else if (isAlpha(c)) {
+                const [unit, err2] = scanUnit();
+                if (err2) {
+                    throw new ParseError(`error parsing duration: ${err2.message}`);
+                }
+                const duration = new Duration(m, unit);
+                tokens.push(new Token(TokenType.Duration, duration));
+            } else {
+                tokens.push(new Token(TokenType.Number, m));
+            }
         } else {
             throw new ParseError(`unexpected character: ${c}`);
         }
     }
 
+    tokens.push(new Token(TokenType.EOF));
     return tokens;
 }
 
@@ -266,93 +308,109 @@ export function parse(tokens: Token[]): DateCalcNode {
         return null;
     }
 
-    let stream = new TokenIterator(tokens);
+    let index = 0;
+    const current = () => tokens[index];
+    const consume = () => tokens[index++];
+    const isEOF = () => current().tokenType === TokenType.EOF;
+
+    function expect(tokenType: TokenType): [Token, ParseError] {
+        const token = consume();
+        if (token.tokenType != tokenType) {
+            return [null, new ParseError(`expected "${tokenType}" but got "${token.tokenType}"`)];
+        }
+        return [token, null];
+    }
 
     function parseProgram(): DateCalcNode {
-        let dateOrDelta = parseDateOrDelta();
-        return parseDateExpr(dateOrDelta);
-    }
-
-    function parseDateOrDelta(): DateCalcNode {
-        let nextToken = stream.peek();
-        if (!nextToken) {
-            throw new ParseError(`unexpected end of token stream`);
+        if (isEOF()) {
+            throw new ParseError(`error parsing program: not enough tokens`);
         }
-        if (nextToken.tokenType == TokenType.Now) {
-            stream.expect(TokenType.Now);
-            return new NowNode();
-        } else if (nextToken.tokenType == TokenType.Today) {
-            stream.expect(TokenType.Today);
-            return new TodayNode();
-        } else if (nextToken.tokenType == TokenType.Number) {
-            stream.expect(TokenType.Number);
-            if (stream.hasNext()) {
-                let nextToken = stream.peek();
-                if (nextToken.tokenType == TokenType.Slash) {
-                    return parseDate();
-                } else if (nextToken.tokenType == TokenType.Unit) {
-                    return parseDelta();
-                }
-                throw new ParseError(`unexpected token: ${nextToken}`);
-            }
+
+        // Parse primary date/duration expression
+        const left = parseExpr(parseDateOrDuration(), 0);
+
+        // Merge (overwrite) subsequent cast nodes
+        let castLeft = left;
+        while (current().tokenType === TokenType.Cast) {
+            const cast = consume();
+            castLeft = new CastNode(left, cast.value);
         }
-        throw new ParseError(`unexpected token: ${nextToken}`);
+        return castLeft;
     }
 
-    function parseDate(): DateCalcNode {
-        let m = stream.current();
-        stream.expect(TokenType.Slash);
-        let d = stream.expect(TokenType.Number);
-        stream.expect(TokenType.Slash);
-        let y = stream.expect(TokenType.Number);
-        return new DateNode(m, d, y);
-    }
+    // Ref: https://en.wikipedia.org/wiki/Operator-precedence_parser#Precedence_climbing_method
+    function parseExpr(left: DateCalcNode, minPrec: number): DateCalcNode {
+        while (current().tokenType === TokenType.Op && OP_PREC[current().value] >= minPrec) {
+            const op = consume();
 
-    function parseDelta(): DateCalcNode {
-        let amount = stream.current();
-        let unit = stream.expect(TokenType.Unit);
-        return new DeltaNode(amount, unit);
-    }
-
-    function parseDateExpr(left: DateCalcNode): DateCalcNode {
-        if (stream.hasNext()) {
-            let nextToken = stream.next();
-            if (nextToken.tokenType == TokenType.Plus) {
-                let dateOrDelta = parseDateOrDelta();
-                return parseDateExpr(new PlusNode(left, dateOrDelta));
-            } else if (nextToken.tokenType == TokenType.Minus) {
-                let dateOrDelta = parseDateOrDelta();
-                return parseDateExpr(new MinusNode(left, dateOrDelta));
-            } else if (nextToken.tokenType == TokenType.As) {
-                return parseCastExpr(left);
+            let right = parseDateOrDuration();
+            while (current().tokenType === TokenType.Op && OP_PREC[current().value] > OP_PREC[op.value]) {
+                right = parseExpr(right, minPrec + 1);
             }
-            throw new ParseError(`unexpected token: ${nextToken}`);
+
+            if (op.value == "+") {
+                left = new PlusNode(left, right);
+            } else if (op.value == "-") {
+                left = new MinusNode(left, right);
+            } else {
+                throw new ParseError(`invalid op: ${op.value}`);
+            }
         }
         return left;
     }
 
-    function parseCastExpr(left: DateCalcNode): DateCalcNode {
-        let unit = stream.expect(TokenType.Unit);
-        let delta = new DeltaNode(new Token(TokenType.Number, "0"), unit);
-        return parseDateExpr(new PlusNode(delta, left));
+    function parseDateOrDuration(): DateCalcNode {
+        if (current().tokenType === TokenType.Date) {
+            return parseDate();
+        } else if (current().tokenType === TokenType.Duration) {
+            return parseDuration();
+        }
+        throw new ParseError(`expected date or duration but got "${current()}"`);
     }
 
-    let result = parseProgram();
-    if (stream.hasNext()) {
-        throw new ParseError(`unexpected tokens after program end: ${tokens.splice(stream.index + 1)}`);
+    const now = new Date();
+    const today = dateWithoutTime(now);
+
+    function parseDate(): DateNode {
+        const [date, err] = expect(TokenType.Date);
+        if (err) {
+            throw new ParseError(`error parsing date: ${err.message}`);
+        }
+        if (date.value instanceof Date) {
+            return new DateNode(date.value);
+        } else if (date.value === "now") {
+            return new DateNode(now);
+        } else if (date.value === "today") {
+            return new DateNode(today);
+        }
+        throw new ParseError(`error parsing date: expected "now", "today", or "YYYY/MM/DD" but got "${date.value}"`);
+    }
+
+    function parseDuration(): DurationNode {
+        const [duration, err] = expect(TokenType.Duration);
+        if (err) {
+            throw new ParseError(`error parsing date: ${err.message}`);
+        }
+        return new DurationNode(duration.value);
+    }
+
+    const result = parseProgram();
+    const [_, err] = expect(TokenType.EOF);
+    if (err) {
+        throw err;
     }
     return result;
 }
 
-class Delta {
+class Duration {
     constructor(
         public amount: number,
         public unit: UnitType,
     ) {}
 
-    toUnit(unit: UnitType): Delta {
+    toUnit(unit: UnitType): Duration {
         let factor = getConversionFactor(this.unit) / getConversionFactor(unit);
-        return new Delta(this.amount * factor, unit);
+        return new Duration(this.amount * factor, unit);
     }
 
     toString(): string {
@@ -364,182 +422,165 @@ class Delta {
     }
 }
 
-function dateMinusDate(date: Date, other: Date): Delta {
+function dateMinusDate(date: Date, other: Date): Duration {
     let ms = Math.abs(date.getTime() - other.getTime());
     let amount = ms / getConversionFactor(UnitType.Day);
-    return new Delta(amount, UnitType.Day);
+    return new Duration(amount, UnitType.Day);
 }
 
-function datePlusDelta(date: Date, delta: Delta): Date {
-    return new Date(date.getTime() + delta.toUnit(UnitType.Millisecond).amount);
+function datePlusDuration(date: Date, duration: Duration): Date {
+    return new Date(date.getTime() + duration.toUnit(UnitType.Millisecond).amount);
 }
 
-function dateMinusDelta(date: Date, delta: Delta): Date {
-    return new Date(date.getTime() - delta.toUnit(UnitType.Millisecond).amount);
+function dateMinusDuration(date: Date, duration: Duration): Date {
+    return new Date(date.getTime() - duration.toUnit(UnitType.Millisecond).amount);
 }
 
-function deltaPlusDelta(left: Delta, right: Delta): Delta {
-    return new Delta(left.amount + right.toUnit(left.unit).amount, left.unit);
+function durationPlusDuration(left: Duration, right: Duration): Duration {
+    return new Duration(left.amount + right.toUnit(left.unit).amount, left.unit);
 }
 
-function deltaMinusDelta(left: Delta, right: Delta): Delta {
-    return new Delta(left.amount - right.toUnit(left.unit).amount, left.unit);
+function durationMinusDuration(left: Duration, right: Duration): Duration {
+    return new Duration(left.amount - right.toUnit(left.unit).amount, left.unit);
 }
 
-export function resolve(node: DateCalcNode): Date | Delta {
-    function visit(node: DateCalcNode): Date | Delta {
+function isDatetime(dt: Date): boolean {
+    const d = dateWithoutTime(dt);
+    return dt.getTime() - d.getTime() !== 0;
+}
+
+function dateWithoutTime(dt: Date): Date {
+    return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+}
+
+function formatDate(d: Date): string {
+    if (isDatetime(d)) {
+        return d.toLocaleString("en-US", shortDateTimeFormat);
+    } else {
+        return d.toLocaleDateString("en-US");
+    }
+}
+
+export function evaluate(node: DateCalcNode): string {
+    function visit(node: DateCalcNode): DateOrDuration {
         if (node instanceof DateNode) {
-            return visitDateNode(node);
-        } else if (node instanceof DeltaNode) {
-            return visitDeltaNode(node);
+            return node.date;
+        } else if (node instanceof DurationNode) {
+            return node.duration;
         } else if (node instanceof PlusNode) {
-            return visitPlusNode(node);
+            return visitPlus(node);
         } else if (node instanceof MinusNode) {
-            return visitMinusNode(node);
-        } else if (node instanceof NowNode) {
-            return visitNowNode(node);
-        } else if (node instanceof TodayNode) {
-            return visitTodayNode(node);
+            return visitMinus(node);
+        } else if (node instanceof CastNode) {
+            return visitCast(node);
         }
-        throw new ParseError(`unexpected node: ${node}`);
+        throw new ParseError(`eval error: unexpected node: ${node}`);
     }
 
-    function visitDateNode(date: DateNode): Date {
-        let m = parseInt(date.m.value, 10);
-        let d = parseInt(date.d.value, 10);
-        let y = parseInt(date.y.value, 10);
-        return new Date(y, m - 1, d);
-    }
-
-    function visitNowNode(node: NowNode): Date {
-        return new Date();
-    }
-
-    function visitTodayNode(node: TodayNode): Date {
-        const now = new Date();
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    }
-
-    function visitDeltaNode(delta: DeltaNode): Delta {
-        let amount = parseInt(delta.amount.value, 10);
-        let unit = delta.unit.value as UnitType;
-        return new Delta(amount, unit);
-    }
-
-    function visitPlusNode(op: PlusNode): Date | Delta {
-        let left = visit(op.left);
-        let right = visit(op.right);
-        if (left instanceof Date && right instanceof Date) {
-            throw new ParseError(`adding dates is not supported`);
-        } else if (left instanceof Date && right instanceof Delta) {
-            return datePlusDelta(left, right);
-        } else if (left instanceof Delta && right instanceof Date) {
-            return datePlusDelta(right, left);
-        } else if (left instanceof Delta && right instanceof Delta) {
-            return deltaPlusDelta(left, right);
+    function visitPlus(node: PlusNode): DateOrDuration {
+        const left = visit(node.left);
+        const right = visit(node.right);
+        if (left instanceof Date) {
+            if (right instanceof Date) {
+                throw new ParseError(`adding dates together is not supported`);
+            } else if (right instanceof Duration) {
+                return datePlusDuration(left, right);
+            }
+        } else if (left instanceof Duration) {
+            if (right instanceof Date) {
+                return datePlusDuration(right, left);
+            } else if (right instanceof Duration) {
+                return durationPlusDuration(left, right);
+            }
         }
-        throw new ParseError(`expected date or delta but got "${left}" and "${right}"`);
+        throw new ParseError(`can't add ${node.left} to ${node.right}`);
     }
 
-    function visitMinusNode(op: MinusNode): Date | Delta {
-        let left = visit(op.left);
-        let right = visit(op.right);
-        if (left instanceof Date && right instanceof Date) {
-            return dateMinusDate(left, right);
-        } else if (left instanceof Date && right instanceof Delta) {
-            return dateMinusDelta(left, right);
-        } else if (left instanceof Delta && right instanceof Date) {
-            throw new ParseError(`subtracting date from delta is not supported`);
-        } else if (left instanceof Delta && right instanceof Delta) {
-            return deltaMinusDelta(left, right);
+    function visitMinus(node: MinusNode): DateOrDuration {
+        const left = visit(node.left);
+        const right = visit(node.right);
+        if (left instanceof Date) {
+            if (right instanceof Date) {
+                return dateMinusDate(left, right);
+            } else if (right instanceof Duration) {
+                return dateMinusDuration(left, right);
+            }
+        } else if (left instanceof Duration) {
+            if (right instanceof Date) {
+                throw new ParseError(`subtracting date from duration is not supported`);
+            } else if (right instanceof Duration) {
+                return durationMinusDuration(left, right);
+            }
         }
-        throw new ParseError(`expected date or delta but got "${left}" and "${right}"`);
+        throw new ParseError(`can't subtract "${right}" from "${left}"`);
     }
 
-    return visit(node);
+    function visitCast(node: CastNode): DateOrDuration {
+        const left = visit(node.left);
+        if (left instanceof Duration) {
+            return left.toUnit(node.unit);
+        }
+        throw new ParseError(`can't convert "${left}" to duration`);
+    }
+
+    const result = visit(node);
+    if (result instanceof Date) {
+        return result.toLocaleString("en-US", fullDateTimeFormat);
+    } else {
+        return result.toString();
+    }
 }
 
 export function formatTokens(tokens: Token[]): string {
     if (!tokens) {
         return "";
     }
-    return tokens
-        .map(function (t) {
-            return "- " + t;
-        })
-        .join("\n");
+    return tokens.map((t) => "- " + t).join("\n");
 }
 
-export function formatAst(node: DateCalcNode): string {
-    if (!node) {
-        return "";
+export function formatProgram(node: DateCalcNode): string {
+    let sb: string[] = [];
+
+    function writeIndent(indent: number) {
+        for (let i = 0; i < indent; i++) {
+            sb.push("  ");
+        }
     }
 
-    const buf: string[] = [];
-
-    function writeIndent(line: string, indent: number) {
-        let prefix = "";
-        while (indent > 1) {
-            prefix += "    ";
-            indent--;
-        }
-        if (indent) {
-            prefix += "|---";
-        }
-        buf.push(prefix + line);
+    function write(str: string) {
+        sb.push(str);
     }
 
-    function visit(node: DateCalcNode, indent: number) {
+    function visit(node: DateCalcNode, indent: number = 0) {
+        writeIndent(indent);
         if (node instanceof DateNode) {
-            visitDateNode(node, indent);
-        } else if (node instanceof DeltaNode) {
-            visitDeltaNode(node, indent);
+            write(node.toString());
+        } else if (node instanceof DurationNode) {
+            write(node.toString());
         } else if (node instanceof PlusNode) {
-            visitPlusNode(node, indent);
+            write(`PlusNode(\n`);
+            visit(node.left, indent + 1);
+            write(`,\n`);
+            visit(node.right, indent + 1);
+            write(`)`);
         } else if (node instanceof MinusNode) {
-            visitMinusNode(node, indent);
-        } else if (node instanceof NowNode) {
-            visitNowNode(node, indent);
-        } else if (node instanceof TodayNode) {
-            visitTodayNode(node, indent);
+            write(`MinusNode(\n`);
+            visit(node.left, indent + 1);
+            write(`,\n`);
+            visit(node.right, indent + 1);
+            write(`)`);
+        } else if (node instanceof CastNode) {
+            write(`CastNode(\n`);
+            visit(node.left, indent + 1);
+            write(`,\n`);
+            writeIndent(indent + 1);
+            write(node.unit.toString());
+            write(`)`);
         } else {
-            throw new ParseError(`unexpected node: ${node}`);
+            throw new ParseError(`format error: unexpected node: ${node}`);
         }
     }
 
-    function visitDateNode(date: DateNode, indent: number) {
-        writeIndent("DateNode", indent);
-        writeIndent(date.m.toString(), indent + 1);
-        writeIndent(date.d.toString(), indent + 1);
-        writeIndent(date.y.toString(), indent + 1);
-    }
-
-    function visitDeltaNode(delta: DeltaNode, indent: number) {
-        writeIndent("DeltaNode", indent);
-        writeIndent(delta.amount.toString(), indent + 1);
-        writeIndent(delta.unit.toString(), indent + 1);
-    }
-
-    function visitPlusNode(op: PlusNode, indent: number) {
-        writeIndent("PlusNode", indent);
-        visit(op.left, indent + 1);
-        visit(op.right, indent + 1);
-    }
-
-    function visitMinusNode(op: MinusNode, indent: number) {
-        writeIndent("MinusNode", indent);
-        visit(op.left, indent + 1);
-        visit(op.right, indent + 1);
-    }
-
-    function visitNowNode(node: NowNode, indent: number) {
-        writeIndent("NowNode", indent);
-    }
-
-    function visitTodayNode(node: TodayNode, indent: number) {
-        writeIndent("TodayNode", indent);
-    }
-
-    visit(node, 0);
-    return buf.join("\n");
+    visit(node);
+    return sb.join("");
 }

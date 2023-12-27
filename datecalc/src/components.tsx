@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { tokenize, parse, resolve, formatTokens, formatAst } from "./datecalc";
-
-const dateFmt: Intl.DateTimeFormatOptions = {
-    dateStyle: "full",
-    timeStyle: "short",
-    hourCycle: "h23",
-};
+import { tokenize, parse, evaluate, formatTokens, formatProgram } from "./datecalc";
 
 interface DateCalcFormProps {
     initial: string;
@@ -21,22 +15,28 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
         setState(value);
     };
 
-    let tokens, ast, result, output, err;
+    let tokens, programNode, output, err;
     let formattedTokens = "";
-    let formattedAst = "";
+    let formattedProgram = "";
 
     try {
         if (state) {
             tokens = tokenize(state);
-            ast = parse(tokens);
-            result = resolve(ast);
-            output = result instanceof Date ? result.toLocaleString("en-US", dateFmt) : result.toString();
-            formattedTokens = formatTokens(tokens);
-            formattedAst = formatAst(ast);
+            console.log(tokens);
+            programNode = parse(tokens);
+            console.log(programNode);
+            output = evaluate(programNode);
         }
     } catch (ex) {
         console.log(ex);
         err = ex.toString();
+    }
+
+    if (tokens) {
+        formattedTokens = formatTokens(tokens);
+    }
+    if (programNode) {
+        formattedProgram = formatProgram(programNode);
     }
 
     return (
@@ -45,7 +45,7 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
                 <p className="label">Input:</p>
                 <input type="text" autoComplete="off" value={state || ""} onChange={onChange} />
                 <p className="label">Output:</p>
-                <p className={"output" + ((err && " error") || "")}>{err || output || "(none)"}</p>
+                <p className={"output" + ((err && " error") || "")}>{err || output || ""}</p>
             </div>
             <h2 id="examples">Examples</h2>
             <ul>
@@ -67,7 +67,7 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
                 </div>
                 <div className="col">
                     <span className="label">AST:</span>
-                    <pre>{formattedAst || "(none)"}</pre>
+                    <pre>{formattedProgram || "(none)"}</pre>
                 </div>
             </div>
         </>

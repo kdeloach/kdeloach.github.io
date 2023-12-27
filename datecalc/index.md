@@ -12,41 +12,45 @@ tags:
 
 ## Syntax
 
-The calculator supports adding and subtracting _date_ and _delta_ objects.
-
-Dates must be in `MM/DD/YYYY` format.
-
-Deltas must be in `<number> <unit>` format where `<number>` is a whole number
-and `<unit>` is one of: `second`, `minute`, `hour`, `day`, `week`, `month`, or
-`year`. For example, `24 hours`, `1 week`, or `30 years`.
-
-Deltas may be converted to another time unit by ending the expression in
-`as <unit>`. For example, `1 week as days` returns `7 days`.
-
-The output will be either a _date_ or _delta_ depending on the context.
-
-## Grammar
+Date calculator syntax in BNF grammar format.
 
 ```js
-<dateExpr>    ::= <dateOrDelta> <castExpr>? (<op> <dateExpr>)?
+<program> ::= (<dateExpr> | <durationExpr> <castExpr>*)
 
-<castExpr>    ::= ("as" | "to") <unit>
+<dateExpr> ::= <date>
+    | <date> (<plus> | <minus>) <durationExpr>
 
-<dateOrDelta> ::= <date> | <delta>
+<durationExpr> ::= <duration>
+    | <duration> (<plus> | <minus>) <durationExpr>
+    | <date> <minus> <dateExpr>
 
-<date>        ::= ("now" | "today" | <number> "/" <number> "/" <number>)
+<date> ::= ("now" | "today" | <number> "/" <number> "/" <number>)
 
-<delta>       ::= <number> <unit>
+<duration> ::= <number> <optWs> <unit>
 
-<op>          ::= ("+" | "-")
+<castExpr> ::= <ws> ("as" | "to") <ws> <unit>
 
-<number>      ::= [0-9]+
+<unit> ::= ("millisecond" | "second" | "minute" | "hour"
+    | "day" | "week" | "month" | "year")
 
-<unit>        ::= ("millisecond" | "second" | "minute" | "hour"
-                    | "day" | "week" | "month" | "year")
+<number> ::= [0-9]+
+<plus> ::= <optWs> "+" <optWs>
+<minus> ::= <optWs> "-" <optWs>
+
+<ws> ::= " "+
+<optWs> ::= " "*
 ```
 
 ## Updates
+
+### 1/25/2024
+
+-   Added operator precedence
+-   Improved error messages
+
+### 12/27/2023
+
+-   Improved grammar and refactored parser
 
 ### 10/19/2023
 
