@@ -1,0 +1,33 @@
+#platonic {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-around;
+}
+
+#form {
+    display: flex;
+    flex-direction: column;
+    background: aliceblue;
+    border: 2px solid lightblue;
+    border-radius: 10px;
+    padding: 10px;
+    gap: 10px;
+}
+
+input,
+#base5Label {
+    font-family: monospace;
+    font-size: 1.2em;
+}
+
+label {
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 1em;
+}
+
+canvas {
+    image-rendering: pixelated;
+    cursor: pointer;
+}
