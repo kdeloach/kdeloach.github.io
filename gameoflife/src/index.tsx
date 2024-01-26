@@ -12,8 +12,8 @@ const ROWS = 30;
 const windowWidth = el.clientWidth;
 const windowHeight = (ROWS / COLS) * windowWidth; // maintain aspect ratio
 
-const cellWidth = windowWidth / COLS;
-const cellHeight = windowHeight / ROWS;
+const cellWidth = Math.round(windowWidth / COLS);
+const cellHeight = Math.round(windowHeight / ROWS);
 
 let lastUpdateTime = 0;
 const frameInterval = 1000 / 10; // FPS

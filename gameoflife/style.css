@@ -7,3 +7,7 @@
     flex: 1;
     font-size: larger;
 }
+canvas {
+    image-rendering: pixelated;
+    cursor: pointer;
+}
