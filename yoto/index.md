@@ -32,6 +32,7 @@ were deemed to be "unsafe" content. The numbers 7, 20, 21, "metal spoon", and
 [2]: https://platform.openai.com/docs/guides/vision
 
 <div id="yoto">
+  <div id="form-placeholder"></div>
   <div id="form">
     <label for="search">Search: <input type="text" id="search" autocomplete="off" /></label>
   </div>
