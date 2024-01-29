@@ -2,6 +2,9 @@ const formEl = document.getElementById("form") as HTMLElement;
 const searchEl = document.getElementById("search") as HTMLInputElement;
 const iconsEl = document.getElementById("icons") as HTMLElement;
 
+const formPlaceholderEl = document.getElementById("form-placeholder");
+formPlaceholderEl.style.height = `${formEl.offsetHeight}px`;
+
 const keywords = [
     "blue musical notes pair eighth notes connected stems right-facing flags melody symbol floating harmony light blue dark blue edges vibrant artistic smooth edges musical notation melody",
     "green snake pixel character video game reptile side-view curling dark green light green open mouth fangs hostile small eyes iconic",
@@ -596,11 +599,40 @@ const debouncedKeyupEvent = (() => {
         clearTimeout(timeoutId);
         timeoutId = window.setTimeout(() => {
             handleKeyupEvent(event);
-        }, 10);
+        }, 5);
     };
 })();
 
 searchEl.addEventListener("keyup", debouncedKeyupEvent);
+
+let lastKnownScrollPosition = 0;
+let ticking = false;
+const minScrollY = 200;
+
+function moveSearchbox(y: number) {
+    if (y < minScrollY) {
+        formPlaceholderEl.style.display = "none";
+        formEl.style.position = "";
+        return;
+    }
+
+    formPlaceholderEl.style.display = "block";
+    formEl.style.position = "absolute";
+    formEl.style.top = `${y - minScrollY}px`;
+}
+
+document.addEventListener("scroll", (event) => {
+    lastKnownScrollPosition = window.scrollY;
+
+    if (!ticking) {
+        window.requestAnimationFrame(() => {
+            moveSearchbox(lastKnownScrollPosition);
+            ticking = false;
+        });
+
+        ticking = true;
+    }
+});
 
 function createIcons() {
     for (let i = 0; i < keywords.length; i++) {
