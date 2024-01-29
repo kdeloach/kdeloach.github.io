@@ -49,14 +49,7 @@ function shuffleArray(array: XY[]): XY[] {
     return array;
 }
 
-function dfs(
-    grid: string[][],
-    currentPosition: XY,
-    visited: boolean[][],
-    targetLength: number,
-    currentString: string,
-    overlap: boolean,
-): string {
+function dfs(grid: string[][], currentPosition: XY, visited: boolean[][], targetLength: number, currentString: string, overlap: boolean): string {
     const numRows = grid.length;
     const numCols = grid[0].length;
 
@@ -92,14 +85,7 @@ function dfs(
         }
 
         // Recursively explore the next position
-        const nextString = dfs(
-            grid,
-            { x: nextX, y: nextY },
-            visited,
-            targetLength,
-            currentString + grid[nextY][nextX],
-            overlap,
-        );
+        const nextString = dfs(grid, { x: nextX, y: nextY }, visited, targetLength, currentString + grid[nextY][nextX], overlap);
 
         // If a valid string is found, return it
         if (nextString) {
@@ -227,11 +213,7 @@ const SmartTVKeyboard = ({ keyboardLayout, password, overlap, onKeyClicked }: Sm
             {keyboardLayout.map((row, rowIndex) => (
                 <div key={rowIndex} className="keyboard-row">
                     {row.map((letter, colIndex) => (
-                        <div
-                            key={colIndex}
-                            className={`keyboard-key ${className(letter)}`}
-                            onClick={() => onKeyClicked(letter)}
-                        >
+                        <div key={colIndex} className={`keyboard-key ${className(letter)}`} onClick={() => onKeyClicked(letter)}>
                             {letter}
                         </div>
                     ))}
@@ -333,12 +315,7 @@ export function MarkovPasswordGenerator() {
 
     return (
         <>
-            <SmartTVKeyboard
-                keyboardLayout={keyboardLayout}
-                password={password}
-                overlap={overlap}
-                onKeyClicked={onKeyClicked}
-            />
+            <SmartTVKeyboard keyboardLayout={keyboardLayout} password={password} overlap={overlap} onKeyClicked={onKeyClicked} />
             <p className="password">{(password.length > 0 && password) || "no solution"}</p>
             <p className="form">
                 <button onClick={onGeneratePasswordClicked} disabled={error != null}>
@@ -349,19 +326,14 @@ export function MarkovPasswordGenerator() {
                     Length: <input type="number" value={passwordLength || ""} onChange={onPasswordLengthChanged} />
                 </label>
                 <label>
-                    Allow repeat characters?{" "}
-                    <input type="checkbox" checked={overlap} onChange={(e) => setOverlap(e.target.checked)} />
+                    Allow repeat characters? <input type="checkbox" checked={overlap} onChange={(e) => setOverlap(e.target.checked)} />
                 </label>
             </p>
             <p></p>
             <p></p>
             <fieldset style={{ display: "none" }}>
                 <legend>Keyboard Layout</legend>
-                <textarea
-                    value={keyboardLayoutVal}
-                    onChange={onKeyboardLayoutChanged}
-                    style={{ width: "200px", height: "100px" }}
-                />
+                <textarea value={keyboardLayoutVal} onChange={onKeyboardLayoutChanged} style={{ width: "200px", height: "100px" }} />
             </fieldset>
         </>
     );

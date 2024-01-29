@@ -29,6 +29,7 @@ class Color {
 const black = parseHex("000000");
 const white = parseHex("FFFFFF");
 
+// prettier-ignore
 const bgColors = [
     parseHex("FF0000"),
     parseHex("BE0AFF"),

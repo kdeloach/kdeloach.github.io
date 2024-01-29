@@ -250,10 +250,7 @@ function setValue(base10Nums: number[]) {
             const base5Digit = parseInt(base5Str[j], 10);
             const shapeIndex = (prevShape.shapeIndex + base5Digit) % 5;
 
-            let pos =
-                j == 0
-                    ? { col: prevShape.pos.col + 1, row: prevShape.pos.row }
-                    : { col: prevShape.pos.col, row: prevShape.pos.row - 1 };
+            let pos = j == 0 ? { col: prevShape.pos.col + 1, row: prevShape.pos.row } : { col: prevShape.pos.col, row: prevShape.pos.row - 1 };
 
             prevShape = pushNode({ shapeIndex, pos });
         }

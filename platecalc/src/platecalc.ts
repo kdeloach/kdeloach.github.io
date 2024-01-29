@@ -260,11 +260,7 @@ export function calculateTotalScore(nodes: TreeNode[], debug: boolean = false): 
     let totalScore = initialScore * totalDist;
 
     if (debug) {
-        debugTable.push([
-            ValueNodeUtil.toString(valueNodesUnsorted[0]),
-            ValueNodeUtil.toString(valueNodes[0]),
-            `score=${initialScore} dist=${totalDist} total=${initialScore * totalDist}`,
-        ]);
+        debugTable.push([ValueNodeUtil.toString(valueNodesUnsorted[0]), ValueNodeUtil.toString(valueNodes[0]), `score=${initialScore} dist=${totalDist} total=${initialScore * totalDist}`]);
     }
 
     for (let i = 1; i < valueNodes.length; i++) {
@@ -275,11 +271,7 @@ export function calculateTotalScore(nodes: TreeNode[], debug: boolean = false): 
         const score = ValueNodeUtil.score(currNode);
 
         if (debug) {
-            debugTable.push([
-                ValueNodeUtil.toString(valueNodesUnsorted[i]),
-                ValueNodeUtil.toString(currNode),
-                `score=${score} dist=${dist} total=${score * dist}`,
-            ]);
+            debugTable.push([ValueNodeUtil.toString(valueNodesUnsorted[i]), ValueNodeUtil.toString(currNode), `score=${score} dist=${dist} total=${score * dist}`]);
         }
 
         totalDist += dist;
