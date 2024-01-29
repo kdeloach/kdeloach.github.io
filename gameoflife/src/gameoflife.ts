@@ -39,6 +39,7 @@ export class CellGrid<T> {
     }
 
     neighbors(x: number, y: number): T[] {
+        // prettier-ignore
         return [
             this.cellAt(x - 1, y),
             this.cellAt(x + 1, y),

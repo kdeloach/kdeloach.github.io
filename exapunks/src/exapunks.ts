@@ -288,12 +288,7 @@ class Parser {
     }
 
     private isEndOfBody(): boolean {
-        return (
-            this.current().Value === "END" ||
-            this.current().Value === "ELSE" ||
-            this.current().Value === "LOOP" ||
-            this.current().isEOF()
-        );
+        return this.current().Value === "END" || this.current().Value === "ELSE" || this.current().Value === "LOOP" || this.current().isEOF();
     }
 
     private isEOL(): boolean {
@@ -886,10 +881,7 @@ class Parser {
                     }
                     const argsResult = this.parseArguments(-1);
                     if (argsResult[1] !== null) {
-                        return [
-                            null,
-                            new Error(`invalid arguments on line ${resultNote[0].Line}: ${argsResult[1].message}`),
-                        ];
+                        return [null, new Error(`invalid arguments on line ${resultNote[0].Line}: ${argsResult[1].message}`)];
                     }
                     const noteNode = new FunctionNode({
                         Name: resultNote[0].Value,
@@ -917,10 +909,7 @@ class Parser {
                     }
                     const oneArgResult = this.parseArguments(1);
                     if (oneArgResult[1] !== null) {
-                        return [
-                            null,
-                            new Error(`invalid arguments on line ${resultOneArg[0].Line}: ${oneArgResult[1].message}`),
-                        ];
+                        return [null, new Error(`invalid arguments on line ${resultOneArg[0].Line}: ${oneArgResult[1].message}`)];
                     }
                     const oneArgNode = new FunctionNode({
                         Name: resultOneArg[0].Value,
@@ -937,12 +926,7 @@ class Parser {
                     }
                     const twoArgsResult = this.parseArguments(2);
                     if (twoArgsResult[1] !== null) {
-                        return [
-                            null,
-                            new Error(
-                                `invalid arguments on line ${resultTwoArgs[0].Line}: ${twoArgsResult[1].message}`,
-                            ),
-                        ];
+                        return [null, new Error(`invalid arguments on line ${resultTwoArgs[0].Line}: ${twoArgsResult[1].message}`)];
                     }
                     const twoArgsNode = new FunctionNode({
                         Name: resultTwoArgs[0].Value,
@@ -959,10 +943,7 @@ class Parser {
                     }
                     const condResult = this.parseCondExpr();
                     if (condResult[1] !== null) {
-                        return [
-                            null,
-                            new Error(`syntax error on line ${resultTest[0].Line}: ${condResult[1].message}`),
-                        ];
+                        return [null, new Error(`syntax error on line ${resultTest[0].Line}: ${condResult[1].message}`)];
                     }
                     if (condResult[0].Test.Name !== "NOOP") {
                         nodes.push(condResult[0].Test);
@@ -987,12 +968,7 @@ class Parser {
                     }
                     const threeArgsResult = this.parseArguments(3);
                     if (threeArgsResult[1] !== null) {
-                        return [
-                            null,
-                            new Error(
-                                `invalid arguments on line ${resultThreeArgs[0].Line}: ${threeArgsResult[1].message}`,
-                            ),
-                        ];
+                        return [null, new Error(`invalid arguments on line ${resultThreeArgs[0].Line}: ${threeArgsResult[1].message}`)];
                     }
                     const threeArgsNode = new FunctionNode({
                         Name: resultThreeArgs[0].Value,
@@ -1014,10 +990,7 @@ class Parser {
                     const whileToken = this.current();
                     const whileResult = this.parseWhileExpr();
                     if (whileResult[1] !== null) {
-                        return [
-                            null,
-                            new Error(`error parsing WHILE on line ${whileToken.Line}: ${whileResult[1].message}`),
-                        ];
+                        return [null, new Error(`error parsing WHILE on line ${whileToken.Line}: ${whileResult[1].message}`)];
                     }
                     const whileNodeList = this.transformWhileExpr(whileResult[0]);
                     nodes.merge(whileNodeList);
@@ -1037,23 +1010,13 @@ class Parser {
                     if (this.peek().Value === "=") {
                         const assignResult = this.parseAssignExpr();
                         if (assignResult[1] !== null) {
-                            return [
-                                null,
-                                new Error(
-                                    `invalid assignment expression on line ${token.Line}: ${assignResult[1].message}`,
-                                ),
-                            ];
+                            return [null, new Error(`invalid assignment expression on line ${token.Line}: ${assignResult[1].message}`)];
                         }
                         nodes.push(assignResult[0]);
                     } else if (this.peek().Value.endsWith("=")) {
                         const shortAssignResult = this.parseShortAssignExpr();
                         if (shortAssignResult[1] !== null) {
-                            return [
-                                null,
-                                new Error(
-                                    `invalid short assignment expression on line ${token.Line}: ${shortAssignResult[1].message}`,
-                                ),
-                            ];
+                            return [null, new Error(`invalid short assignment expression on line ${token.Line}: ${shortAssignResult[1].message}`)];
                         }
                         nodes.push(shortAssignResult[0]);
                     } else {
@@ -1069,10 +1032,7 @@ class Parser {
                 }
                 const commentArgsResult = this.parseArguments(-1);
                 if (commentArgsResult[1] !== null) {
-                    return [
-                        null,
-                        new Error(`invalid arguments on line ${commentToken[0].Line}: ${commentArgsResult[1].message}`),
-                    ];
+                    return [null, new Error(`invalid arguments on line ${commentToken[0].Line}: ${commentArgsResult[1].message}`)];
                 }
                 // Attach comment to last node
                 const fnNode = nodes[nodes.length - 1];

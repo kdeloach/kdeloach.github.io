@@ -42,12 +42,7 @@ class Graph {
         this.addEdgeWithConstraint(node1, node2, kind, null);
     }
 
-    addEdgeWithConstraint(
-        node1: GraphNode,
-        node2: GraphNode,
-        kind: string,
-        constraint: (seen: Map<GraphNode, boolean>) => boolean,
-    ): void {
+    addEdgeWithConstraint(node1: GraphNode, node2: GraphNode, kind: string, constraint: (seen: Map<GraphNode, boolean>) => boolean): void {
         node1.addEdge(node2, kind, constraint);
         node2.addEdge(node1, kind, constraint);
     }

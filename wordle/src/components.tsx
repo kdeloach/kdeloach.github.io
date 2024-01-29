@@ -1,26 +1,6 @@
-import {
-    ROWS_COUNT,
-    randomWord,
-    generateClues,
-    WORD_LENGTH,
-    CLUE_NONE,
-    CLUE_RIGHT,
-    CLUE_WRONG,
-    CLUE_MISPLACED,
-    candidatesRanked,
-    bestGuessForEachLetter,
-} from "./wordle";
+import { ROWS_COUNT, randomWord, generateClues, WORD_LENGTH, CLUE_NONE, CLUE_RIGHT, CLUE_WRONG, CLUE_MISPLACED, candidatesRanked, bestGuessForEachLetter } from "./wordle";
 import { WORD_LIST, WORDS_ALLOWED, WORDS_ANSWERS } from "./words";
-import React, {
-    RefObject,
-    MouseEvent,
-    KeyboardEvent,
-    ChangeEvent,
-    useState,
-    useEffect,
-    useRef,
-    useContext,
-} from "react";
+import React, { RefObject, MouseEvent, KeyboardEvent, ChangeEvent, useState, useEffect, useRef, useContext } from "react";
 
 interface IAppContext {
     onTileChange: (char: string) => void;
@@ -229,17 +209,7 @@ const Tile = ({ tileIndex, tileActive, char, clue }: TileProps) => {
         }
     };
 
-    return (
-        <input
-            type="text"
-            className={"tile " + "tile-" + clue}
-            ref={ref}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            value={char}
-            disabled={!tileActive}
-        />
-    );
+    return <input type="text" className={"tile " + "tile-" + clue} ref={ref} onChange={onChange} onKeyDown={onKeyDown} value={char} disabled={!tileActive} />;
 };
 
 interface ReadOnlyTileProps {

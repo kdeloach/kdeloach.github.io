@@ -1,20 +1,5 @@
 import React, { MouseEvent, useState, useMemo } from "react";
-import {
-    TreeNode,
-    ValueNode,
-    parseNumbersFromString,
-    distinctSubsets,
-    tuplesToTree,
-    findLowestScore,
-    calculateTotalScore,
-    sortByFirst,
-    sortByLast,
-    sortByFrequency,
-    ValueNodeUtil,
-    sortFrontToBack,
-    sortBackToFront,
-    summarizeDifference,
-} from "./platecalc";
+import { TreeNode, ValueNode, parseNumbersFromString, distinctSubsets, tuplesToTree, findLowestScore, calculateTotalScore, sortByFirst, sortByLast, sortByFrequency, ValueNodeUtil, sortFrontToBack, sortBackToFront, summarizeDifference } from "./platecalc";
 
 type SortMethod = "first" | "last" | "frontToBack" | "backToFront" | "frequency" | "none";
 
@@ -99,44 +84,22 @@ export const PlateCalcForm = () => {
             <div className="form">
                 <div className="form-item">
                     <label htmlFor="weights">Weights:</label>
-                    <input
-                        id="weights"
-                        type="text"
-                        className="large-input"
-                        value={weightsInput}
-                        onChange={(e) => setWeightsInput(e.target.value)}
-                    />
+                    <input id="weights" type="text" className="large-input" value={weightsInput} onChange={(e) => setWeightsInput(e.target.value)} />
                 </div>
                 <div className="form-item">
                     <label htmlFor="plates">Plates:</label>
-                    <input
-                        id="plates"
-                        type="text"
-                        className="small-input"
-                        value={platesInput}
-                        onChange={(e) => setPlatesInput(e.target.value)}
-                    />
+                    <input id="plates" type="text" className="small-input" value={platesInput} onChange={(e) => setPlatesInput(e.target.value)} />
                 </div>
                 <div className="form-item">
                     <label htmlFor="barWeight">Bar Weight:</label>
-                    <input
-                        id="barWeight"
-                        type="number"
-                        className="small-input"
-                        value={barWeight}
-                        onChange={(e) => setBarWeight(parseFloat(e.target.value) || 0)}
-                    />
+                    <input id="barWeight" type="number" className="small-input" value={barWeight} onChange={(e) => setBarWeight(parseFloat(e.target.value) || 0)} />
                 </div>
                 <div className="form-item">
                     <label>Sort By:</label>
                     <div className="sort-options">
                         {sortMethods.map(({ label, value, help }, i) => (
                             <label key={i} title={help}>
-                                <input
-                                    type="radio"
-                                    checked={sortMethod === value}
-                                    onChange={() => setSortMethod(value)}
-                                />
+                                <input type="radio" checked={sortMethod === value} onChange={() => setSortMethod(value)} />
                                 {label}
                             </label>
                         ))}
@@ -147,13 +110,7 @@ export const PlateCalcForm = () => {
                 <div>Plates added/removed: {summary.platesAddedRemoved}</div>
                 <div>Total weight added/removed: {summary.totalWeightAddedRemoved}</div>
             </div>
-            <div className="result">
-                {(result.length &&
-                    result.map((arr, i) => (
-                        <Plates key={i} barWeight={barWeight} plates={arr} minValue={minValue} maxValue={maxValue} />
-                    ))) ||
-                    "No Solution"}
-            </div>
+            <div className="result">{(result.length && result.map((arr, i) => <Plates key={i} barWeight={barWeight} plates={arr} minValue={minValue} maxValue={maxValue} />)) || "No Solution"}</div>
             <div className="candidates">
                 <table width="100%">
                     <thead>

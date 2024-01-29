@@ -1,14 +1,5 @@
 import React, { KeyboardEvent, ChangeEvent, useState, useEffect, useRef, useContext } from "react";
-import {
-    ROWS_COUNT,
-    WORD_LENGTH,
-    CLUE_NONE,
-    CLUE_RIGHT,
-    CLUE_WRONG,
-    CLUE_MISPLACED,
-    findMatchingWords,
-    findMatchingWordsUnknownLettersOnly,
-} from "./wordle";
+import { ROWS_COUNT, WORD_LENGTH, CLUE_NONE, CLUE_RIGHT, CLUE_WRONG, CLUE_MISPLACED, findMatchingWords, findMatchingWordsUnknownLettersOnly } from "./wordle";
 import { WORD_LIST, WORDS_ALLOWED, WORDS_ANSWERS } from "./words";
 
 interface IAppContext {
@@ -202,14 +193,7 @@ const Tile = ({ tileIndex, tileActive, char, clue }: TileProps) => {
 
     return (
         <div className="tile-input">
-            <input
-                type="text"
-                className={"tile " + "tile-" + clue}
-                ref={ref}
-                onChange={onChange}
-                onKeyDown={onKeyDown}
-                value={char}
-            />
+            <input type="text" className={"tile " + "tile-" + clue} ref={ref} onChange={onChange} onKeyDown={onKeyDown} value={char} />
             <div className="tile-clue-input">
                 <div className="tile-clue tile-G" onClick={() => onClueChanged(tileIndex, CLUE_RIGHT)}></div>
                 <div className="tile-clue tile-Y" onClick={() => onClueChanged(tileIndex, CLUE_MISPLACED)}></div>
