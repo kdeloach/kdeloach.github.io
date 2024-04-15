@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PORT=$1
+
 # Function to gracefully stop the background processes
 stop_background_processes() {
     echo "Stopping background processes..."
@@ -25,7 +27,7 @@ build_mdsite() {
 trap stop_background_processes SIGINT
 
 # Start HTTP server
-python3.9 -m http.server 8000 &
+python3 -m http.server $PORT &
 http_server_pid=$!
 
 build_mdsite &
