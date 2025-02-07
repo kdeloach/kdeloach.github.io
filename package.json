@@ -6,7 +6,13 @@
     "repository": "git@github.com:kdeloach/kdeloach.github.io.git",
     "author": "Kevin DeLoach <kdeloach@gmail.com>",
     "license": "MIT",
-    "devDependencies": {},
+    "devDependencies": {
+        "@types/leaflet": "^1.9.16",
+        "@types/react-leaflet": "^3.0.0",
+        "@types/wellknown": "^0.5.8",
+        "css-loader": "^7.1.2",
+        "style-loader": "^4.0.0"
+    },
     "dependencies": {
         "@babel/core": "^7.16.7",
         "@babel/plugin-transform-runtime": "^7.16.7",
@@ -20,11 +26,15 @@
         "babel-loader": "^8.2.3",
         "fork-ts-checker-webpack-plugin": "^9.0.0",
         "jsdom": "^19.0.0",
+        "leaflet": "^1.9.4",
+        "leaflet-fullscreen": "^1.0.2",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
+        "react-leaflet": "4.2.1",
         "typescript": "^4.5.4",
         "webpack": "^5.65.0",
         "webpack-cli": "^4.9.1",
-        "webpack-dev-server": "^4.7.2"
+        "webpack-dev-server": "^4.7.2",
+        "wellknown": "^0.5.0"
     }
 }
