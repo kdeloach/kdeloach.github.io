@@ -1,5 +1,5 @@
 #!/bin/bash
 
-npm i markdown-spellcheck prettier -g
+npm i markdown-spellcheck prettier@3.2.5 -g
 
 yarn install
