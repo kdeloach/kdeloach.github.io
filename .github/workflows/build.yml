@@ -47,6 +47,9 @@ jobs:
             - name: Build
               run: ./scripts/build.sh
 
+            - name: Bundle
+              run: ./scripts/bundle.sh
+
             - name: Delete node_modules
               run: rm -rf node_modules
 
