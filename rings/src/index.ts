@@ -566,3 +566,6 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 main();
+
+// Fixes TS2451: Cannot redeclare block-scoped variable
+export {};

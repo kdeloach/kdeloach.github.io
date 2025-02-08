@@ -658,3 +658,6 @@ createIcons();
 //     str += `/* prettier-ignore */\n.y-${y} { background-position-y: -${48 * y}px; }\n`;
 // }
 // console.log(str);
+
+// Fixes TS2451: Cannot redeclare block-scoped variable
+export {};

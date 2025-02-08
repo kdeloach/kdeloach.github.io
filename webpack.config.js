@@ -7,9 +7,22 @@ const baseDir = path.resolve(".");
 
 const config = {
     mode: mode,
-    entry: "./src/index.tsx",
+    entry: {
+        datecalc: "./datecalc/src/index.tsx",
+        exapunks: "./exapunks/src/index.tsx",
+        gameoflife: "./gameoflife/src/index.tsx",
+        lazypass: "./lazypass/src/index.tsx",
+        orbs: "./orbs/src/index.ts",
+        platecalc: "./platecalc/src/index.tsx",
+        platonic: "./platonic/src/index.ts",
+        rings: "./rings/src/index.ts",
+        wktviewer: "./wktviewer/src/index.tsx",
+        wordle: "./wordle/src/index.tsx",
+        wordlesolver: "./wordlesolver/src/index.tsx",
+        yoto: "./yoto/src/index.ts",
+    },
     output: {
-        filename: "bundle.js",
+        filename: "[name]/bundle.js",
         path: baseDir,
     },
     module: {

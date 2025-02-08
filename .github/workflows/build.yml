@@ -45,7 +45,7 @@ jobs:
               run: ./scripts/lint.sh
 
             - name: Build
-              run: ./scripts/fullbuild.sh
+              run: ./scripts/build.sh
 
             - name: Delete node_modules
               run: rm -rf node_modules

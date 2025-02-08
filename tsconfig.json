@@ -1,5 +1,5 @@
 {
-    "include": ["./src/**/*"],
+    "include": ["./**/src/*"],
     "compilerOptions": {
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
@@ -9,5 +9,6 @@
         "moduleResolution": "node",
         "noImplicitAny": true,
         "target": "es2015"
-    }
+    },
+    "exclude": ["node_modules"]
 }
