@@ -2,4 +2,4 @@
 
 set -ex
 
-python3 -m http.server 81
+go run ./scripts/server.go -port 8081
