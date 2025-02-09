@@ -267,7 +267,7 @@ function WKTMap({ geoJson }: WKTMapProps) {
 
     return (
         <>
-            <TileLayer attribution={'&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'} url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <TileLayer attribution={'&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'} url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={24} />
             {geoJson && (
                 <LayersControl position="topright">
                     {geoJson.features.map((feature: any, index: number) => {
