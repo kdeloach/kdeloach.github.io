@@ -3,11 +3,11 @@ import { MapContainer, TileLayer, GeoJSON, useMap, LayersControl, ZoomControl } 
 import wellknown from "wellknown";
 import L from "leaflet";
 import "leaflet-fullscreen";
+import { PHILADELPHIA } from "./philadelphia";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 
-// Array of pleasing pastel colors
 const pastelColors = ["#7F3C8D", "#12A579", "#396AAC", "#F2B701", "#E73F73", "#80BA5A", "#E6830F", "#008695", "#CE1C90", "#4B4B8F"];
 
 let _colorIndex = 0;
@@ -173,17 +173,22 @@ export function WKTViewer() {
     const [geoJson, setGeoJson] = useState(null);
     const [error, setError] = useState("");
 
-    // Handle WKT input changes
     const handleWktChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const input = e.target.value;
         setWkt(input);
         setError("");
+    };
 
+    const loadExample = () => {
+        setWkt(PHILADELPHIA);
+    };
+
+    useEffect(() => {
         const features: any = [];
 
         let wktStrings: string[] = [];
         try {
-            wktStrings = parseWKTStrings(input);
+            wktStrings = parseWKTStrings(wkt);
         } catch (ex) {
             console.error(ex);
             setError(ex.message);
@@ -216,7 +221,7 @@ export function WKTViewer() {
         } else {
             setGeoJson(null);
         }
-    };
+    }, [wkt]);
 
     return (
         <>
@@ -228,6 +233,7 @@ export function WKTViewer() {
             <h3>Enter WKT Geometry:</h3>
             <textarea rows={10} style={{ width: "100%", boxSizing: "border-box" }} placeholder="e.g. POLYGON((-90 40, -90 50, -80 50, -80 40, -90 40))" value={wkt} onChange={handleWktChange} />
             <p style={{ color: "red" }}>{error}</p>
+            <button onClick={(e) => loadExample()}>Load Example</button>
         </>
     );
 }

@@ -7,7 +7,10 @@ templates:
 tags:
     - post
 summary: >-
-    Simple WKT Viewer
+    Simple WKT Viewer to display WKT shapes on a map.
 ---
+
+This is a simple WKT Viewer I designed to view WKT shapes copy & pasted from
+pgAdmin. Supports EPSG 4326 only.
 
 <div id="wktviewer"></div>
