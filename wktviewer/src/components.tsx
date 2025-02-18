@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, GeoJSON, useMap, LayersControl, ZoomControl } from "react-leaflet";
+
+import { MapContainer, TileLayer, GeoJSON, FeatureGroup, useMap, LayersControl, ZoomControl } from "react-leaflet";
 import wellknown from "wellknown";
 import L from "leaflet";
 import "leaflet-fullscreen";
-import { PHILADELPHIA } from "./philadelphia";
+import { EditControl } from "react-leaflet-draw";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
+import "leaflet-draw/dist/leaflet.draw.css";
+
+import { PHILADELPHIA } from "./philadelphia";
 
 const pastelColors = ["#7F3C8D", "#12A579", "#396AAC", "#F2B701", "#E73F73", "#80BA5A", "#E6830F", "#008695", "#CE1C90", "#4B4B8F"];
 
@@ -183,6 +187,30 @@ export function WKTViewer() {
         setWkt(PHILADELPHIA);
     };
 
+    // Fired whenever a shape is created (e.g., a polygon is finished)
+    const onCreated = (e: any) => {
+        const { layerType, layer } = e;
+
+        if (layerType === "polygon") {
+            const latLngs = layer.getLatLngs()[0];
+            const coordinates = latLngs.map((latLng: any) => [latLng.lng, latLng.lat]);
+
+            const polygonGeoJSON: any = {
+                type: "Polygon",
+                coordinates: [coordinates],
+            };
+
+            try {
+                const wktString = wellknown.stringify(polygonGeoJSON);
+                setWkt(`${wkt}\n${wktString}`);
+            } catch (ex) {
+                console.error(ex);
+            }
+
+            layer.remove();
+        }
+    };
+
     useEffect(() => {
         const features: any = [];
 
@@ -194,7 +222,6 @@ export function WKTViewer() {
             setError(ex.message);
         }
 
-        // 4. Parse each matched WKT string into GeoJSON
         for (const wkt of wktStrings) {
             console.log(wkt);
             try {
@@ -212,7 +239,6 @@ export function WKTViewer() {
             }
         }
 
-        // 5. Update state with a FeatureCollection if any features exist
         if (features.length > 0) {
             setGeoJson({
                 type: "FeatureCollection",
@@ -227,7 +253,7 @@ export function WKTViewer() {
         <>
             <div style={{ height: 400 }}>
                 <MapContainer center={[38, -96]} zoom={4} zoomControl={false} attributionControl={false} style={{ height: "100%" }}>
-                    <WKTMap geoJson={geoJson} />
+                    <WKTMap geoJson={geoJson} onCreated={onCreated} />
                 </MapContainer>
             </div>
             <h3>Enter WKT Geometry:</h3>
@@ -240,9 +266,10 @@ export function WKTViewer() {
 
 interface WKTMapProps {
     geoJson: any;
+    onCreated: (e: any) => void;
 }
 
-function WKTMap({ geoJson }: WKTMapProps) {
+function WKTMap({ geoJson, onCreated }: WKTMapProps) {
     const map = useMap();
 
     useEffect(() => {
@@ -289,6 +316,20 @@ function WKTMap({ geoJson }: WKTMapProps) {
                     })}
                 </LayersControl>
             )}
+            <FeatureGroup>
+                <EditControl
+                    position="topright"
+                    onCreated={onCreated}
+                    draw={{
+                        polygon: true,
+                        rectangle: false,
+                        circle: false,
+                        circlemarker: false,
+                        marker: false,
+                        polyline: false,
+                    }}
+                />
+            </FeatureGroup>
         </>
     );
 }
