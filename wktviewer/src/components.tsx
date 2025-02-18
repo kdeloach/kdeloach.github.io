@@ -193,11 +193,16 @@ export function WKTViewer() {
 
         if (layerType === "polygon") {
             const latLngs = layer.getLatLngs()[0];
-            const coordinates = latLngs.map((latLng: any) => [latLng.lng, latLng.lat]);
+            const coords = latLngs.map((latLng: any) => [latLng.lng, latLng.lat]);
+
+            // Ensure polygon is closed for WKT
+            if (coords.length > 0 && (coords[0][0] !== coords[coords.length - 1][0] || coords[0][1] !== coords[coords.length - 1][1])) {
+                coords.push(coords[0]);
+            }
 
             const polygonGeoJSON: any = {
                 type: "Polygon",
-                coordinates: [coordinates],
+                coordinates: [coords],
             };
 
             try {
