@@ -223,7 +223,6 @@ export function WKTViewer() {
         }
 
         for (const wkt of wktStrings) {
-            console.log(wkt);
             try {
                 const geometry = wellknown.parse(wkt);
                 if (geometry) {
