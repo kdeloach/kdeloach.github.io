@@ -187,32 +187,62 @@ export function WKTViewer() {
         setWkt(PHILADELPHIA);
     };
 
-    // Fired whenever a shape is created (e.g., a polygon is finished)
-    const onCreated = (e: any) => {
-        const { layerType, layer } = e;
-
-        if (layerType === "polygon") {
+    const layerToGeoJSON = (layerType: string, layer: any): any | null => {
+        if (layerType === "polygon" || layerType === "rectangle") {
             const latLngs = layer.getLatLngs()[0];
             const coords = latLngs.map((latLng: any) => [latLng.lng, latLng.lat]);
-
-            // Ensure polygon is closed for WKT
-            if (coords.length > 0 && (coords[0][0] !== coords[coords.length - 1][0] || coords[0][1] !== coords[coords.length - 1][1])) {
-                coords.push(coords[0]);
-            }
-
-            const polygonGeoJSON: any = {
+            coords.push(coords[0]);
+            return {
                 type: "Polygon",
                 coordinates: [coords],
             };
+        } else if (layerType === "polyline") {
+            const latLngs = layer.getLatLngs();
+            const coords = latLngs.map((latLng: any) => [latLng.lng, latLng.lat]);
+            return {
+                type: "LineString",
+                coordinates: coords,
+            };
+        }
+        return null;
+    };
 
+    const getLayerType = (layer: any): string => {
+        if (layer instanceof L.Rectangle) {
+            return "rectangle";
+        } else if (layer instanceof L.Polygon) {
+            return "polygon";
+        } else if (layer instanceof L.Polyline) {
+            return "polyline";
+        }
+        return "";
+    };
+
+    const onEdited = (e: any) => {
+        e.layers.eachLayer(function (layer: any) {
+            const layerType = getLayerType(layer);
+            const geoJSON = layerToGeoJSON(layerType, layer);
+            if (geoJSON != null) {
+                try {
+                    const wktString = wellknown.stringify(geoJSON);
+                    setWkt(`${wktString}\n${wkt}`);
+                } catch (ex) {
+                    console.error(ex);
+                }
+            }
+        });
+    };
+
+    const onCreated = (e: any) => {
+        const { layerType, layer } = e;
+        const geoJSON = layerToGeoJSON(layerType, layer);
+        if (geoJSON != null) {
             try {
-                const wktString = wellknown.stringify(polygonGeoJSON);
-                setWkt(`${wkt}\n${wktString}`);
+                const wktString = wellknown.stringify(geoJSON);
+                setWkt(`${wktString}\n${wkt}`);
             } catch (ex) {
                 console.error(ex);
             }
-
-            layer.remove();
         }
     };
 
@@ -236,6 +266,8 @@ export function WKTViewer() {
                         properties: { key: uniqueID(), color: getRandomColor() },
                         geometry,
                     });
+                } else {
+                    console.error(`Invalid WKT: ${wkt}`);
                 }
             } catch (ex) {
                 console.error(ex);
@@ -257,7 +289,7 @@ export function WKTViewer() {
         <>
             <div style={{ height: 400 }}>
                 <MapContainer center={[38, -96]} zoom={4} zoomControl={false} attributionControl={false} style={{ height: "100%" }}>
-                    <WKTMap geoJson={geoJson} onCreated={onCreated} />
+                    <WKTMap geoJson={geoJson} onCreated={onCreated} onEdited={onEdited} />
                 </MapContainer>
             </div>
             <h3>Enter WKT Geometry:</h3>
@@ -271,14 +303,16 @@ export function WKTViewer() {
 interface WKTMapProps {
     geoJson: any;
     onCreated: (e: any) => void;
+    onEdited: (e: any) => void;
 }
 
-function WKTMap({ geoJson, onCreated }: WKTMapProps) {
+function WKTMap({ geoJson, onCreated, onEdited }: WKTMapProps) {
     const map = useMap();
 
     useEffect(() => {
-        if (!map || !geoJson) return;
-
+        if (!map || !geoJson) {
+            return;
+        }
         const layer = L.geoJSON(geoJson);
         map.fitBounds(layer.getBounds(), { padding: [20, 20] });
     }, [map, geoJson]);
@@ -324,13 +358,14 @@ function WKTMap({ geoJson, onCreated }: WKTMapProps) {
                 <EditControl
                     position="topright"
                     onCreated={onCreated}
+                    onEdited={onEdited}
                     draw={{
-                        polygon: true,
-                        rectangle: false,
+                        polygon: { showLength: true, showArea: true },
+                        rectangle: { showRadius: true },
                         circle: false,
                         circlemarker: false,
                         marker: false,
-                        polyline: false,
+                        polyline: true,
                     }}
                 />
             </FeatureGroup>
