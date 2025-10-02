@@ -16,6 +16,8 @@ import (
 	"log"
 
 	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 	"gopkg.in/yaml.v2"
 )
 
@@ -179,7 +181,16 @@ func main() {
 			return fmt.Errorf("Error parsing templates in file %s: %w", page.Path, err)
 		}
 
-		htmlContent := markdown.ToHTML([]byte(page.Markdown), nil, nil)
+		extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock | parser.Attributes
+		p := parser.NewWithExtensions(extensions)
+
+		doc := markdown.Parse([]byte(page.Markdown), p)
+
+		opts := html.RendererOptions{
+			Flags: html.CommonFlags,
+		}
+		renderer := html.NewRenderer(opts)
+		htmlContent := markdown.Render(doc, renderer)
 		page.Content = string(htmlContent)
 
 		var htmlBuffer strings.Builder

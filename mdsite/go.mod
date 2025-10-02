@@ -3,6 +3,6 @@ module github.com/kdeloach/kdeloach.github.io/mdsite
 go 1.20
 
 require (
-	github.com/gomarkdown/markdown v0.0.0-20230922112808-5421fefb8386
+	github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
 	gopkg.in/yaml.v2 v2.4.0
 )
