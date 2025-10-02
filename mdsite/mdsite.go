@@ -53,12 +53,13 @@ type Page struct {
 }
 
 type Frontmatter struct {
-	Title     string    `yaml:"title"`
-	Summary   string    `yaml:"summary"`
-	Date      time.Time `yaml:"date"`
-	Templates []string  `yaml:"templates"`
-	Tags      []string  `yaml:"tags"`
-	Output    string    `yaml:"output"`
+	Title     string      `yaml:"title"`
+	Summary   string      `yaml:"summary"`
+	Date      time.Time   `yaml:"date"`
+	Templates []string    `yaml:"templates"`
+	Tags      []string    `yaml:"tags"`
+	Output    string      `yaml:"output"`
+	Data      interface{} `yaml:"data"`
 }
 
 func main() {
