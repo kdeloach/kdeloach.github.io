@@ -2,4 +2,4 @@
 
 set -ex
 
-go run ./scripts/server.go -port 8081
+CGO_ENABLED=0 go run ./scripts/server.go -port 8081
