@@ -4,4 +4,4 @@ set -ex
 
 cd ./mdsite && go run ./mdsite.go ../
 
-yarn tailwindcss -o style.css --cwd templates/
+yarn tailwindcss -o style.css
