@@ -1,44 +1,23 @@
-{{ define "header" }}
-<header>
-  <h1>{{ .Site.Title }}</h1>
-  <h2>{{ .Site.Description }}</h2>
-</header>
-{{ end }}
-
 {{ define "main" }}
-<main>
 
-<div class="profile">
-  <img src="/images/kdeloach.jpg" class="avatar" alt="Image of Kevin DeLoach" />
-  <a href="Resume.pdf">Resume (PDF)</a>
-  <a href="https://github.com/kdeloach">github.com/kdeloach</a>
-  <a href="https://linkedin.com/in/kdeloach">linkedin.com/in/kdeloach</a>
-  <a href="mailto:kdeloach@gmail.com">kdeloach@gmail.com</a>
-</div>
-
+<section class="mb-20">
+  <img src="/images/kdeloach.jpg" alt="Image of Kevin DeLoach" class="w-32 h-32 rounded-full shadow-md flex-shrink-0 float-right" />
+  <h2 class="text-5xl font-bold text-gray-900 leading-tight mb-4">
+    Full Stack Software Engineer
+  </h2>
+  <p class="text-2xl text-gray-500 mb-4">
+    Philadelphia, PA
+  </p>
   {{ .Content }}
+</section>
 
-  <h3>Posts
-<a href="rss.xml">
-<svg xmlns="http://www.w3.org/2000/svg"
-     id="RSSicon"
-     viewBox="0 0 8 8" width="20" height="20">
-  <title>RSS feed icon</title>
-  <style type="text/css">
-    .button {stroke: none; fill: orange;}
-    .symbol {stroke: none; fill: white;}
-  </style>
-  <rect   class="button" width="8" height="8" rx="1.5" />
-  <circle class="symbol" cx="2" cy="6" r="1" />
-  <path   class="symbol" d="m 1,4 a 3,3 0 0 1 3,3 h 1 a 4,4 0 0 0 -4,-4 z" />
-  <path   class="symbol" d="m 1,2 a 5,5 0 0 1 5,5 h 1 a 6,6 0 0 0 -6,-6 z" />
-</svg>
-</a></h3>
+<section class="max-w-5xl mx-auto px-4 py-8">
+  <h2 class="text-xl font-semibold mb-6">Posts</h2>
 
   <ul>
   {{- range .Site.PagesByTag.post }}
   <li><span class="home-date">{{ .Date.Format "2006-01-02" }}</span> <a href="{{ .Dir }}">{{ .Title }}</a></li>
   {{- end }}
   </ul>
-</main>
+</section>
 {{ end }}

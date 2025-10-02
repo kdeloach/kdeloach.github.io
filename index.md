@@ -4,12 +4,12 @@ templates:
     - templates/index.html
 ---
 
-I'm a full stack software engineer with 12+ years experience building web
-applications for companies like Penn National Gaming, Warner Bros. Digital
-Labs, and more.
+{.text-xl .text-gray-600 .leading-relaxed .mb-4}
+15+ years of experience building web applications for **IBM**, **Penn National
+Gaming**, **Warner Bros**, and other organizations. Expertise in backend
+architecture, API design, and microservices, with a focus on creating reliable
+and scalable systems.
 
-My area of expertise includes backend server-side programming, API design,
-building microservices, and automating tasks using Go, Python, Django, React,
-and AWS.
-
-<a href="mailto:kevin@deloach.software">I'm available for hire!</a>
+{.text-xl .text-gray-600 .leading-relaxed .mb-4}
+Primary technologies include **Go**, **Python**, **Django**, **React**,
+**TypeScript**, and **AWS**.
