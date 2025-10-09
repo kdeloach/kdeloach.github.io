@@ -265,7 +265,7 @@ func makeIncludeFunc(path string, page *Page) func(string) (string, error) {
 
 func getCurrentGitSHA(dir string) (string, error) {
 	// Check if the current directory is within a Git repository
-	cmd := exec.Command("git", "rev-parse", "HEAD")
+	cmd := exec.Command("git", "rev-parse", "--short", "HEAD")
 	cmd.Dir = dir // Use the current directory
 
 	var out bytes.Buffer
