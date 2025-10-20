@@ -44,9 +44,10 @@ type Page struct {
 	Markdown string
 
 	// Calculated fields
-	Content    string
-	URL        string
-	OutputFile string
+	Content       string
+	URL           string
+	OutputFile    string
+	DateFormatted string
 
 	// Reference to Site for convenient access in templates
 	Site *Site
@@ -144,14 +145,20 @@ func main() {
 			url := *siteURL
 			url.Path = urlPath
 
+			dateFormatted := ""
+			if !frontmatter.Date.IsZero() {
+				dateFormatted = frontmatter.Date.Format("Jan 2, 2006")
+			}
+
 			page := &Page{
-				Site:        site,
-				Path:        path,
-				Dir:         filepath.Dir(path),
-				Frontmatter: &frontmatter,
-				Markdown:    parts[2],
-				URL:         url.String(),
-				OutputFile:  outputPath,
+				Site:          site,
+				Path:          path,
+				Dir:           filepath.Dir(path),
+				Frontmatter:   &frontmatter,
+				Markdown:      parts[2],
+				URL:           url.String(),
+				OutputFile:    outputPath,
+				DateFormatted: dateFormatted,
 			}
 			site.Pages = append(site.Pages, page)
 
