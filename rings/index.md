@@ -7,6 +7,7 @@ templates:
 tags:
     - post
 summary: How many different ways can you slice six-pack rings?
+image: /rings/preview.png
 ---
 
 How many different ways can you slice six-pack rings?

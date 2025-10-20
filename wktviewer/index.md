@@ -8,6 +8,7 @@ tags:
     - post
 summary: >-
     Simple WKT Viewer to display WKT shapes on a map.
+image: /wktviewer/preview.png
 ---
 
 This is a simple WKT Viewer I designed to view WKT shapes copy & pasted from

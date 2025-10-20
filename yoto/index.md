@@ -9,6 +9,7 @@ tags:
 summary: >-
     Yoto icon picker with free text search built using OpenAI GPT-4 Vision for
     image classification.
+image: /yoto/preview.png
 ---
 
 [Yoto][1] icon picker with free text search built using [OpenAI GPT-4

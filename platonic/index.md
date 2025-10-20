@@ -9,6 +9,7 @@ tags:
 summary: >-
     Number input widget based on the Platonic Shape numbering system from the
     first-person puzzle game Platonic on Steam.
+image: /platonic/preview.png
 ---
 
 Number input widget based on the Platonic Shape numbering system from the

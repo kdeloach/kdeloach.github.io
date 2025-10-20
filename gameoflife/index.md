@@ -6,6 +6,7 @@ templates:
     - templates/post.html
 tags:
     - post
+image: /gameoflife/preview.png
 ---
 
 <div id="sketch"></div>

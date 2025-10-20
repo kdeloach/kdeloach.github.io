@@ -6,6 +6,7 @@ templates:
     - templates/post.html
 tags:
     - post
+image: /datecalc/preview.png
 ---
 
 <div id="dateCalcForm" data-component=""></div>

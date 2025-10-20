@@ -6,6 +6,7 @@ templates:
     - templates/post.html
 tags:
     - post
+image: /wordle/preview.png
 ---
 
 <div id="wordleForm" data-component=""></div>

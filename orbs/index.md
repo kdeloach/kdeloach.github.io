@@ -9,6 +9,7 @@ tags:
 summary: >-
     Animated sketch of floating orbs, which attract and repulse each other based on
     their relationships, featuring the characters of Smallville.
+image: /orbs/preview.png
 ---
 
 Animated sketch of floating orbs, which attract and repulse each other based on

@@ -6,6 +6,7 @@ templates:
     - templates/post.html
 tags:
     - post
+image: /platecalc/preview.png
 ---
 
 <div id="platecalcForm" data-component=""></div>

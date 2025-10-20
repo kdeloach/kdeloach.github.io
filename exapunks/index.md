@@ -8,6 +8,7 @@ tags:
     - post
 summary: EXAPUNKS Compiler with language extensions to generate assembly for
     conditionals and loop control structures.
+image: /exapunks/preview.png
 ---
 
 EXAPUNKS Compiler with language extensions to generate assembly for

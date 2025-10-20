@@ -6,6 +6,7 @@ templates:
     - templates/post.html
 tags:
     - post
+image: /lazypass/preview.png
 ---
 
 Lazy password generator designed to create random passwords that are easy to

@@ -60,6 +60,7 @@ type Frontmatter struct {
 	Tags      []string    `yaml:"tags"`
 	Output    string      `yaml:"output"`
 	Data      interface{} `yaml:"data"`
+	Image     string      `yaml:"image"`
 }
 
 func main() {
