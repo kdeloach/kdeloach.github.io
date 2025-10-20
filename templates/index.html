@@ -10,13 +10,6 @@
   {{ .Content }}
 </section>
 
-<section class="max-w-5xl mx-auto px-4 py-8">
-  <h2 class="text-xl font-semibold mb-6">Posts</h2>
+{{ Include "partials/projects.html" }}
 
-  <ul>
-  {{- range .Site.PagesByTag.post }}
-  <li><span class="home-date">{{ .Date.Format "2006-01-02" }}</span> <a href="{{ .Dir }}">{{ .Title }}</a></li>
-  {{- end }}
-  </ul>
-</section>
 {{ end }}

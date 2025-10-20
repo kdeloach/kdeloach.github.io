@@ -10,6 +10,7 @@ bundle.js.LICENSE.txt
 *.xml
 !templates/*.html
 !templates/*.xml
+!partials/*.html
 
 # Ignore generated files
 tailwind.css

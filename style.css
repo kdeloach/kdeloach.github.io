@@ -4,6 +4,19 @@
     a {
         @apply underline;
     }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    textarea,
+    select {
+        @apply bg-white border border-gray-300 p-2 rounded;
+    }
+
+    button {
+        @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded;
+    }
 }
 
 .post-content p {
