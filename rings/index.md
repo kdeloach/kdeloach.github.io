@@ -15,7 +15,7 @@ How many different ways can you slice six-pack rings?
 <div id="sketch"></div>
 
 <form id="form">
-    <input type="button" id="restart" name="restart" value="New Solution" />
+    <button class="btn" id="restart">New Solution</button>
     <div>
         <label for="overlap">Allow overlap?</label>
         <input type="checkbox" id="overlap" name="overlap" value="overlap" />

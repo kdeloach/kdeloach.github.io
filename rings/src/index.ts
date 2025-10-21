@@ -216,7 +216,10 @@ function main() {
     });
 
     const restartButton = document.getElementById("restart") as HTMLButtonElement;
-    restartButton.addEventListener("click", restart);
+    restartButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        restart();
+    });
 
     const form = document.getElementById("form") as HTMLFormElement;
     form.addEventListener("change", (event: Event) => {
