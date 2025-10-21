@@ -1,14 +1,12 @@
 ---
-title: Yoto Icons
+title: Yoto Icon Picker
 date: 2024-01-29T00:00:00-05:00
 templates:
     - templates/base.html
     - templates/post.html
 tags:
     - post
-summary: >-
-    Yoto icon picker with free text search built using OpenAI GPT-4 Vision for
-    image classification.
+summary: Yoto icon picker with free text search built using OpenAI GPT-4 Vision for image classification.
 image: /yoto/preview.png
 ---
 
@@ -24,10 +22,19 @@ example, "black yellow insect-like" instead of "bee" or "four-legged animal"
 instead of "dog." I plan on improving these descriptions manually over time,
 depending on how often I use this tool.-->
 
-<!--GPT-4 Vision was able to classify all but a handful of images from this icon
+GPT-4 Vision was able to classify all but a handful of images from this icon
 set. The mouse and "blue tidal wave" were unable to be processed because they
 were deemed to be "unsafe" content. The numbers 7, 20, 21, "metal spoon", and
-"light bulb with face" were unable to be processed for unknown reasons.-->
+"light bulb with face" were unable to be processed for unknown reasons.
+
+Prompt:
+
+> Describe this image as a list of words separated by comma. Be as detailed and
+specific as possible. Focus on the object of the image as a whole. Exclude
+words describing the background or art style (ex. 'pixelated', 'pixel',
+'8-bit', 'abstract', 'minimal', 'simplistic', 'avatar'). Include words
+describing sentiment, emotion, color, and tone. Prefer formatting like '5'
+instead of 'five'. Don't repeat words. Limit response to 20 words.
 
 [1]: https://us.yotoplay.com/
 [2]: https://platform.openai.com/docs/guides/vision
