@@ -6,12 +6,18 @@ templates:
     - templates/post.html
 tags:
     - post
-summary: >-
-    Simple WKT Viewer to display WKT shapes on a map.
+summary: Simple tool to display Well-Known Text map features.
 image: /wktviewer/preview.png
 ---
 
-This is a simple WKT Viewer I designed to view WKT shapes copy & pasted from
-pgAdmin. Supports EPSG 4326 only.
+This is a simple tool I created to quickly view WKT map features for debugging.
+Enter WKT into the textarea below to render features.  You can also manually
+draw shapes on the map to generate WKT.
+
+This program contains a rudimentary parser to cleanup invalid characters and
+automatically detect delimiters which allows you to copy & paste features from
+a program such as `pgAdmin` using `ST_AsText`.
+
+There are known performance issues for complex shapes. Supports __EPSG 4326__ only.
 
 <div id="wktviewer"></div>
