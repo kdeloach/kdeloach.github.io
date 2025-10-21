@@ -5,6 +5,7 @@ const base5NumsEl = document.getElementById("base5Label");
 const base10NumsEl = document.getElementById("base10Label");
 const base10NumsInput = document.getElementById("base10Input") as HTMLInputElement;
 const drawDigitsCheckbox = document.getElementById("drawDigitsCheckbox") as HTMLInputElement;
+const randomBtn = document.getElementById("random");
 
 const COLS = 5;
 const ROWS = 5;
@@ -450,6 +451,12 @@ const debouncedKeyupEvent = (() => {
 base10NumsInput.addEventListener("keyup", debouncedKeyupEvent);
 
 drawDigitsCheckbox.addEventListener("click", (event) => {
+    draw();
+});
+
+randomBtn.addEventListener("click", (e) => {
+    randomize();
+    update({ updateInput: true });
     draw();
 });
 
