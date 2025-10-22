@@ -11,8 +11,12 @@ summary: EXAPUNKS Compiler with language extensions to generate assembly for
 image: /exapunks/preview.png
 ---
 
-EXAPUNKS Compiler with language extensions to generate assembly for
+EXAPUNKS compiler with language extensions to generate assembly for
 conditionals and loop control structures.
+
+This was an experiment in parsing an assembly-like language and adding higher
+order control structures to improve the readbility of EXAPUNKS programs given
+the constraints.
 
 <div id="form"></div>
 

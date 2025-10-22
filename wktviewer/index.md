@@ -10,9 +10,9 @@ summary: Simple tool to display Well-Known Text map features.
 image: /wktviewer/preview.png
 ---
 
-This is a simple tool I created to quickly view WKT map features for debugging.
-Enter WKT into the textarea below to render features.  You can also manually
-draw shapes on the map to generate WKT.
+This is a simple tool to view WKT features on a map for debugging. Enter WKT
+into the textarea below to render features. You may also manually draw shapes
+on the map to generate WKT.
 
 This program contains a rudimentary parser to cleanup invalid characters and
 automatically detect delimiters which allows you to copy & paste features from

@@ -47,7 +47,7 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
                 <p className="label">Output:</p>
                 <p className={"output" + ((err && " error") || "")}>{err || output || ""}</p>
             </div>
-            <h2 id="examples">Examples</h2>
+            <h3 id="examples">Examples</h3>
             <ul>
                 <li>
                     What is the date 30 days from today? <DateCalcLink value="today + 30 days" onClick={onClick} />
@@ -59,13 +59,13 @@ export const DateCalcForm: React.FC<DateCalcFormProps> = ({ initial }) => {
                     How many hours in a week? <DateCalcLink value="1 week as hours" onClick={onClick} />
                 </li>
             </ul>
-            <h2 id="debug">Debug</h2>
-            <div className="tokens">
-                <div className="col">
+            <h3 id="debug">Debug</h3>
+            <div className="flex gap-1">
+                <div className="flex-1">
                     <span className="label">Tokens:</span>
                     <pre>{formattedTokens || "(none)"}</pre>
                 </div>
-                <div className="col">
+                <div className="flex-1">
                     <span className="label">AST:</span>
                     <pre>{formattedProgram || "(none)"}</pre>
                 </div>

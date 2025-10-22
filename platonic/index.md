@@ -6,13 +6,11 @@ templates:
     - templates/post.html
 tags:
     - post
-summary: >-
-    Number input widget based on the Platonic Shape numbering system from the
-    first-person puzzle game Platonic on Steam.
+summary: Number input widget based on the Platonic numbering system from the first-person puzzle game Platonic on Steam.
 image: /platonic/preview.png
 ---
 
-Number input widget based on the Platonic Shape numbering system from the
+Number input widget based on the Platonic numbering system from the
 first-person puzzle game [Platonic on Steam][1].
 
 Interact with this widget by clicking on the shapes to view the numeric

@@ -10,8 +10,8 @@ summary: Conway's Game of Life.
 image: /gameoflife/preview.png
 ---
 
-This was an experiment in creating a cellular automata interactive sketch using
-an immutable functional based approach.
+This was an experiment in creating a cellular automata animation using a
+functional based approach and immutable data structures.
 
 <div id="sketch"></div>
 

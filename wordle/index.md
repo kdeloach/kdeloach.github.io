@@ -6,11 +6,8 @@ templates:
     - templates/post.html
 tags:
     - post
+summary: Clone of the popular puzzle game, Wordle.
 image: /wordle/preview.png
 ---
 
 <div id="wordleForm" data-component=""></div>
-
-### Related:
-
--   [Wordle Solver](/wordlesolver)
