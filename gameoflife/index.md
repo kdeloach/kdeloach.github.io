@@ -6,25 +6,30 @@ templates:
     - templates/post.html
 tags:
     - post
+summary: Conway's Game of Life.
 image: /gameoflife/preview.png
 ---
 
+This was an experiment in creating a cellular automata interactive sketch using
+an immutable functional based approach.
+
 <div id="sketch"></div>
 
-## Controls
+### Controls
 
--   P: Pause
--   R: Reset
--   S: Step
--   C: Clear
--   1: Dot
--   2: Glider
--   3: Pulsar
--   4: Eraser
+-   `P`: Pause
+-   `R`: Randomize
+-   `S`: Step
+-   `C`: Clear
+-   `1`: Dot
+-   `2`: Glider
+-   `3`: Pulsar
+-   `4`: Eraser
 
-## Updates
+### Updates
 
-### 10/19/2023
-
--   Rewrite from React to Canvas
--   Add keyboard shortcuts
+- 10/22/2025
+    - Randomized initial state and added transparency
+- 10/19/2023
+    -   Rewrote from React to Canvas
+    -   Added keyboard shortcuts

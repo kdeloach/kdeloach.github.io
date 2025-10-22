@@ -4,7 +4,7 @@ const el = document.getElementById("sketch");
 const canvas = document.createElement("canvas");
 el.appendChild(canvas);
 
-const context = canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 
 const COLS = 40;
 const ROWS = 30;
@@ -46,18 +46,11 @@ const PULSAR = new CellGrid(13, 13, [
     0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0,
 ]);
 
-const initialValue: MapCallback<number> = ({ x, y }) => {
-    // 14 = COLS/2 - PULSAR.cols/2 = 40/2 - 13/2
-    // 9 = ROWS/2 - PULSAR.rows/2 = 30/2 - 13/2
-    return GLIDER.cellAt(x, y) || PULSAR.cellAt(x - 14, y - 9) || 0;
-};
-
-const cellStyle = (value: number) => {
-    const c = 255 * (1 - value);
-    return {
-        bg: `rgb(${c}, ${c}, ${c})`,
-    };
-};
+// const initialValue: MapCallback<number> = ({ x, y }) => {
+//     // 14 = COLS/2 - PULSAR.cols/2 = 40/2 - 13/2
+//     // 9 = ROWS/2 - PULSAR.rows/2 = 30/2 - 13/2
+//     return GLIDER.cellAt(x, y) || PULSAR.cellAt(x - 14, y - 9) || 0;
+// };
 
 let paused = false;
 let brush = DOT;
@@ -78,13 +71,11 @@ function main() {
     canvas.width = windowWidth;
     canvas.height = windowHeight;
 
-    reset();
-
     document.addEventListener("keydown", (e) => {
         if (e.key === "p") {
             togglePause();
         } else if (e.key === "r") {
-            reset();
+            randomize();
         } else if (e.key === "s") {
             update();
         } else if (e.key === "c") {
@@ -151,11 +142,11 @@ function main() {
     stepButton.onclick = update;
     controls.appendChild(stepButton);
 
-    // Reset button
-    const resetButton = document.createElement("button");
-    resetButton.textContent = "Reset";
-    resetButton.onclick = reset;
-    controls.appendChild(resetButton);
+    // // Reset button
+    // const resetButton = document.createElement("button");
+    // resetButton.textContent = "Reset";
+    // resetButton.onclick = reset;
+    // controls.appendChild(resetButton);
 
     // Clear button
     const clearButton = document.createElement("button");
@@ -187,6 +178,12 @@ function main() {
     eraserBrush.onclick = () => setBrush(ERASER);
     controls.appendChild(eraserBrush);
 
+    // Randomize brush
+    const randomizeButton = document.createElement("button");
+    randomizeButton.textContent = "Randomize";
+    randomizeButton.onclick = randomize;
+    controls.appendChild(randomizeButton);
+
     const setBrush = (b: CellGrid<number>) => {
         brush = b;
         dotBrush.textContent = brush === DOT ? "[Dot]" : "Dot";
@@ -195,6 +192,7 @@ function main() {
         eraserBrush.textContent = brush === ERASER ? "[Eraser]" : "Eraser";
     };
 
+    randomize();
     requestAnimationFrame(render);
 }
 
@@ -202,9 +200,13 @@ function clear() {
     grid = grid.map(() => 0);
 }
 
-function reset() {
-    grid = grid.map(initialValue);
+function randomize() {
+    grid = grid.map(() => Math.round(Math.random()));
 }
+
+// function reset() {
+//     grid = grid.map(initialValue);
+// }
 
 function update() {
     grid = grid.map(conwayRules);
@@ -214,17 +216,17 @@ function render(currentTime: number) {
     const deltaTime = currentTime - lastUpdateTime;
 
     if (deltaTime >= frameInterval) {
-        context.fillStyle = "white";
-        context.fillRect(0, 0, windowWidth, windowHeight);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+        ctx.fillRect(0, 0, windowWidth, windowHeight);
 
-        context.fillStyle = "black";
+        ctx.fillStyle = "#333333";
         grid.forEach(({ cell, x, y }) => {
             if (cell === 1) {
-                context.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+                ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
             }
         });
 
-        if (!paused && !mousedown) {
+        if (!paused) {
             update();
         }
         lastUpdateTime = currentTime;
