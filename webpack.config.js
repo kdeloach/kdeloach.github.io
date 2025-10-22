@@ -12,7 +12,7 @@ const config = {
         exapunks: "./exapunks/src/index.tsx",
         gameoflife: "./gameoflife/src/index.tsx",
         lazypass: "./lazypass/src/index.tsx",
-        orbs: "./orbs/src/index.ts",
+        smallville: "./smallville/src/index.ts",
         platecalc: "./platecalc/src/index.tsx",
         platonic: "./platonic/src/index.ts",
         rings: "./rings/src/index.ts",
