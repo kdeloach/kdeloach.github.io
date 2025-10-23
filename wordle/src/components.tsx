@@ -195,7 +195,7 @@ const Tile = ({ tileIndex, tileActive, char, clue }: TileProps) => {
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        const char = e.target.value[e.target.value.length - 1];
+        const char = e.target.value[e.target.value.length - 1].toLocaleLowerCase();
         onTileChange(char);
     };
 
