@@ -193,7 +193,7 @@ const Tile = ({ tileIndex, tileActive, char, clue }: TileProps) => {
 
     return (
         <div className="tile-input">
-            <input type="text" className={"tile " + "tile-" + clue} ref={ref} onChange={onChange} onKeyDown={onKeyDown} value={char} />
+            <input type="text" inputMode="email" className={"tile " + "tile-" + clue} ref={ref} onChange={onChange} onKeyDown={onKeyDown} value={char} />
             <div className="tile-clue-input">
                 <div className="tile-clue tile-G" onClick={() => onClueChanged(tileIndex, CLUE_RIGHT)}></div>
                 <div className="tile-clue tile-Y" onClick={() => onClueChanged(tileIndex, CLUE_MISPLACED)}></div>

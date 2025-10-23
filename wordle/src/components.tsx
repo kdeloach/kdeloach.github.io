@@ -209,7 +209,7 @@ const Tile = ({ tileIndex, tileActive, char, clue }: TileProps) => {
         }
     };
 
-    return <input type="text" className={"tile " + "tile-" + clue} ref={ref} onChange={onChange} onKeyDown={onKeyDown} value={char} disabled={!tileActive} />;
+    return <input type="text" inputMode="email" className={"tile " + "tile-" + clue} ref={ref} onChange={onChange} onKeyDown={onKeyDown} value={char} disabled={!tileActive} />;
 };
 
 interface ReadOnlyTileProps {
