@@ -8,14 +8,15 @@ const baseDir = path.resolve(".");
 const config = {
     mode: mode,
     entry: {
+        automata: "./automata/src/index.tsx",
         datecalc: "./datecalc/src/index.tsx",
         exapunks: "./exapunks/src/index.tsx",
         gameoflife: "./gameoflife/src/index.tsx",
         lazypass: "./lazypass/src/index.tsx",
-        smallville: "./smallville/src/index.ts",
         platecalc: "./platecalc/src/index.tsx",
         platonic: "./platonic/src/index.ts",
         rings: "./rings/src/index.ts",
+        smallville: "./smallville/src/index.ts",
         wktviewer: "./wktviewer/src/index.tsx",
         wordle: "./wordle/src/index.tsx",
         wordlesolver: "./wordlesolver/src/index.tsx",
@@ -47,6 +48,10 @@ const config = {
     plugins: [new ForkTsCheckerWebpackPlugin()],
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
+    },
+    watchOptions: {
+        ignored: ["**/node_modules/**", "**/dist/**", "**/build/**"],
+        aggregateTimeout: 150,
     },
 };
 
