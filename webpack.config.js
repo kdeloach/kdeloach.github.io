@@ -15,6 +15,7 @@ const config = {
         lazypass: "./lazypass/src/index.tsx",
         platecalc: "./platecalc/src/index.tsx",
         platonic: "./platonic/src/index.ts",
+        ratecalc: "./ratecalc/src/index.tsx",
         rings: "./rings/src/index.ts",
         smallville: "./smallville/src/index.ts",
         wktviewer: "./wktviewer/src/index.tsx",
