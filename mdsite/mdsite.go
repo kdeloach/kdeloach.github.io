@@ -62,6 +62,7 @@ type Frontmatter struct {
 	Output    string      `yaml:"output"`
 	Data      interface{} `yaml:"data"`
 	Image     string      `yaml:"image"`
+	Draft     bool        `yaml:"draft"`
 }
 
 func main() {
@@ -119,6 +120,10 @@ func main() {
 			var frontmatter Frontmatter
 			if err := yaml.Unmarshal([]byte(parts[1]), &frontmatter); err != nil {
 				log.Printf("Warning: Error parsing YAML in file %s: %v", path, err)
+				return nil
+			}
+
+			if frontmatter.Draft {
 				return nil
 			}
 
